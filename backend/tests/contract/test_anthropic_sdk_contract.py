@@ -10,7 +10,7 @@ anthropic = pytest.importorskip("anthropic")
 httpx2 = pytest.importorskip("httpx2")
 
 from datadoctor.ai.explainer import LLMExplainer  # noqa: E402
-from datadoctor.ai.llm import AnthropicClient  # noqa: E402
+from datadoctor.ai.llm import AnthropicClient, LLMError  # noqa: E402
 from datadoctor.claims import parser as claim_parser  # noqa: E402
 from datadoctor.rules.registry import run_rule  # noqa: E402
 from tests.helpers import KN, dataset, location, stats_obs  # noqa: E402
@@ -80,3 +80,33 @@ def test_structured_claim_parse_through_sdk(monkeypatch):
     assert got.type == "TREND_INCREASE" and got.indicator_key == "water-temperature"
     assert got.locations == ["Loc-Almyros"]  # unknown ids proposed by the model are dropped
     assert SENT[0]["output_config"]["effort"] == "low" and "format" in SENT[0]["output_config"]
+
+
+def test_model_without_effort_setting_is_retried_without_it(monkeypatch):
+    SENT.clear()
+    calls = {"n": 0}
+
+    def handler(request):
+        SENT.append(json.loads(request.content))
+        calls["n"] += 1
+        if "output_config" in SENT[-1]:
+            return httpx2.Response(400, json={"type": "error", "error": {"type": "invalid_request_error",
+                                                                          "message": "output_config.effort: not supported by this model"}})
+        return httpx2.Response(200, json=_message("OK"))
+
+    sdk = anthropic.Anthropic(api_key="test-key", max_retries=0,
+                              http_client=anthropic.DefaultHttpxClient(transport=httpx2.MockTransport(handler)))
+    monkeypatch.setattr(anthropic, "Anthropic", lambda **kw: sdk)
+    assert AnthropicClient("claude-haiku-4-5").complete("s", "u") == "OK"
+    assert calls["n"] == 2 and "output_config" not in SENT[1]
+
+
+def test_rejected_key_gives_a_readable_error(monkeypatch):
+    def handler(request):
+        return httpx2.Response(401, json={"type": "error", "error": {"type": "authentication_error", "message": "invalid x-api-key"}})
+
+    sdk = anthropic.Anthropic(api_key="test-key", max_retries=0,
+                              http_client=anthropic.DefaultHttpxClient(transport=httpx2.MockTransport(handler)))
+    monkeypatch.setattr(anthropic, "Anthropic", lambda **kw: sdk)
+    with pytest.raises(LLMError, match="Check the API key"):
+        AnthropicClient("claude-opus-5").complete("s", "u")

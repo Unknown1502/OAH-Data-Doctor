@@ -314,6 +314,7 @@ export interface LlmPreset {
   free_tier: boolean;
   key_url: string | null;
   note: string;
+  models: string[];
 }
 
 export interface LlmProviders {

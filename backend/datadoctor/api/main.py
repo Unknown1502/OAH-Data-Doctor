@@ -304,6 +304,21 @@ def _models(client: LLMClient) -> list[str]:
     return lister()[:300] if callable(lister) else []
 
 
+@app.post("/api/llm/models")
+def llm_models(cfg: LLMConfig) -> dict[str, Any]:
+    """The models a user's key can use (no completion is run). Empty when the provider does not list models."""
+    if not cfg.model.strip():
+        cfg = cfg.model_copy(update={"model": "list-only"})  # the model name does not matter for listing
+    try:
+        client = client_from_config(cfg, _settings())
+    except LLMError as exc:
+        return {"models": [], "error": str(exc)}
+    try:
+        return {"models": _models(client), "error": None}
+    finally:
+        close_client(client)
+
+
 @app.post("/api/validate/{rtype}/{rid}")
 async def validate_live(rtype: str, rid: str) -> dict[str, Any]:
     """Ask the FHIR server's own validator about one record now (GET $validate: read-only)."""

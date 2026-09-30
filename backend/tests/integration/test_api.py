@@ -170,3 +170,15 @@ def test_validation_errors_never_echo_the_key(client):
     r = client.post("/api/claims/parse", json={"text": "NO2 at site 01", "llm": {"api_key": SECRET}})
     assert r.status_code == 422 and SECRET not in r.text
     assert r.json()["detail"][0]["loc"] == ["body", "llm", "provider"]
+
+
+def test_presets_carry_model_suggestions_and_models_can_be_listed(client, monkeypatch):
+    import datadoctor.api.main as api
+
+    presets = {p["id"]: p for p in client.get("/api/llm/providers").json()["providers"]}
+    assert all(p["models"] and p["default_model"] in p["models"] for k, p in presets.items())
+    monkeypatch.setattr(api, "client_from_config", lambda cfg, st: _FakeModel())
+    assert client.post("/api/llm/models", json={"provider": "groq", "api_key": SECRET}).json() == {"models": ["model-a", "model-b"], "error": None}
+    monkeypatch.undo()
+    r = client.post("/api/llm/models", json={"provider": "gemini"}).json()
+    assert r["models"] == [] and "needs an API key" in r["error"]

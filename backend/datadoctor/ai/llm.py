@@ -211,24 +211,32 @@ class AnthropicClient:
         self.model = model
         self.name = f"anthropic:{model}"
 
-    def complete(self, system: str, user: str, *, max_tokens: int = 2048) -> str:
+    def _call(self, method: Any, **kw: Any) -> Any:
         a = self._anthropic
         try:
-            resp = self._client.messages.create(model=self.model, max_tokens=max_tokens, system=system,
-                                                output_config={"effort": "low"}, messages=[{"role": "user", "content": user}])
+            try:
+                return method(output_config={"effort": "low"}, **kw)
+            except a.BadRequestError as exc:
+                if "effort" not in str(exc):
+                    raise
+                return method(**kw)  # a model without the effort setting
+        except a.AuthenticationError as exc:
+            raise LLMError("Claude rejected the API key. Check the API key.") from exc
+        except a.NotFoundError as exc:
+            raise LLMError(f"Claude has no model named {self.model!r}. Check the model name.") from exc
         except (a.APIStatusError, a.APIConnectionError, a.APITimeoutError) as exc:
             raise LLMError(f"Claude call failed: {type(exc).__name__}") from exc
+
+    def complete(self, system: str, user: str, *, max_tokens: int = 2048) -> str:
+        resp = self._call(self._client.messages.create, model=self.model, max_tokens=max_tokens, system=system,
+                          messages=[{"role": "user", "content": user}])
         if resp.stop_reason == "refusal":
             raise LLMError("LLM declined")
         return "".join(b.text for b in resp.content if b.type == "text").strip()
 
     def complete_json(self, system: str, user: str, model_cls: type[M]) -> M:
-        a = self._anthropic
-        try:
-            resp = self._client.messages.parse(model=self.model, max_tokens=2048, system=system, output_config={"effort": "low"},
-                                               messages=[{"role": "user", "content": user}], output_format=model_cls)
-        except (a.APIStatusError, a.APIConnectionError, a.APITimeoutError) as exc:
-            raise LLMError(f"Claude call failed: {type(exc).__name__}") from exc
+        resp = self._call(self._client.messages.parse, model=self.model, max_tokens=2048, system=system,
+                          messages=[{"role": "user", "content": user}], output_format=model_cls)
         if resp.stop_reason == "refusal" or resp.parsed_output is None:
             raise LLMError("LLM declined")
         return resp.parsed_output
@@ -273,25 +281,34 @@ class Preset:
     free_tier: bool
     key_url: str | None
     note: str
+    models: tuple[str, ...] = ()  # suggestions shown before a key is entered; the key's own list replaces them
 
 
 # Fixed endpoints: a user picks a provider, never a URL (a free-form URL would let any visitor of a hosted instance make
 # the server call arbitrary addresses). "custom" is offered only when the operator sets DD_LLM_ALLOW_CUSTOM_URL=true.
+# Model ids checked against each provider's documentation or live model list in September 2026.
 PRESETS: dict[str, Preset] = {p.id: p for p in (
-    Preset("ollama", "Ollama (local)", "ollama", None, "qwen2.5:3b", False, True, None,
-           "Free. Runs on the machine that runs Data Doctor, so nothing leaves it. Needs Ollama and `ollama pull qwen2.5:3b`."),
     Preset("groq", "Groq", "openai-compatible", "https://api.groq.com/openai/v1", "llama-3.1-8b-instant", True, True,
-           "https://console.groq.com/keys", "Free tier with rate limits. Very fast."),
+           "https://console.groq.com/keys", "Free tier with rate limits. Very fast.",
+           ("llama-3.1-8b-instant", "llama-3.3-70b-versatile", "openai/gpt-oss-20b", "openai/gpt-oss-120b")),
     Preset("gemini", "Google Gemini", "openai-compatible", "https://generativelanguage.googleapis.com/v1beta/openai",
-           "gemini-3.5-flash-lite", True, True, "https://aistudio.google.com/apikey", "Free tier with rate limits."),
+           "gemini-3.5-flash-lite", True, True, "https://aistudio.google.com/apikey", "Free tier with rate limits.",
+           ("gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-3.8-flash")),
     Preset("openrouter", "OpenRouter", "openai-compatible", "https://openrouter.ai/api/v1", "openrouter/free", True, True,
-           "https://openrouter.ai/keys", "One key for many models; `openrouter/free` picks a free one."),
+           "https://openrouter.ai/keys", "One key for many models; openrouter/free picks a free one.",
+           ("openrouter/free", "google/gemma-4-31b-it:free", "qwen/qwen3.8-27b:free", "nvidia/nemotron-3-super-120b-a12b:free")),
     Preset("mistral", "Mistral", "openai-compatible", "https://api.mistral.ai/v1", "mistral-small-latest", True, True,
-           "https://console.mistral.ai/api-keys", "Free experiment tier with rate limits."),
+           "https://console.mistral.ai/api-keys", "Free experiment tier with rate limits.",
+           ("mistral-small-latest", "mistral-medium-latest", "mistral-large-latest")),
     Preset("openai", "OpenAI", "openai-compatible", "https://api.openai.com/v1", "gpt-4.1-mini", True, False,
-           "https://platform.openai.com/api-keys", "Paid."),
+           "https://platform.openai.com/api-keys", "Paid.",
+           ("gpt-4.1-mini", "gpt-5.4-nano", "gpt-5.4-mini", "gpt-6-luna", "gpt-5.4")),
     Preset("anthropic", "Anthropic Claude", "anthropic", None, DEFAULT_MODELS["anthropic"], True, False,
-           "https://console.anthropic.com/settings/keys", "Paid. Needs the optional SDK on the server (pip install \".[ai]\")."),
+           "https://console.anthropic.com/settings/keys", "Paid. Needs the optional SDK on the server (pip install \".[ai]\").",
+           ("claude-opus-5", "claude-sonnet-5", "claude-haiku-4-5", "claude-opus-5-5")),
+    Preset("ollama", "Ollama (free, local)", "ollama", None, "qwen2.5:3b", False, True, None,
+           "Runs on the machine that runs Data Doctor, so nothing leaves it. Needs Ollama and the command: ollama pull qwen2.5:3b",
+           ("qwen2.5:3b", "llama3.2:3b")),
     Preset("custom", "Other OpenAI-compatible endpoint", "openai-compatible", None, "", False, False, None,
            "Any /chat/completions endpoint, such as LM Studio or vLLM."),
 )}

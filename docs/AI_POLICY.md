@@ -24,8 +24,8 @@
 
   Users pick a provider, never a URL: endpoints are fixed presets, so a hosted instance cannot be made to call arbitrary
   addresses. A free-form endpoint is offered only when the operator sets `DD_LLM_ALLOW_CUSTOM_URL=true`, and the whole
-  feature can be switched off with `DD_LLM_ALLOW_USER_KEYS=false`. "Test connection" makes one tiny request and lists the
-  models the key can use.
+  feature can be switched off with `DD_LLM_ALLOW_USER_KEYS=false`. As soon as a key is entered, the Model list shows the
+  models that key can use; "Connect" makes one tiny request and saves the settings only if it succeeds.
 - **Allowed uses:**
   1. Rephrasing an already computed finding for a non-specialist (`ai/explainer.py`). The model receives only the finding's facts
      (JSON), never raw data. Output is **rejected** if it contains any number not present in those facts, or if it states a cause

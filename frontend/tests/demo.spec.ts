@@ -101,40 +101,46 @@ test("finding detail is accessible in dark mode", async ({ page }) => {
 
 test("a user can bring their own model key; it stays in the tab and goes only to this server", async ({ page }) => {
   const key = "gsk_e2e_not_a_real_key";
-  // No provider is called in tests: answer the connection test and the rephrasing here, and record what the page sends.
+  // No provider is called in tests: answer the model list, the connection check and the rephrasing here, and record
+  // what the page sends.
+  await page.route("**/api/llm/models", (route) =>
+    route.fulfill({ json: { models: ["llama-3.1-8b-instant", "llama-3.3-70b-versatile", "qwen/qwen3-32b"], error: null } }),
+  );
   await page.route("**/api/llm/test", (route) =>
-    route.fulfill({ json: { ok: true, name: "groq:llama-3.1-8b-instant", latency_ms: 321, reply: "OK", models: ["llama-3.1-8b-instant", "llama-3.3-70b-versatile"] } }),
+    route.fulfill({ json: { ok: true, name: "groq:llama-3.3-70b-versatile", latency_ms: 321, reply: "OK", models: [] } }),
   );
   let sent: { llm?: Record<string, string> } | null = null;
   await page.route("**/api/findings/*/explain", async (route) => {
     sent = route.request().postDataJSON();
-    await route.fulfill({ json: { text: "The median lies below the minimum, so these values cannot all be right.", method: "llm:groq:llama-3.1-8b-instant", fallback_reason: null } });
+    await route.fulfill({ json: { text: "The median lies below the minimum, so these values cannot all be right.", method: "llm:groq:llama-3.3-70b-versatile", fallback_reason: null } });
   });
   const ov = await (await page.request.get("/api/overview")).json();
   await page.goto(`/findings/${encodeURIComponent(ov.hero_finding.id)}`);
 
   await page.getByRole("button", { name: "Language model: off" }).click();
-  const dialog = page.getByRole("dialog", { name: "Language model" });
+  const dialog = page.getByRole("dialog", { name: "Connect a language model" });
   await expect(dialog).toBeVisible();
-  await dialog.getByLabel("Provider").selectOption("groq");
-  await expect(dialog.getByRole("link", { name: "Get a Groq key" })).toHaveAttribute("href", "https://console.groq.com/keys");
+  await expect(dialog.getByLabel("Provider")).toHaveValue("groq"); // a free provider is preselected
+  await expect(dialog.getByRole("button", { name: "Connect" })).toBeDisabled(); // until a key is entered
+  await expect(dialog.getByRole("link", { name: "Create a Groq API key" })).toHaveAttribute("href", "https://console.groq.com/keys");
+  await expect(dialog.getByPlaceholder("Enter your Groq API key")).toBeVisible();
   await dialog.getByLabel("API key").fill(key);
-  await dialog.getByRole("button", { name: "Test connection" }).click();
-  await expect(dialog.getByText(/Connected to groq:llama-3.1-8b-instant in 321 ms/)).toBeVisible();
+  await expect(dialog.getByText("3 models are available with your key.")).toBeVisible();
+  await dialog.getByLabel("Model", { exact: true }).selectOption("llama-3.3-70b-versatile");
   const a11y = await new AxeBuilder({ page }).include("dialog").withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
   expect(a11y.violations.filter((v) => v.impact === "serious" || v.impact === "critical").map((v) => v.id)).toEqual([]);
-  await dialog.getByRole("button", { name: "Save" }).click();
+  await dialog.getByRole("button", { name: "Connect" }).click();
   await expect(dialog).toBeHidden();
 
-  await expect(page.getByRole("button", { name: "Language model: groq:llama-3.1-8b-instant" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Language model: groq:llama-3.3-70b-versatile" })).toBeVisible();
   // Tab-only by default: sessionStorage, not localStorage.
   expect(await page.evaluate(() => [sessionStorage.getItem("dd-llm") !== null, localStorage.getItem("dd-llm")])).toEqual([true, null]);
-  await page.getByRole("button", { name: "Rephrase with groq:llama-3.1-8b-instant" }).click();
-  await expect(page.getByText("Rephrased by groq:llama-3.1-8b-instant")).toBeVisible();
-  expect(sent).toEqual({ llm: { provider: "groq", model: "llama-3.1-8b-instant", api_key: key } });
+  await page.getByRole("button", { name: "Rephrase with groq:llama-3.3-70b-versatile" }).click();
+  await expect(page.getByText("Rephrased by groq:llama-3.3-70b-versatile")).toBeVisible();
+  expect(sent).toEqual({ llm: { provider: "groq", model: "llama-3.3-70b-versatile", api_key: key } });
 
   await page.getByRole("button", { name: /Language model: groq/ }).click();
-  await dialog.getByRole("button", { name: "Forget my settings" }).click();
+  await dialog.getByRole("button", { name: "Disconnect" }).click();
   await dialog.getByRole("button", { name: "Close" }).click();
   await expect(page.getByRole("button", { name: "Language model: off" })).toBeVisible();
   expect(await page.evaluate(() => sessionStorage.getItem("dd-llm"))).toBeNull();
