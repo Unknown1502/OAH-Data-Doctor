@@ -69,6 +69,11 @@ to use as published. We report what was observed. We do not claim to know why an
 
 ## Try it, and bring your own data
 
+- **See the data itself.** *The data* page shows where it comes from (server, live or snapshot, fetch time, checksum), every
+  monitoring place with its coordinates and share of records with problems, any published series over time (mean against
+  median of the Almyros water temperature tells the whole story), and every official record with every published decimal, no
+  rounding or conversion, each linked to the record on the FHIR server.
+
 - **Change the numbers yourself.** The home page opens the anchor record in a what-if lab: edit any statistic and the rules
   re-run on a copy as you type (a check takes about 50 ms), with a checklist of which rules pass or fail. "Ask the real FHIR
   server" sends the same numbers to the sandbox's own `$validate`: it answered "No issues detected during validation" for a mean
@@ -123,9 +128,9 @@ More: [architecture](docs/03_ARCHITECTURE.md), [rules catalog](docs/04_RULES_CAT
 
 ## Evidence that it works
 
-- **242 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
+- **244 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
   tests; contract tests against the published JSON Schemas and the FHIR R4 schema; API and snapshot integration tests) and
-  **23 Playwright tests** (desktop, plus a phone viewport for the home page and a no-sideways-scroll check of every page). The Playwright tests cover the demo path with all external network blocked, plus
+  **25 Playwright tests** (desktop, plus a phone viewport for the home page and a no-sideways-scroll check of every page). The Playwright tests cover the demo path with all external network blocked, plus
   axe-core WCAG 2.1 AA scans of every main page in light and dark mode. CI runs ruff, mypy, pytest and Playwright.
 - **Property tests.** Summaries of randomly generated real samples, rounded at 0–4 decimals, never trigger a statistical-identity
   rule. This is the false-positive guarantee behind the precision tolerance.

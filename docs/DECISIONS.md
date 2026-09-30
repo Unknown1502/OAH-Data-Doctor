@@ -115,3 +115,11 @@ resources; other resource types are skipped with a note). The records join the p
 resolve and series rules compare them with the published years; an uploaded id equal to a published one replaces that record for
 this check only, and an unchanged copy is labelled as such. Findings are reported for the uploaded records only, nothing is
 stored, and the CLI exits with status 1 on an ERROR or CRITICAL finding so it can gate a data pipeline.
+
+**D-026 Show the data itself, exactly as published.** Findings alone left people asking whether the data was real. *The
+data* page lists the source (server, live or verified snapshot, fetch time, checksum, third-party resources counted but
+never judged), the monitoring places, series over time and every official record, each with a link to the same record on the
+FHIR server. Values are shown with every published decimal (no rounding, no unit conversion): `exact()` in the UI, `stats` as
+published in `/api/observations`. Annual summaries and single measurements of the same measure are never drawn as one series;
+a point's colour is its record's most severe finding, which the chart says, because a plausible median can sit on a record
+with an impossible mean. When the physically possible band is too thin to draw at the chart's scale, the caption says so.

@@ -18,6 +18,7 @@ export const useRun = () => useContext(Ctx);
 
 const NAV = [
   { to: "/", label: "Data health", end: true },
+  { to: "/data", label: "The data" },
   { to: "/findings", label: "Findings" },
   { to: "/compare", label: "Compare" },
   { to: "/claims", label: "Check a claim" },

@@ -183,6 +183,15 @@ def _checks(get: Any, post: Any, base: str) -> int:
             check(str(want_total).replace(",", "") == str(total), "README/SUBMISSION findings total = this run", f"{want_total} vs {total}")
     check(numbers.get("ANCHOR_IMPACT") == trace["statement"], "README impact sentence = this run", numbers.get("ANCHOR_IMPACT"))
 
+    # --- the published data, exactly as published ---------------------------------------------------------------------
+    obs_items = get("/api/observations").json()["items"]
+    anchor_item = next((o for o in obs_items if o["id"] == ANCHOR), None)
+    check(anchor_item is not None and anchor_item["stats"] == comps, "data page: the anchor's values exactly as published",
+          anchor_item["stats"] if anchor_item else None)
+    locs = get("/api/locations").json()["items"]
+    check(sum(x["observations"] for x in locs) == sum(1 for o in obs_items if o["location_id"]), "data page: place counts add up to the records")
+    check(sum(1 for o in obs_items if o["blocking"]) == sum(x["with_problems"] for x in locs), "data page: records with problems add up")
+
     # --- what-if lab and checking your own data ------------------------------------------------------------------------
     lab = post("/api/lab/observation", {"observation_id": ANCHOR, "values": {}}).json()
     check({c["rule_id"] for c in lab["checks"] if c["fired"]} == ANCHOR_RULES and not lab["changed"],

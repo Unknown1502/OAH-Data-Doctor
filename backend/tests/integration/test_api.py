@@ -279,3 +279,23 @@ def test_check_endpoint_runs_the_rules_on_uploaded_data_and_stores_nothing(clien
 def test_check_endpoint_explains_bad_input(client):
     r = client.post("/api/check", json={"content": "hello"})
     assert r.status_code == 400 and "not valid JSON" in r.json()["detail"]
+
+
+# --- The published data ------------------------------------------------------------------------------------------------
+
+
+def test_observations_carry_every_value_exactly_as_published(client):
+    raw = client.get(f"/api/resources/Observation/{ANCHOR_OBS}").json()["resource"]
+    published = {c["code"]["coding"][0]["code"]: c["valueQuantity"]["value"] for c in raw["component"]}
+    item = next(o for o in client.get("/api/observations").json()["items"] if o["id"] == ANCHOR_OBS)
+    assert item["stats"] == published and item["unit"] == "Cel" and item["worst"] == "CRITICAL" and item["worst_finding"]
+    assert item["period"]["start"].startswith("2013")
+
+
+def test_locations_add_up_to_the_observations(client):
+    obs = client.get("/api/observations").json()["items"]
+    locs = client.get("/api/locations").json()["items"]
+    assert sum(loc["observations"] for loc in locs) == sum(1 for o in obs if o["location_id"])
+    alm = next(loc for loc in locs if loc["id"] == "Loc-Almyros")
+    assert alm["with_problems"] == sum(1 for o in obs if o["location_id"] == "Loc-Almyros" and o["blocking"])
+    assert alm["latitude"] is not None and alm["years"][0] <= 2013

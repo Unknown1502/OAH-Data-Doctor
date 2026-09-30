@@ -270,6 +270,25 @@ export interface ObservationItem {
   blocking: boolean;
   findings: number;
   scope: string;
+  period: { start: string | null; end: string | null } | null;
+  method: string | null;
+  /** Every statistic exactly as published. */
+  stats: Record<string, number | null>;
+  worst: Severity | null;
+  worst_finding: string | null;
+}
+
+export interface LocationItem {
+  id: string;
+  name: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  part_of: string | null;
+  scope: string;
+  observations: number;
+  with_problems: number;
+  measures: number;
+  years: [number, number] | null;
 }
 
 export interface SupportRow {

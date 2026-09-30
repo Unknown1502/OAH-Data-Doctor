@@ -5,6 +5,7 @@ import "./styles.css";
 import { Shell } from "./components/Shell";
 import Home from "./pages/Home";
 import Findings from "./pages/Findings";
+import Data from "./pages/Data";
 import FindingDetail from "./pages/FindingDetail";
 import Compare from "./pages/Compare";
 import Claims from "./pages/Claims";
@@ -27,6 +28,7 @@ createRoot(document.getElementById("root")!).render(
       <Shell>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/data" element={<Data />} />
           <Route path="/findings" element={<Findings />} />
           <Route path="/findings/:id" element={<FindingDetail />} />
           <Route path="/compare" element={<Compare />} />

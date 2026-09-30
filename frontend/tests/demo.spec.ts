@@ -123,7 +123,25 @@ test("claims are read live while typing, by keyword rules", async ({ page }) => 
   await expect(page.getByText("kind: a value exceeds a limit or guideline")).toBeVisible();
 });
 
-for (const path of ["/", "/findings", "/compare?id=cmp-obesity-benevento-vs-oslo-18-29", "/claims", "/check", "/report", "/sources"]) {
+test("the published data: where it comes from, a series over time, every record as published", async ({ page }) => {
+  const obs = await (await page.request.get("/api/observations")).json();
+  const flagged = obs.items.filter((o: { blocking: boolean }) => o.blocking).length;
+  await page.goto("/data");
+  await expect(page.getByRole("heading", { level: 1, name: "The published data" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "https://sandbox.hl7europe.eu/oneaquahealth/fhir" })).toBeVisible();
+  // The default series is the anchor record's: annual mean water temperature at Almyros, 198,000 in 2013.
+  await expect(page.getByRole("combobox", { name: "Measure and place" })).toHaveValue(/water-temperature\|Loc-Almyros\|\|summary/);
+  const chart = page.getByRole("img", { name: /Mean of Water temperature, Almyros/ });
+  await expect(chart).toBeVisible();
+  await expect(chart.getByText("198,000", { exact: true })).toBeVisible();
+  await page.getByRole("combobox", { name: "Statistic" }).selectOption("median");
+  await expect(page.getByRole("img", { name: /Median of Water temperature, Almyros/ }).getByText("19.8", { exact: true })).toBeVisible();
+  await page.getByRole("combobox", { name: "Status" }).selectOption("problems");
+  await expect(page.getByText(new RegExp(`of ${flagged} records \\(filtered from ${obs.total}\\)`))).toBeVisible();
+  await expect(page.getByRole("link", { name: /Open Observation\/.+ on the FHIR server/ }).first()).toHaveAttribute("href", /^https:\/\/sandbox\.hl7europe\.eu\/oneaquahealth\/fhir\/Observation\//);
+});
+
+for (const path of ["/", "/data", "/findings", "/compare?id=cmp-obesity-benevento-vs-oslo-18-29", "/claims", "/check", "/report", "/sources"]) {
   test(`no serious accessibility violations on ${path}`, async ({ page }) => {
     await page.goto(path);
     await page.waitForLoadState("networkidle");
@@ -202,7 +220,7 @@ test("keyboard users can skip to content", async ({ page }) => {
 
 test("no page scrolls sideways on a phone @mobile", async ({ page }) => {
   const ov = await (await page.request.get("/api/overview")).json();
-  for (const path of ["/", "/findings", `/findings/${encodeURIComponent(ov.hero_finding.id)}`, "/compare?id=cmp-obesity-benevento-vs-oslo-female",
+  for (const path of ["/", "/data", "/findings", `/findings/${encodeURIComponent(ov.hero_finding.id)}`, "/compare?id=cmp-obesity-benevento-vs-oslo-female",
     "/claims?id=clm-benevento-pm25-exceeds-who", "/check", "/report", "/sources"]) {
     await page.goto(path);
     await page.waitForLoadState("networkidle");

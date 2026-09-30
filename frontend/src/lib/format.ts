@@ -9,6 +9,12 @@ export function num(v: number | string | null | undefined): string {
   return v.toLocaleString("en-GB", { maximumFractionDigits: digits });
 }
 
+/** A value exactly as published: thousands separators, every published decimal, never rounded. */
+export function exact(v: number | null | undefined): string {
+  if (v === null || v === undefined) return "—";
+  return v.toLocaleString("en-GB", { maximumFractionDigits: 20 });
+}
+
 export const UNIT_DISPLAY: Record<string, string> = {
   Cel: "°C",
   "ug/m3": "µg/m³",

@@ -453,6 +453,12 @@ def observations(include_third_party: bool = False) -> dict[str, Any]:
     assert s.ds is not None and s.result is not None
     blocked = blocking_keys(s.result.findings)
     counts = Counter(k for f in s.result.findings for k in {f.resource.key} | {r.key for r in f.related_resources})
+    rank = {Severity.CRITICAL: 0, Severity.ERROR: 1, Severity.WARNING: 2, Severity.INFO: 3}
+    worst: dict[str, Finding] = {}
+    for f in s.result.findings:
+        cur = worst.get(f.resource.key)
+        if cur is None or rank[f.severity] < rank[cur.severity]:
+            worst[f.resource.key] = f
     out = []
     for o in sorted(s.ds.observations.values(), key=lambda x: x.id):
         if o.scope is not Scope.OAH_IG and not include_third_party:
@@ -460,12 +466,41 @@ def observations(include_third_party: bool = False) -> dict[str, Any]:
         loc = s.ds.locations.get((o.subject_ref or "").split("/")[-1])
         g = s.ds.groups.get(o.focus_refs[0].split("/")[-1]) if o.focus_refs else None
         ind = s.kn.indicators.get(o.indicator_key or "")
+        w = worst.get(o.key)
         out.append({"id": o.id, "indicator_key": o.indicator_key, "indicator": ind.label if ind else (o.code_text or o.code),
                     "medium": o.medium.value, "location_id": loc.id if loc else None, "location": loc.name if loc else None,
                     "cohort": g.label if g else None, "year": o.year, "date": o.effective_datetime,
+                    "period": o.effective_period.model_dump() if o.effective_period else None, "method": o.method,
                     "statistics": [x.stat for x in o.stats], "value": o.value.value if o.value else None,
+                    # every value exactly as published (no rounding, no conversion)
+                    "stats": {x.stat: x.quantity.value for x in o.stats},
                     "unit": (o.value.code if o.value else next((x.quantity.code for x in o.stats if x.quantity.code), None)),
-                    "blocking": o.key in blocked, "findings": counts.get(o.key, 0), "scope": o.scope.value})
+                    "blocking": o.key in blocked, "findings": counts.get(o.key, 0), "scope": o.scope.value,
+                    "worst": w.severity.value if w else None, "worst_finding": w.id if w else None})
+    return {"total": len(out), "items": out}
+
+
+@app.get("/api/locations")
+def locations() -> dict[str, Any]:
+    """Official monitoring sites, with what was published for each and how much of it has problems."""
+    s = state()
+    assert s.ds is not None and s.result is not None
+    blocked = blocking_keys(s.result.findings)
+    by_loc: dict[str, list[Any]] = {}
+    for o in s.ds.observations.values():
+        if o.scope is Scope.OAH_IG and o.subject_ref:
+            by_loc.setdefault(o.subject_ref.split("/")[-1], []).append(o)
+    out = []
+    for loc in sorted(s.ds.locations.values(), key=lambda x: x.id):
+        obs = by_loc.get(loc.id, [])
+        if loc.scope is not Scope.OAH_IG and not obs:
+            continue
+        years = sorted({o.year for o in obs if o.year})
+        out.append({"id": loc.id, "name": loc.name, "latitude": loc.latitude, "longitude": loc.longitude,
+                    "part_of": loc.part_of, "scope": loc.scope.value, "observations": len(obs),
+                    "with_problems": sum(1 for o in obs if o.key in blocked),
+                    "measures": len({o.indicator_key or o.code for o in obs}),
+                    "years": [years[0], years[-1]] if years else None})
     return {"total": len(out), "items": out}
 
 
