@@ -35,15 +35,26 @@ def support_table(ds: Dataset, kn: Knowledge, findings: list[Finding]) -> list[S
         for k in {f.resource.key} | {r.key for r in f.related_resources}:
             touched[k].add(f.rule_id)
     rows: list[SupportRow] = []
-    for lib in sorted(ds.libraries.values(), key=lambda x: x.id):
-        if lib.scope is not Scope.OAH_IG or lib.id.endswith("-All") or lib.id.endswith("FullResults"):
-            continue  # consolidated collections duplicate their parts; report the site-level collections
+    libs = [lib for lib in ds.libraries.values() if lib.scope is Scope.OAH_IG]
+    by_lib: dict[str, dict[str, list[str]]] = {}
+    for lib in libs:
         groups: dict[str, list[str]] = defaultdict(list)
         for m in lib.member_refs:
             o = ds.observations.get(m.split("/")[-1])
             if o and o.indicator_key:
                 groups[o.indicator_key].append(o.key)
-        for ind, keys in sorted(groups.items()):
+        by_lib[lib.id] = groups
+    size = {lib.id: len(lib.member_refs) for lib in libs}
+
+    def duplicated(lib_id: str, ind: str, keys: list[str]) -> bool:
+        """A consolidated collection's row is redundant only if smaller collections already contain all its records."""
+        smaller = set().union(*[set(by_lib[o].get(ind, [])) for o in by_lib if o != lib_id and size[o] < size[lib_id]])
+        return set(keys) <= smaller
+
+    for lib in sorted(libs, key=lambda x: x.id):
+        for ind, keys in sorted(by_lib[lib.id].items()):
+            if duplicated(lib.id, ind, keys):
+                continue
             d = kn.indicators[ind]
             n = len(keys)
             nb = sum(1 for k in keys if k in blocked)

@@ -95,7 +95,7 @@ body{background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-syste
 main{max-width:1100px;margin:0 auto}h1{font-size:28px;margin:0 0 4px}h2{margin-top:36px;border-bottom:1px solid var(--line);padding-bottom:6px}
 .meta{color:var(--mute);font-size:13px}.src{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:16px 0}
 table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--panel)}th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
-th{color:var(--mute);font-weight:600}.pill{display:inline-block;border-radius:99px;padding:1px 9px;font-size:12px;font-weight:700}
+th{color:var(--mute);font-weight:600}.pill{display:inline-block;border-radius:99px;padding:1px 9px;font-size:12px;font-weight:700;white-space:nowrap}
 .USABLE{background:#1f7a55;color:#fff}.USABLE_WITH_CAVEATS{background:#8a7a12;color:#fff}.PARTLY_USABLE{background:#9a5a12;color:#fff}.NOT_USABLE{background:#9d2a22;color:#fff}
 .v-DIRECT,.v-SUPPORTED{background:#1f7a55;color:#fff}.v-CONDITIONAL{background:#8a7a12;color:#fff}.v-NOT,.v-UNSUPPORTED{background:#555;color:#fff}.v-BLOCKED_BY_INTEGRITY,.v-BLOCKED{background:#9d2a22;color:#fff}
 code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px}ul{padding-left:20px}

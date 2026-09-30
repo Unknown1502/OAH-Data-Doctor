@@ -114,3 +114,21 @@ def test_catalog_verdicts_on_real_data(audited):
     cv = {c.id: c.verdict.value for c in an.claims}
     assert cv["clm-almyros-temperature-rising"] == "BLOCKED"
     assert cv["clm-pm25-causes-cvd"] == "UNSUPPORTED"
+
+
+def test_support_table_covers_every_published_record(audited):
+    """Regression: consolidated libraries were skipped wholesale, which dropped the Almyros lab chemistry (only in
+    Library-Almyros-FullResults) and all of Oslo (only in Library-Oslo-All)."""
+    from datadoctor.reporting.support import support_table
+
+    res, ds = audited
+    rows = support_table(ds, KN, res.findings)
+    libs = {r.library_id for r in rows}
+    assert "Library-Almyros-FullResults" in libs and "Library-Oslo-All" in libs
+    assert "Library-Benevento-All" not in libs  # fully covered by the site libraries: no duplicate rows
+    lab_temp = next(r for r in rows if r.library_id == "Library-Almyros-FullResults" and r.indicator_key == "water-temperature")
+    assert lab_temp.status == "PARTLY_USABLE" and lab_temp.blocked == 6
+    assert any(r.status == "NOT_USABLE" for r in rows)
+    covered = {m for lib in ds.libraries.values() if lib.id in libs for m in lib.member_refs}
+    official = {o.key for o in ds.observations.values() if o.scope.value == "oah-ig" and o.indicator_key}
+    assert official <= covered
