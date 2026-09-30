@@ -109,9 +109,7 @@ def _version(root: Path) -> str:
     for p in sorted(root.rglob("*")):
         if p.is_file():
             h.update(p.relative_to(root).as_posix().encode())
-            h.update(p.read_bytes().replace(b"
-", b"
-"))  # line-ending independent across checkouts
+            h.update(p.read_bytes().replace(b"\r\n", b"\n"))  # line-ending independent across checkouts
     return h.hexdigest()[:16]
 
 
