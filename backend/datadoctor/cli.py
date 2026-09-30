@@ -12,14 +12,16 @@ from pathlib import Path
 from typing import Any
 
 from datadoctor.audit.service import AuditResult, run_audit
+from datadoctor.audit.upload import UploadError, check_upload, parse_upload
 from datadoctor.config import REPO_ROOT, get_settings
 from datadoctor.domain.enums import Scope, Severity
 from datadoctor.domain.models import Dataset, Finding
 from datadoctor.ingestion.cache import HttpCache
 from datadoctor.ingestion.fhir_client import FhirClient, SandboxUnavailable
 from datadoctor.ingestion.snapshot import SnapshotError, create_snapshot, list_snapshots, verify_snapshot
-from datadoctor.ingestion.source import NoDataAvailable
+from datadoctor.ingestion.source import NoDataAvailable, load_data
 from datadoctor.knowledge.loader import load_knowledge
+from datadoctor.normalization.normalizer import build_dataset
 
 STATS = "http://terminology.hl7.org/CodeSystem/observation-statistics"
 
@@ -204,6 +206,33 @@ async def _cmd_gate0(args: argparse.Namespace) -> None:
     print(f"gate 0 report: {target}")
 
 
+def _cmd_check(args: argparse.Namespace) -> int:
+    """Check FHIR data from a file (a resource, a Bundle, a JSON array or NDJSON) against the published data as context.
+    Exit status 1 if any ERROR or CRITICAL finding, so it can gate a data pipeline."""
+    st = get_settings()
+    text = sys.stdin.read() if args.file == "-" else Path(args.file).read_text(encoding="utf-8-sig")
+    resources, notes = parse_upload(text)
+    raw, source, validation = asyncio.run(load_data(st, "snapshot", args.snapshot_id))
+    kn = load_knowledge(st.knowledge_dir)
+    res = check_upload(build_dataset(raw, source, kn, validation), kn, resources)
+    if args.json:
+        print(json.dumps({**res, "notes": notes}, indent=1, ensure_ascii=False))
+    else:
+        sm = res["summary"]
+        print(f"checked {sm['checked']} resource(s) from {args.file} against snapshot {source.snapshot_id}: "
+              f"{sm['findings_total']} finding(s) {', '.join(f'{v} {k.lower()}' for k, v in sm['by_severity'].items() if v) or ''}")
+        for note in notes:
+            print(f"note: {note}")
+        for r in res["resources"]:
+            mark = "ok  " if not r["findings"] else f"{r['worst']:8s}"[:8]
+            extra = (" (replaces the published record for this check)" if r["replaces_published"]
+                     else " (identical to the published record)" if r["identical_to_published"] else "")
+            print(f"  {mark}  {r['key']}  {r['display'] or ''}{extra}")
+        for f in res["findings"]:
+            print(f"    {f['severity']:8s} {f['rule_id']:15s} {f['resource']['key']}: {f['summary']}")
+    return 1 if any(f["severity"] in ("ERROR", "CRITICAL") for f in res["findings"]) else 0
+
+
 def utf8_output() -> None:
     """Windows writes redirected output (a pipe, a file, a CI log) in the legacy code page, which garbles characters such
     as "—" and crashes on "→". Use UTF-8 on every platform."""
@@ -219,6 +248,8 @@ _HINTS = {
                      "or --source snapshot.",
     SandboxUnavailable: "Check the network or DD_FHIR_BASE, or use --source snapshot.",
     SnapshotError: "The snapshot does not match its manifest; take a fresh one with `snapshot`, or pick another with --snapshot-id.",
+    UploadError: "Give a FHIR resource, a Bundle, a JSON array of resources, or NDJSON (one resource per line).",
+    FileNotFoundError: "Check the file path.",
 }
 
 
@@ -247,8 +278,14 @@ def _main(argv: list[str] | None) -> int:
     p = sub.add_parser("verify-snapshot")
     p.add_argument("snapshot_id", nargs="?")
     sub.add_parser("snapshots")
+    p = sub.add_parser("check", help="check your own FHIR data (resource, Bundle, JSON array or NDJSON); exit 1 on errors")
+    p.add_argument("file", help="path to the file, or - for standard input")
+    p.add_argument("--json", action="store_true", help="print the full result as JSON")
+    p.add_argument("--snapshot-id", default=None, help="published data used as context (default: the latest snapshot)")
     args = ap.parse_args(argv)
 
+    if args.cmd == "check":
+        return _cmd_check(args)
     if args.cmd == "snapshot":
         asyncio.run(_cmd_snapshot(args))
     elif args.cmd == "audit":

@@ -1,5 +1,6 @@
 """API tests against the committed snapshot (no network: DD_STARTUP_LIVE=0, DD_SOURCE=snapshot)."""
 
+import json
 import os
 
 import pytest
@@ -10,6 +11,7 @@ os.environ["DD_SOURCE"] = "snapshot"
 from fastapi.testclient import TestClient  # noqa: E402
 
 from datadoctor.api.main import app  # noqa: E402
+from datadoctor.rules.registry import load_rules  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -101,7 +103,7 @@ def test_report_contains_only_computed_numbers(client):
 
 def test_rules_catalog(client):
     rules = client.get("/api/rules").json()
-    assert len(rules) == 19 and all(r["constraint"] and r["rationale"] for r in rules)
+    assert len(rules) == len(load_rules()) >= 19 and all(r["constraint"] and r["rationale"] for r in rules)
 
 
 # --- Bring your own model key ----------------------------------------------------------------------------------------
@@ -182,3 +184,98 @@ def test_presets_carry_model_suggestions_and_models_can_be_listed(client, monkey
     monkeypatch.undo()
     r = client.post("/api/llm/models", json={"provider": "gemini"}).json()
     assert r["models"] == [] and "needs an API key" in r["error"]
+
+
+# --- What-if lab -------------------------------------------------------------------------------------------------------
+
+ANCHOR_OBS = "Obs-Almyros-TemperatureWater-2013"
+
+
+def _lab(client, **values):
+    return client.post("/api/lab/observation", json={"observation_id": ANCHOR_OBS, "values": values})
+
+
+def test_lab_as_published_reproduces_the_real_findings(client):
+    d = _lab(client).json()
+    fired = {c["rule_id"] for c in d["checks"] if c["fired"]}
+    assert fired == {"SEM-RANGE-001", "SEM-SCALE-001", "SEM-STAT-001", "SEM-STAT-003"} and d["changed"] is False
+    assert all(c["fired"] == c["was_fired"] for c in d["checks"])
+    assert d["record"]["stats"] and d["worst"] == "CRITICAL"
+
+
+def test_lab_scale_hypothesis_clears_the_record_but_not_the_series(client):
+    d = _lab(client, average=19.8, minimum=18.5, maximum=21.1, **{"std-dev": 1.8385}).json()
+    fired = {c["rule_id"] for c in d["checks"] if c["fired"]}
+    assert not fired & {"SEM-RANGE-001", "SEM-SCALE-001", "SEM-STAT-001", "SEM-STAT-003"}
+    assert "SEM-TEMP-001" in fired  # the other years are still on the published scale
+
+
+def test_lab_never_changes_published_data(client):
+    before = client.get(f"/api/resources/Observation/{ANCHOR_OBS}").json()["resource"]
+    total = client.get("/api/overview").json()["summary"]["findings_total"]
+    _lab(client, average=1, median=1, minimum=1, maximum=1)
+    assert client.get(f"/api/resources/Observation/{ANCHOR_OBS}").json()["resource"] == before
+    assert client.get("/api/overview").json()["summary"]["findings_total"] == total
+
+
+def test_lab_rejects_bad_input(client):
+    assert _lab(client, mode=3).status_code == 400
+    assert _lab(client, average=1e13).status_code == 400
+    assert client.post("/api/lab/observation", json={"observation_id": "nope", "values": {}}).status_code == 400
+
+
+def test_lab_server_check_posts_an_unsaved_copy_without_the_unresolvable_profile(client, monkeypatch):
+    import datadoctor.api.main as api
+    from datadoctor.ingestion import fhir_client
+
+    sent = []
+
+    async def fake_request(self, method, path, *, body=None, use_cache=True):
+        sent.append((method, path, body))
+        return 200, json.dumps({"resourceType": "OperationOutcome",
+                                "issue": [{"severity": "information", "code": "informational",
+                                           "diagnostics": "No issues detected during validation"}]})
+
+    monkeypatch.setattr(fhir_client.FhirClient, "request", fake_request)
+    monkeypatch.setattr(api, "LAB_MIN_INTERVAL_S", 0)
+    r = client.post("/api/lab/observation/validate", json={"observation_id": ANCHOR_OBS, "values": {"average": 999999999}})
+    assert r.status_code == 200 and r.json()["outcome"]["issue"][0]["diagnostics"] == "No issues detected during validation"
+    method, path, body = sent[0]
+    assert (method, path) == ("POST", "Observation/$validate")
+    assert "profile" not in body.get("meta", {})
+    assert {c["code"]["coding"][0]["code"]: c["valueQuantity"]["value"] for c in body["component"]}["average"] == 999999999
+    fhir_client.FhirClient.check_method(method, "https://x.org/fhir/" + path)  # allowed by the read-only guard
+
+
+def test_claim_preview_never_calls_a_model(client, monkeypatch):
+    import datadoctor.api.main as api
+
+    monkeypatch.setattr(api, "client_from_config", lambda cfg, st: (_ for _ in ()).throw(AssertionError("model called")))
+    p = client.post("/api/claims/parse", json={"text": "PM10 at Benevento site 04 exceeded the WHO guideline in 2018",
+                                               "preview": True, "llm": {"provider": "groq", "api_key": SECRET}}).json()
+    assert p["method"] == "deterministic" and p["claim"]["type"] == "EXCEEDS_THRESHOLD"
+
+
+# --- Check your own data ----------------------------------------------------------------------------------------------
+
+
+def test_check_endpoint_runs_the_rules_on_uploaded_data_and_stores_nothing(client):
+    anchor = client.get(f"/api/resources/Observation/{ANCHOR_OBS}").json()["resource"]
+    mine = json.loads(json.dumps(anchor))
+    mine["id"] = "my-reading"
+    for c in mine["component"]:
+        if c["code"]["coding"][0]["code"] == "std-dev":
+            c["valueQuantity"]["value"] = -1
+    total = client.get("/api/overview").json()["summary"]["findings_total"]
+    r = client.post("/api/check", json={"content": json.dumps({"resourceType": "Bundle", "entry": [{"resource": mine}]})})
+    d = r.json()
+    assert r.status_code == 200 and d["summary"]["checked"] == 1
+    assert "SEM-STAT-006" in {f["rule_id"] for f in d["findings"]}  # the negative SD
+    assert all(f["resource"]["key"] == "Observation/my-reading" for f in d["findings"])
+    assert client.get("/api/overview").json()["summary"]["findings_total"] == total
+    assert client.get("/api/resources/Observation/my-reading").status_code == 404
+
+
+def test_check_endpoint_explains_bad_input(client):
+    r = client.post("/api/check", json={"content": "hello"})
+    assert r.status_code == 400 and "not valid JSON" in r.json()["detail"]

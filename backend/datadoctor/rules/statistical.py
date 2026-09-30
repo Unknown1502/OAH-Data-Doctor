@@ -230,6 +230,35 @@ def inverted_range(ctx: RuleContext) -> Iterator[Finding]:
         )
 
 
+SPEC_006 = RuleSpec(
+    id="SEM-STAT-006", version="1.0", title="Negative standard deviation",
+    category=Category.STATISTICAL, severity="CRITICAL", confidence="0.99",
+    applies_to="Observations publishing std-dev",
+    constraint="SD >= 0",
+    rationale="A standard deviation is the square root of a variance, so it can never be negative. Checked on its own, "
+              "because a record may publish a standard deviation without a minimum and maximum (added after the "
+              "what-if lab showed that no rule caught it).",
+)
+
+
+@rule(SPEC_006)
+def negative_sd(ctx: RuleContext) -> Iterator[Finding]:
+    for obs in ctx.observations(only_stats=True):
+        s = obs.stat("std-dev")
+        if not s or s.quantity.value is None:
+            continue
+        rd = record_decimals(obs)
+        if s.quantity.value + stat_tol(s, rd) >= 0:  # -0.0, or a negative value within rounding, is not negative
+            continue
+        yield ctx.make(
+            SPEC_006, resource=obs_ref(obs, s.fhir_path, ctx.display(obs)), severity=Severity.CRITICAL, confidence=0.99,
+            summary=f"{ctx.display(obs)}: the standard deviation is negative ({fmt(s.quantity.value)}), which is impossible.",
+            evidence=Evidence(observed=[observed(s)], constraint="SD >= 0",
+                              expected="A standard deviation is never negative.", raw_excerpt=stats_excerpt(obs)),
+            interpretation="The standard deviation cannot be correct as published (root cause unknown).",
+        )
+
+
 SPEC_SCALE = RuleSpec(
     id="SEM-SCALE-001", version="1.1", title="Mean and median differ by orders of magnitude",
     category=Category.STATISTICAL,

@@ -107,6 +107,12 @@ def main() -> None:
         sd["value"] = round((hi["value"] - lo["value"]) * 1.2 + 1, 2)
         return f"Observation/{oid}"
 
+    def negate_sd(raw: Raw, oid: str) -> str:
+        sd = stat_comp(raw["Observation"][oid], "std-dev")
+        assert sd
+        sd["value"] = -(abs(sd["value"]) or 1)
+        return f"Observation/{oid}"
+
     def boil(raw: Raw, oid: str) -> str:
         raw["Observation"][oid]["valueQuantity"]["value"] = 150.0
         return f"Observation/{oid}"
@@ -185,6 +191,7 @@ def main() -> None:
         ("Minimum and maximum swapped", {"SEM-STAT-005"}, full_stats, swap_minmax),
         ("Median above maximum (x1.5)", {"SEM-STAT-001"}, full_stats, median_above),
         ("SD larger than the range allows", {"SEM-STAT-004"}, full_stats, inflate_sd),
+        ("SD made negative", {"SEM-STAT-006"}, full_stats, negate_sd),
         ("Water temperature 150 C", {"SEM-RANGE-001"}, temps, boil),
         ("Prevalence 120 %", {"SEM-RANGE-001"}, prev, over_100),
         ("UCUM unit code removed", {"STR-UNIT-001"}, with_value + full_stats, drop_unit),

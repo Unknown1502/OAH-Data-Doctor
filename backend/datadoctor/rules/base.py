@@ -134,6 +134,8 @@ def fmt(v: float | int | None) -> str:
         return "—"
     if isinstance(v, float) and v.is_integer() and abs(v) < 1e15:
         return f"{int(v):,}"
+    if isinstance(v, float) and abs(v) >= 1e6:  # "1,676,332.35", never "1.67633e+06", in text people read
+        return f"{v:,.2f}".rstrip("0").rstrip(".")
     return f"{v:,.6g}" if isinstance(v, float) else f"{v:,}"
 
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import functools
 import hashlib
+import json
 import logging
 import os
 import time
@@ -19,7 +20,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from datadoctor import __version__
 from datadoctor.ai.explainer import TemplateExplainer, get_explainer
@@ -33,14 +34,18 @@ from datadoctor.ai.llm import (
     presets_for,
 )
 from datadoctor.api.state import AppState
+from datadoctor.audit.lab import LabError, edited_copy, for_server_validation, run_lab
 from datadoctor.audit.service import blocking_keys
+from datadoctor.audit.upload import MAX_CHARS as MAX_UPLOAD_CHARS
+from datadoctor.audit.upload import UploadError, check_upload, parse_upload
 from datadoctor.claims.engine import ClaimError, evaluate_claim
 from datadoctor.claims.parser import parse_claim
 from datadoctor.comparability.engine import ComparisonError, compare
 from datadoctor.config import REPO_ROOT, Settings, get_settings
 from datadoctor.domain.enums import Scope, Severity
-from datadoctor.domain.models import Finding, StructuredClaim
+from datadoctor.domain.models import Dataset, Finding, StructuredClaim
 from datadoctor.ingestion.snapshot import list_snapshots
+from datadoctor.knowledge.loader import Knowledge
 from datadoctor.reporting.operation_outcome import operation_outcome_bundle
 from datadoctor.reporting.report import build_model, render_html, render_markdown
 from datadoctor.reporting.support import support_table
@@ -205,6 +210,19 @@ def _finding(fid: str) -> Finding:
     return f
 
 
+def _record_view(ds: Dataset, kn: Knowledge, observation_id: str) -> dict[str, Any] | None:
+    obs = ds.observations.get(observation_id)
+    if obs is None:
+        return None
+    ind = kn.indicators.get(obs.indicator_key or "")
+    return {"indicator_key": obs.indicator_key, "indicator": ind.label if ind else (obs.code_text or obs.code),
+            "canonical_unit": ind.canonical_unit if ind else None,
+            "hard": kn.hard_bounds(ind) if ind else None, "typical": kn.typical_bounds(ind) if ind else None,
+            "year": obs.year, "location": loc.name if (loc := ds.locations.get((obs.subject_ref or "").split("/")[-1])) else None,
+            "stats": [{"stat": x.stat, "value": x.quantity.value, "unit": x.quantity.code} for x in obs.stats],
+            "value": obs.value.model_dump() if obs.value else None}
+
+
 @app.get("/api/findings/{fid}")
 def finding_detail(fid: str) -> dict[str, Any]:
     s = state()
@@ -212,16 +230,7 @@ def finding_detail(fid: str) -> dict[str, Any]:
     f = _finding(fid)
     raw = s.ds.raw.get(f.resource.resource_type, {}).get(f.resource.resource_id)
     same = [_compact(x) for x in s.result.findings if x.id != f.id and x.resource.key == f.resource.key]
-    record: dict[str, Any] | None = None
-    obs = s.ds.observations.get(f.resource.resource_id) if f.resource.resource_type == "Observation" else None
-    if obs is not None:
-        ind = s.kn.indicators.get(obs.indicator_key or "")
-        record = {"indicator_key": obs.indicator_key, "indicator": ind.label if ind else (obs.code_text or obs.code),
-                  "canonical_unit": ind.canonical_unit if ind else None,
-                  "hard": s.kn.hard_bounds(ind) if ind else None, "typical": s.kn.typical_bounds(ind) if ind else None,
-                  "year": obs.year, "location": loc.name if (loc := s.ds.locations.get((obs.subject_ref or "").split("/")[-1])) else None,
-                  "stats": [{"stat": x.stat, "value": x.quantity.value, "unit": x.quantity.code} for x in obs.stats],
-                  "value": obs.value.model_dump() if obs.value else None}
+    record = _record_view(s.ds, s.kn, f.resource.resource_id) if f.resource.resource_type == "Observation" else None
     return {"finding": f.model_dump(), "raw": raw, "record": record,
             "server_validation": s.ds.server_validation.get(f.resource.key),
             "impact": impact(s.graph, f).model_dump(),
@@ -337,6 +346,89 @@ async def validate_live(rtype: str, rid: str) -> dict[str, Any]:
     return {"outcome": oo, "checked_at": _dt.datetime.now(_dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ"), "server": s.settings.fhir_base}
 
 
+class LabRequest(BaseModel):
+    observation_id: str = Field(max_length=200)
+    values: dict[str, float] = Field(default_factory=dict)
+
+
+def _lab_values(req: LabRequest) -> dict[str, float]:
+    if len(req.values) > 12:
+        raise HTTPException(400, "too many values")
+    return req.values
+
+
+@app.post("/api/lab/observation")
+def lab_observation(req: LabRequest) -> dict[str, Any]:
+    """What-if: the rules on an edited copy of one published observation. Nothing is stored or sent anywhere."""
+    s = state()
+    assert s.ds is not None and s.result is not None
+    try:
+        result, whatif = run_lab(s.ds, s.kn, s.result.findings, req.observation_id, _lab_values(req))
+    except LabError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    return {**result, "record": _record_view(whatif, s.kn, req.observation_id),
+            "published_record": _record_view(s.ds, s.kn, req.observation_id)}
+
+
+_LAB_PACE = asyncio.Lock()
+_LAB_LAST = [0.0]
+LAB_MIN_INTERVAL_S = 2.0  # at most one lab request to the public sandbox every 2 s, whoever asks
+
+
+@app.post("/api/lab/observation/validate")
+async def lab_validate(req: LabRequest) -> dict[str, Any]:
+    """Send the edited copy to the FHIR server's own validator (POST Observation/$validate: validates, stores nothing)."""
+    from datadoctor.ingestion.fhir_client import FhirClient
+
+    s = state()
+    assert s.ds is not None
+    raw = s.ds.raw.get("Observation", {}).get(req.observation_id)
+    if raw is None:
+        raise HTTPException(404, f"Observation/{req.observation_id} is not in the current data")
+    try:
+        body = for_server_validation(edited_copy(raw, _lab_values(req)))
+    except LabError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    async with _LAB_PACE:
+        wait = LAB_MIN_INTERVAL_S - (time.monotonic() - _LAB_LAST[0])
+        if wait > 0:
+            await asyncio.sleep(wait)
+        try:
+            async with FhirClient(s.settings.fhir_base, None, delay_s=0, timeout_s=30, retries=1) as client:
+                status_code, text = await client.request("POST", "Observation/$validate", body=body)
+        except Exception as exc:  # noqa: BLE001
+            raise HTTPException(502, f"The FHIR server could not be reached: {exc}") from exc
+        finally:
+            _LAB_LAST[0] = time.monotonic()
+    try:
+        outcome = json.loads(text)
+    except ValueError as exc:
+        raise HTTPException(502, f"The FHIR server answered HTTP {status_code} without an OperationOutcome") from exc
+    import datetime as _dt
+
+    return {"outcome": outcome, "http_status": status_code, "server": s.settings.fhir_base,
+            "checked_at": _dt.datetime.now(_dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "note": "Validated against base FHIR R4: the sandbox holds no OneAquaHealth StructureDefinitions, "
+                    "so the record's declared OAH profile cannot be resolved there."}
+
+
+class CheckRequest(BaseModel):
+    content: str = Field(max_length=MAX_UPLOAD_CHARS)
+
+
+@app.post("/api/check")
+def check_data(req: CheckRequest) -> dict[str, Any]:
+    """Check FHIR data the user brings (a resource, a Bundle, a JSON array or NDJSON) with the same rules.
+    Processed in memory for this request only: nothing is stored or sent anywhere."""
+    s = state()
+    assert s.ds is not None
+    try:
+        resources, notes = parse_upload(req.content)
+    except UploadError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    return {**check_upload(s.ds, s.kn, resources), "notes": notes}
+
+
 @app.get("/api/resources/{rtype}/{rid}")
 def resource(rtype: str, rid: str) -> dict[str, Any]:
     s = state()
@@ -423,6 +515,7 @@ def claim_endpoint(req: ClaimRequest) -> dict[str, Any]:
 class ParseRequest(BaseModel):
     text: str
     llm: LLMConfig | None = None
+    preview: bool = False  # live reading while the user types: keyword rules only, never a (slow or paid) model call
 
 
 @app.post("/api/claims/parse")
@@ -431,6 +524,8 @@ def parse_endpoint(req: ParseRequest) -> dict[str, Any]:
     assert s.ds is not None
     if not req.text.strip() or len(req.text) > 500:
         raise HTTPException(400, "claim text must be 1-500 characters")
+    if req.preview:
+        return parse_claim(req.text, s.ds, s.kn, None).model_dump()
     with _model_for(req.llm, s.settings) as client:
         return parse_claim(req.text, s.ds, s.kn, client).model_dump()
 

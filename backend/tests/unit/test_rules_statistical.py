@@ -114,6 +114,24 @@ def test_stat005_silent_on_ordered_range():
     assert run("SEM-STAT-005", dataset(stats_obs("I", minimum=20, maximum=30))) == []
 
 
+# --- SEM-STAT-006: SD >= 0 --------------------------------------------------------------------------
+# Found with the what-if lab: no rule flagged a negative SD, which is impossible by definition.
+
+def test_stat006_fires_on_negative_sd_even_without_min_and_max():
+    f = run("SEM-STAT-006", dataset(stats_obs("N", average=19.8, median=19.8, std_dev=-5)))
+    assert len(f) == 1 and f[0].severity == Severity.CRITICAL and f[0].root_cause == "unknown"
+    assert {o.label: o.value for o in f[0].evidence.observed} == {"std-dev": -5}
+
+
+def test_stat006_silent_on_zero_and_positive_sd():
+    assert run("SEM-STAT-006", dataset(stats_obs("Z", minimum=7, maximum=7, std_dev=0, average=7, median=7))) == []
+    assert run("SEM-STAT-006", dataset(stats_obs("C", **CLEAN))) == []
+
+
+def test_stat006_tolerates_negative_zero_at_published_precision():
+    assert run("SEM-STAT-006", dataset(stats_obs("R", average=1.0, std_dev=-0.0))) == []
+
+
 # --- SEM-SCALE-001: power-of-ten divergence ---------------------------------------------------------
 
 def test_scale001_identifies_the_outlying_statistic_on_anchor():
@@ -148,3 +166,11 @@ def test_scale001_regression_pollutant_minimum_near_zero_is_normal():
     # Extremes may legitimately sit orders of magnitude from the centre; only mean vs median is compared.
     ds = dataset(stats_obs("O3", average=32.74, median=30.9, minimum=0.1, maximum=160.3, std_dev=21.0, unit="ug/m3"))
     assert run("SEM-SCALE-001", ds) == []
+
+
+def test_summaries_never_use_scientific_notation_for_large_numbers():
+    from datadoctor.rules.base import fmt
+
+    assert fmt(1676332.35) == "1,676,332.35" and fmt(47393364.0) == "47,393,364" and fmt(19.8) == "19.8"
+    f = run("SEM-STAT-003", dataset(stats_obs("C", average=1676500, median=167.65, std_dev=89800, minimum=150, maximum=4000000)))
+    assert f and "e+" not in f[0].summary and "1,676,332.35" in f[0].summary
