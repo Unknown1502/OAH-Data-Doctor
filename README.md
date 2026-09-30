@@ -106,7 +106,7 @@ More: [architecture](docs/03_ARCHITECTURE.md), [rules catalog](docs/04_RULES_CAT
 
 ## Evidence that it works
 
-- **160 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
+- **163 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
   tests; contract tests against the published JSON Schemas and the FHIR R4 schema; API and snapshot integration tests) and
   **15 Playwright tests** (run on desktop, with the home page also run on a mobile viewport). The Playwright tests cover the demo path with all external network blocked, plus
   axe-core WCAG 2.1 AA scans of every main page in light and dark mode. CI runs ruff, mypy, pytest and Playwright.
@@ -134,6 +134,8 @@ python tasks.py run        # http://127.0.0.1:8321  (live sandbox, falls back to
 ```
 
 - Offline demo: `DD_SOURCE=snapshot python tasks.py run` (PowerShell: `$env:DD_SOURCE="snapshot"; python tasks.py run`).
+- Windows: clone into a short folder (for example `C:\src\oah-data-doctor`). Some third-party Python packages install
+  deeply nested files, and pip stops with a long-path error inside very deep folders unless Windows long paths are enabled.
 - Command line: `python tools/oah_audit.py audit --source live`, plus `snapshot`, `gate0` and `verify-snapshot`.
 - Evaluation: `python tasks.py evaluate`. End-to-end: `python tasks.py e2e`.
 - Configuration: `.env.example`. No secrets are needed. `ANTHROPIC_API_KEY` is only used if you set `DD_LLM_PROVIDER=anthropic`.
