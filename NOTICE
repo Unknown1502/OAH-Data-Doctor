@@ -1,0 +1,15 @@
+OAH Data Doctor
+Copyright 2026 the OAH Data Doctor authors. Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This is an independent hackathon project for the IEEE OneAquaHealth Global Hackathon 2026.
+It is NOT endorsed by, affiliated with, or an official product of the OneAquaHealth project, HL7 Europe or IEEE.
+
+Data and definitions:
+- Example data are read from the OneAquaHealth FHIR sandbox operated by HL7 Europe
+  (https://sandbox.hl7europe.eu/oneaquahealth/fhir). Snapshots under data/snapshots/ are verbatim copies of
+  publicly served example resources, kept for reproducibility and offline demonstration.
+- knowledge/oah/ is derived from the OneAquaHealth FHIR Implementation Guide source
+  (https://github.com/hl7-eu/oah, commit recorded in knowledge/oah/sources.json), published by the
+  OneAquaHealth Project / HL7 Europe. The IG source declares no licence at the pinned commit (sushi-config.yaml has
+  the licence line commented out); licence status is therefore UNVERIFIED and all credit belongs to the authors.
+- OneAquaHealth is funded by the European Union's Horizon Europe programme.

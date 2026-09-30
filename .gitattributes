@@ -1,0 +1,8 @@
+# Normalise source files to LF.
+* text=auto eol=lf
+# Evidence files are hashed (sha256 in manifests): they must be stored and checked out byte-for-byte.
+data/snapshots/** -text
+knowledge/oah/upstream/** -text
+knowledge/oah/*.json -text
+*.png binary
+*.zip binary
