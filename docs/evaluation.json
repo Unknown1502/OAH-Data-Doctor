@@ -1,15 +1,15 @@
 {
  "snapshot_id": "2026-09-30T09-08-55Z",
  "seed": 20260930,
- "rules_version": "77925a293d32a9d6",
- "injected": 251,
- "detected": 251,
- "detection_ci": "98.5\u2013100.0 %",
+ "rules_version": "3f658dbba610a441",
+ "injected": 271,
+ "detected": 271,
+ "detection_ci": "98.6\u2013100.0 %",
  "benign_records": 100,
  "benign_new_findings": 0,
  "fp_ci": "0.0\u20133.7 %",
  "collateral": 0,
- "fault_types": 15,
+ "fault_types": 16,
  "faults": [
   {
    "name": "Median scaled x100",
@@ -60,6 +60,14 @@
    "name": "SD larger than the range allows",
    "expected": [
     "SEM-STAT-004"
+   ],
+   "injected": 20,
+   "detected": 20
+  },
+  {
+   "name": "SD made negative",
+   "expected": [
+    "SEM-STAT-006"
    ],
    "injected": 20,
    "detected": 20

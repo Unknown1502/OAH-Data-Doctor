@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom";
-import MagnitudeRuler from "../components/MagnitudeRuler";
 import TwoVerdicts from "../components/TwoVerdicts";
+import WhatIfLab from "../components/WhatIfLab";
 import { useRun } from "../components/Shell";
 import { Chip, ErrorNote, Loading, Readout, SeverityShape, Verdict, useDocumentTitle } from "../components/ui";
 import { useApi } from "../lib/api";
 import { num, pretty, SEVERITY_ORDER, SEVERITY_TEXT, unit as unitText, when } from "../lib/format";
-import { rulerFor } from "../lib/ruler";
 import type { FindingDetail, Overview, RuleSpec, SupportRow } from "../lib/types";
 
 const STATUS_TEXT: Record<SupportRow["status"], string> = {
@@ -29,7 +28,6 @@ export default function Home() {
   const o = ov.data;
   const s = o.summary;
   const h = hero.data;
-  const ruler = h ? rulerFor(h) : null;
   const avg = h?.record?.stats.find((x) => x.stat === "average");
   const serverOk = h?.server_validation && !h.server_validation.issue.some((i) => i.severity === "error" || i.severity === "fatal");
   const sv = s.server_validation;
@@ -64,10 +62,17 @@ export default function Home() {
             <TwoVerdicts serverOutcome={h.server_validation} findings={[h.finding, ...h.same_resource]} record={h.finding.resource.display ?? ""} />
           </div>
         )}
-        {ruler && (
-          <div className="mt-8 rounded-xl border border-line bg-panel p-5">
-            <MagnitudeRuler {...ruler} caption={h?.finding.resource.display ?? undefined} />
-          </div>
+        {h?.record && (
+          <section aria-labelledby="lab-h" className="mt-10">
+            <h2 id="lab-h" className="m-0 text-2xl font-bold tracking-tight">
+              Change the numbers yourself
+            </h2>
+            <p className="mb-4 mt-1 max-w-[70ch] text-ink-2">
+              Edit any value of this record and watch the rules react. Then ask the real FHIR server about the same numbers: it
+              checks the shape of the data, not whether it can be true.
+            </p>
+            <WhatIfLab observationId={h.finding.resource.resource_id} record={h.record} />
+          </section>
         )}
         {h && (
           <p className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
@@ -115,17 +120,19 @@ export default function Home() {
           <h2 id="sites-h" className="m-0 mb-1 text-2xl font-bold tracking-tight">
             Where the blocking findings are
           </h2>
-          <p className="mt-0 text-ink-2">Error and critical findings on official records, by monitoring site.</p>
+          <p className="mt-0 text-ink-2">Error and critical findings on official records, by monitoring site. Select a site to see its findings.</p>
           <ul className="m-0 list-none space-y-2.5 p-0">
             {Object.entries(o.blocking_by_site).map(([site, n]) => (
               <li key={site}>
-                <div className="flex items-baseline justify-between gap-3 text-[0.95rem]">
-                  <span>{site}</span>
-                  <span className="readout font-semibold">{n}</span>
-                </div>
-                <div className="mt-1 h-2 rounded-full bg-sunk" aria-hidden="true">
-                  <div className="h-2 rounded-full bg-cinnabar" style={{ width: `${(100 * n) / maxSite}%` }} />
-                </div>
+                <Link to={`/findings?q=${encodeURIComponent(site)}`} className="group block rounded-md text-ink no-underline">
+                  <div className="flex items-baseline justify-between gap-3 text-[0.95rem]">
+                    <span className="group-hover:text-karst group-hover:underline">{site}</span>
+                    <span className="readout font-semibold">{n}</span>
+                  </div>
+                  <div className="mt-1 h-2 rounded-full bg-sunk" aria-hidden="true">
+                    <div className="h-2 rounded-full bg-cinnabar group-hover:bg-karst" style={{ width: `${(100 * n) / maxSite}%` }} />
+                  </div>
+                </Link>
               </li>
             ))}
           </ul>

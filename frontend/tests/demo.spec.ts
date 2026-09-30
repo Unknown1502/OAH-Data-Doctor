@@ -80,7 +80,50 @@ test("report offers every export", async ({ page }) => {
   expect((await oo.json()).resourceType).toBe("Bundle");
 });
 
-for (const path of ["/", "/findings", "/compare?id=cmp-obesity-benevento-vs-oslo-18-29", "/claims", "/report", "/sources"]) {
+test("the what-if lab: change the numbers and the rules react; the FHIR server is asked about the same numbers", async ({ page }) => {
+  // The server call is answered here (tests never reach the sandbox); the rules run for real on the API.
+  let asked: { values?: Record<string, number> } | null = null;
+  await page.route("**/api/lab/observation/validate", async (route) => {
+    asked = route.request().postDataJSON();
+    await route.fulfill({ json: { outcome: { issue: [{ severity: "information", code: "informational", diagnostics: "No issues detected during validation" }] },
+      http_status: 200, server: "test", checked_at: "2026-10-01T00:00:00Z", note: "Validated against base FHIR R4." } });
+  });
+  await page.goto("/");
+  const lab = page.getByRole("region", { name: "Change the numbers yourself" });
+  await expect(lab.getByText("4 rules fail", { exact: true })).toBeVisible(); // the published record
+  await lab.getByRole("button", { name: /Test an idea/ }).click();
+  await expect(lab.getByText("1 rule fails", { exact: true })).toBeVisible(); // only the series check still fails
+  await expect(lab.getByRole("list", { name: "Rules checked on these numbers" }).getByText("SEM-TEMP-001")).toBeVisible();
+  await lab.getByRole("textbox", { name: "Mean", exact: true }).fill("999999999");
+  await expect(lab.getByText(/rules fail/).first()).toBeVisible();
+  await lab.getByRole("button", { name: "Ask the real FHIR server" }).click();
+  await expect(lab.getByText("No issues detected during validation")).toBeVisible();
+  expect(asked!.values!.average).toBe(999999999);
+  await lab.getByRole("button", { name: "Back to the published numbers" }).click();
+  await expect(lab.getByText("4 rules fail", { exact: true })).toBeVisible();
+  await expect(lab.getByText("The numbers changed since you asked.")).toBeVisible();
+});
+
+test("check your own data: a real record and a clean one, as a Bundle", async ({ page }) => {
+  await page.goto("/check");
+  await page.getByRole("button", { name: "Both, as a Bundle" }).click();
+  await expect(page.getByLabel("FHIR JSON or NDJSON")).toHaveValue(/"resourceType": "Bundle"/);
+  await page.getByRole("button", { name: "Check this data" }).click();
+  await expect(page.getByRole("heading", { level: 2, name: "1 of 2 records has problems" })).toBeVisible();
+  await expect(page.getByText("identical to the published record").first()).toBeVisible();
+  await page.getByLabel("FHIR JSON or NDJSON").fill("not json");
+  await page.getByRole("button", { name: "Check this data" }).click();
+  await expect(page.getByRole("alert")).toContainText("not valid JSON");
+});
+
+test("claims are read live while typing, by keyword rules", async ({ page }) => {
+  await page.goto("/claims");
+  await page.locator("#claim-text").pressSequentially("PM10 at Benevento site 04 exceeded the WHO guideline in 2018", { delay: 5 });
+  await expect(page.getByText("✓ ready to check")).toBeVisible();
+  await expect(page.getByText("kind: a value exceeds a limit or guideline")).toBeVisible();
+});
+
+for (const path of ["/", "/findings", "/compare?id=cmp-obesity-benevento-vs-oslo-18-29", "/claims", "/check", "/report", "/sources"]) {
   test(`no serious accessibility violations on ${path}`, async ({ page }) => {
     await page.goto(path);
     await page.waitForLoadState("networkidle");
@@ -160,7 +203,7 @@ test("keyboard users can skip to content", async ({ page }) => {
 test("no page scrolls sideways on a phone @mobile", async ({ page }) => {
   const ov = await (await page.request.get("/api/overview")).json();
   for (const path of ["/", "/findings", `/findings/${encodeURIComponent(ov.hero_finding.id)}`, "/compare?id=cmp-obesity-benevento-vs-oslo-female",
-    "/claims?id=clm-benevento-pm25-exceeds-who", "/report", "/sources"]) {
+    "/claims?id=clm-benevento-pm25-exceeds-who", "/check", "/report", "/sources"]) {
     await page.goto(path);
     await page.waitForLoadState("networkidle");
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

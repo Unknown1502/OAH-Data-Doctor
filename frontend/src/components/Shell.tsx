@@ -21,6 +21,7 @@ const NAV = [
   { to: "/findings", label: "Findings" },
   { to: "/compare", label: "Compare" },
   { to: "/claims", label: "Check a claim" },
+  { to: "/check", label: "Check your data" },
   { to: "/report", label: "Report" },
   { to: "/sources", label: "Sources and rules" },
 ];

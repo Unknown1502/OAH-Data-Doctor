@@ -8,6 +8,7 @@ import Findings from "./pages/Findings";
 import FindingDetail from "./pages/FindingDetail";
 import Compare from "./pages/Compare";
 import Claims from "./pages/Claims";
+import CheckData from "./pages/CheckData";
 import Report from "./pages/Report";
 import Sources from "./pages/Sources";
 
@@ -30,6 +31,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/findings/:id" element={<FindingDetail />} />
           <Route path="/compare" element={<Compare />} />
           <Route path="/claims" element={<Claims />} />
+          <Route path="/check" element={<CheckData />} />
           <Route path="/report" element={<Report />} />
           <Route path="/sources" element={<Sources />} />
           <Route path="*" element={<NotFound />} />

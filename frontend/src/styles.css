@@ -247,3 +247,21 @@ table.data tbody tr:hover td {
 dialog::backdrop {
   background: rgb(4 20 24 / 0.55);
 }
+
+/* What-if lab: a rule row that changes state (key changes) fades in, so the change is visible. */
+.lab-flip {
+  animation: lab-flip 420ms ease-out both;
+}
+@keyframes lab-flip {
+  from {
+    opacity: 0.25;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lab-flip {
+    animation: none;
+  }
+}

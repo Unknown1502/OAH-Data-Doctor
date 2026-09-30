@@ -23,7 +23,7 @@ laboratories, and one silent scale error can turn into a published trend, a wron
 
 ## What it does
 
-- **Doctor.** 19 deterministic rules find structural, statistical and domain problems, each with the exact FHIRPath,
+- **Doctor.** 20 deterministic rules find structural, statistical and domain problems, each with the exact FHIRPath,
   observed values, the constraint broken, confidence and provenance. The sandbox's own validator accepted all 385
   official observations we sent it. Data Doctor flags 125 of 385 as unsafe to use as published, and
   125 of those passed the server's validation.
@@ -66,9 +66,9 @@ rephrases computed findings: any number, cause or correction it adds is detected
 
 ## Accomplishments that we're proud of
 
-- 251 of 251 injected faults detected (95 % CI 98.5–100.0 %), and 0 new findings on
+- 271 of 271 injected faults detected (95 % CI 98.6–100.0 %), and 0 new findings on
   100 records after benign transformations. We say plainly that this measures rule sensitivity, not real-world accuracy.
-- 219 backend tests and 19 end-to-end tests, including offline runs and WCAG 2.1 AA accessibility checks.
+- 242 backend tests and 23 end-to-end tests, including offline runs and WCAG 2.1 AA accessibility checks.
 - Our FHIR output validates against R4 (0 schema errors; HAPI: no issues).
 - Honesty by construction: no hand-typed numbers (these documents are rendered from a run), root cause always "unknown",
   read-only access, and live and snapshot data always labelled.

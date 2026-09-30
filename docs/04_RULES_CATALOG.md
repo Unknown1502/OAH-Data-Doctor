@@ -1,6 +1,6 @@
 # 04 — Rules catalog
 
-Generated from the rule registry by `scripts/render_docs.py` (rules version `77925a293d32a9d6`). This file is the authoritative description of rule behaviour; it cannot drift from the code because it is rendered from it.
+Generated from the rule registry by `scripts/render_docs.py` (rules version `3f658dbba610a441`). This file is the authoritative description of rule behaviour; it cannot drift from the code because it is rendered from it.
 
 Principles shared by every rule:
 
@@ -26,6 +26,7 @@ Findings per rule refer to snapshot `2026-09-30T09-08-55Z`.
 | [SEM-STAT-003](#sem-stat-003) | Mean–median gap exceeds the standard deviation | Statistical | ERROR | 51 |
 | [SEM-STAT-004](#sem-stat-004) | Standard deviation incompatible with the reported range | Statistical | ERROR | 0 |
 | [SEM-STAT-005](#sem-stat-005) | Minimum greater than maximum | Statistical | ERROR | 0 |
+| [SEM-STAT-006](#sem-stat-006) | Negative standard deviation | Statistical | CRITICAL | 0 |
 | [SEM-TEMP-001](#sem-temp-001) | Scale break within a time series | Semantic | ERROR | 1 |
 | [SEM-XREC-001](#sem-xrec-001) | Sub-fraction exceeds its super-fraction (PM2.5 > PM10) | Semantic | ERROR when any statistic exceeds by > 10 % (relative) | 4 |
 | [STR-LIB-001](#str-lib-001) | Data-set Library inconsistent with its declared contents | Structural | ERROR | 0 |
@@ -175,6 +176,17 @@ Findings per rule refer to snapshot `2026-09-30T09-08-55Z`.
 - **Severity:** ERROR
 - **Confidence:** 0.95
 - **Why:** By definition.
+- **Tests:** `backend/tests/unit/test_rules_statistical.py` (positive, negative and edge cases)
+
+## SEM-STAT-006
+
+**Negative standard deviation** (v1.0, statistical)
+
+- **Must hold:** SD >= 0
+- **Applies to:** Observations publishing std-dev
+- **Severity:** CRITICAL
+- **Confidence:** 0.99
+- **Why:** A standard deviation is the square root of a variance, so it can never be negative. Checked on its own, because a record may publish a standard deviation without a minimum and maximum (added after the what-if lab showed that no rule caught it).
 - **Tests:** `backend/tests/unit/test_rules_statistical.py` (positive, negative and edge cases)
 
 ## SEM-TEMP-001

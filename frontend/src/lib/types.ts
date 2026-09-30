@@ -332,3 +332,59 @@ export interface LlmTest {
   reply?: string;
   models: string[];
 }
+
+/** What-if lab: the rules on an edited copy of one published observation (nothing is stored). */
+export interface LabCheck {
+  rule_id: string;
+  title: string;
+  fired: boolean;
+  was_fired: boolean;
+  severity: Severity | null;
+  summary: string | null;
+}
+
+export interface LabResult {
+  observation_id: string;
+  values: Record<string, number>;
+  published_values: Record<string, number>;
+  changed: boolean;
+  checks: LabCheck[];
+  findings_total: number;
+  worst: Severity | null;
+  published_findings_total: number;
+  record: FindingDetail["record"];
+  published_record: FindingDetail["record"];
+}
+
+export interface LabValidation {
+  outcome: OperationOutcome;
+  http_status: number;
+  server: string;
+  checked_at: string;
+  note: string;
+}
+
+/** Checking data a user brings (processed in memory for one request). */
+export interface CheckResult {
+  resources: {
+    key: string;
+    resource_type: string;
+    id: string;
+    display: string | null;
+    replaces_published: boolean;
+    identical_to_published: boolean;
+    findings: number;
+    worst: Severity | null;
+  }[];
+  findings: (Omit<Finding, "provenance" | "lineage"> & { resource: ResourceRef & { key: string } })[];
+  summary: {
+    checked: number;
+    with_findings: number;
+    findings_total: number;
+    by_severity: Record<Severity, number>;
+    replaced_published: number;
+    identical_to_published: number;
+    context: SourceInfo;
+  };
+  notes: string[];
+}

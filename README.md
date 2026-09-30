@@ -41,7 +41,7 @@ manifest sha256 `a80584b564874cdff9f09b709fae5f9f269cced51f439b38bd09eddba1be700
   Library matches its declared contents.
 
 In total: 346 findings (125 critical, 212 error, 9 warning) from 12 of
-19 rules, over 561 resources. 260 of 385 official observations (67.5 %) are safe
+20 rules, over 561 resources. 260 of 385 official observations (67.5 %) are safe
 to use as published. We report what was observed. We do not claim to know why any value is wrong, and we never modify the data.
 
 ## The four capabilities
@@ -50,7 +50,7 @@ to use as published. We report what was observed. We do not claim to know why an
 |---|---|---|
 | ![Finding detail](docs/img/detail.png) | ![Comparability](docs/img/compare.png) | ![Claim guardrail](docs/img/claims.png) |
 
-- **Doctor.** 19 rules in three families: structural checks the server cannot run (OAH profiles transcribed from the IG's FSH,
+- **Doctor.** 20 rules in three families: structural checks the server cannot run (OAH profiles transcribed from the IG's FSH,
   UCUM, references, data-set membership), statistical identities that hold for *any* real data (min ≤ median ≤ max,
   \|mean − median\| ≤ SD, SD ≤ range/√2), and domain knowledge (physical limits, subset relations, cohort partitions,
   terminology). Every value is compared within half a unit of its last published decimal, so rounding alone never raises a finding.
@@ -67,6 +67,19 @@ to use as published. We report what was observed. We do not claim to know why an
   Directive); association requires enough paired sites; causal wording is never supported by aggregated observational data.
   On this data the catalog of 10 claims gives 2 BLOCKED, 2 CONDITIONAL, 1 SUPPORTED, 5 UNSUPPORTED, and the 7 comparisons give 1 BLOCKED_BY_INTEGRITY, 3 CONDITIONAL, 1 DIRECT, 2 NOT.
 
+## Try it, and bring your own data
+
+- **Change the numbers yourself.** The home page opens the anchor record in a what-if lab: edit any statistic and the rules
+  re-run on a copy as you type (a check takes about 50 ms), with a checklist of which rules pass or fail. "Ask the real FHIR
+  server" sends the same numbers to the sandbox's own `$validate`: it answered "No issues detected during validation" for a mean
+  of 999,999,999 °C, a median of −500 °C and a negative standard deviation (docs/DISCOVERY.md, D3). The lab also found a gap in our
+  own rules: nothing flagged a negative standard deviation, so SEM-STAT-006 was added, with tests and a fault type in the evaluation.
+- **Check your own data.** Paste or drop FHIR JSON (a resource, a Bundle, a JSON array or NDJSON) on the *Check your data* page, or
+  run `python tools/oah_audit.py check my-data.ndjson`, which exits with status 1 when it finds an error so it can gate a data
+  pipeline. Your records are checked with the published data as context (their places and series), a record with the id of a
+  published one replaces it for that check only, and nothing is stored. `DD_FHIR_BASE` points Data Doctor at another FHIR server.
+- **Claims are read as you type**, by the keyword rules, showing which measure, place and years were understood before you check.
+
 ## How it works
 
 ```mermaid
@@ -74,7 +87,7 @@ flowchart LR
   OAH[(OAH FHIR sandbox<br/>HAPI 8.2, R4)] -->|GET and $validate only| ING[Ingestion<br/>paging, retry, cache,<br/>verified snapshots]
   IG[(OAH IG source<br/>pinned commit)] --> KN[Knowledge<br/>profiles, codes, units,<br/>limits, thresholds]
   ING --> NORM[Normaliser<br/>raw kept for evidence]
-  NORM --> RULES[19 deterministic rules]
+  NORM --> RULES[20 deterministic rules]
   KN --> RULES
   RULES --> F[Findings<br/>evidence, provenance,<br/>lineage]
   F --> CMP[Comparability engine]
@@ -110,14 +123,14 @@ More: [architecture](docs/03_ARCHITECTURE.md), [rules catalog](docs/04_RULES_CAT
 
 ## Evidence that it works
 
-- **219 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
+- **242 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
   tests; contract tests against the published JSON Schemas and the FHIR R4 schema; API and snapshot integration tests) and
-  **19 Playwright tests** (desktop, plus a phone viewport for the home page and a no-sideways-scroll check of every page). The Playwright tests cover the demo path with all external network blocked, plus
+  **23 Playwright tests** (desktop, plus a phone viewport for the home page and a no-sideways-scroll check of every page). The Playwright tests cover the demo path with all external network blocked, plus
   axe-core WCAG 2.1 AA scans of every main page in light and dark mode. CI runs ruff, mypy, pytest and Playwright.
 - **Property tests.** Summaries of randomly generated real samples, rounded at 0–4 decimals, never trigger a statistical-identity
   rule. This is the false-positive guarantee behind the precision tolerance.
-- **Fault-injection evaluation.** 251 of 251 injected faults of 15 types were
-  detected by the rule designed for them (95 % CI 98.5–100.0 %). There were 0 new findings on 100 records
+- **Fault-injection evaluation.** 271 of 271 injected faults of 16 types were
+  detected by the rule designed for them (95 % CI 98.6–100.0 %). There were 0 new findings on 100 records
   after benign, scientifically valid transformations (95 % CI 0.0–3.7 %). The first run of this evaluation found a real
   false-positive bug (unit-unaware cross-record comparison), which is now fixed and regression-tested.
   This measures rule sensitivity to known patterns, not real-world accuracy. See [docs/EVALUATION.md](docs/EVALUATION.md).
@@ -152,7 +165,8 @@ python tasks.py run        # http://127.0.0.1:8321  (live sandbox, falls back to
   only with their own requests; the server never stores or logs it.
 
 API highlights: `GET /api/overview`, `GET /api/findings`, `GET /api/findings/{id}`, `POST /api/compare`, `POST /api/claims`,
-`POST /api/claims/parse`, `GET /api/reports/operation-outcome.json`. OpenAPI docs are at `/docs`.
+`POST /api/claims/parse`, `POST /api/check` (your own data), `POST /api/lab/observation` (what-if),
+`GET /api/reports/operation-outcome.json`. OpenAPI docs are at `/docs`.
 
 ## Repository layout
 
@@ -175,6 +189,9 @@ tools/oah_audit.py    standalone CLI
 - OAH profile checks are transcribed by hand from the IG's FSH (the sandbox does not host the profiles and the IG website was
   offline), and cover the checkable subset of constraints.
 - Plausibility "typical ranges" are general; values outside them are reported as unusual, never as wrong.
+- Data you bring is judged with OneAquaHealth knowledge: statistical and structural rules apply to any FHIR data, range checks
+  only to measures Data Doctor knows. Auditing a whole other server works for servers of this size; very large servers would need
+  search filters, which are not implemented.
 - The analysis catalog is small and curated, so the impact trace reports only what Data Doctor computes, not every possible use.
 - The IG source declares no licence at the pinned commit. Derived knowledge is attributed and kept separate (see NOTICE).
 

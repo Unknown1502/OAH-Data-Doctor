@@ -58,7 +58,7 @@ export default function MagnitudeRuler({ values, unit, band, outliers = [], capt
   let lastPx = -1e9;
   let row = 0;
   for (const p of placed) {
-    row = p.px - lastPx < 118 ? (row + 1) % 3 : 0;
+    row = p.px - lastPx < 118 ? (row + 1) % Math.min(4, Math.max(3, placed.length)) : 0; // up to 4 rows for 4 close values
     rows.push(row);
     lastPx = p.px;
   }

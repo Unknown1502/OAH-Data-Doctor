@@ -183,6 +183,21 @@ def _checks(get: Any, post: Any, base: str) -> int:
             check(str(want_total).replace(",", "") == str(total), "README/SUBMISSION findings total = this run", f"{want_total} vs {total}")
     check(numbers.get("ANCHOR_IMPACT") == trace["statement"], "README impact sentence = this run", numbers.get("ANCHOR_IMPACT"))
 
+    # --- what-if lab and checking your own data ------------------------------------------------------------------------
+    lab = post("/api/lab/observation", {"observation_id": ANCHOR, "values": {}}).json()
+    check({c["rule_id"] for c in lab["checks"] if c["fired"]} == ANCHOR_RULES and not lab["changed"],
+          "lab: the published record reproduces its findings")
+    idea = post("/api/lab/observation", {"observation_id": ANCHOR,
+                                         "values": {"average": 19.8, "minimum": 18.5, "maximum": 21.1, "std-dev": 1.8385}}).json()
+    fired_idea = {c["rule_id"] for c in idea["checks"] if c["fired"]}
+    check(not fired_idea & ANCHOR_RULES and "SEM-TEMP-001" in fired_idea,
+          "lab: the scale-error hypothesis clears the record but not its series", sorted(fired_idea))
+    up = post("/api/check", {"content": json.dumps({"resourceType": "Bundle", "entry": [{"resource": res}]})}).json()
+    check({f["rule_id"] for f in up["findings"]} == ANCHOR_RULES and up["resources"][0]["identical_to_published"],
+          "check: an uploaded copy of the anchor gets the same findings")
+    check(get(f"/api/resources/Observation/{ANCHOR}").json()["resource"] == res, "the lab and the check never change the published record")
+    check(get("/api/overview").json()["summary"]["findings_total"] == total, "the lab and the check never change the audit")
+
     # --- errors ------------------------------------------------------------------------------------------------------------
     check(get("/api/findings/F-nope").status_code == 404, "unknown finding -> 404")
     check(post("/api/claims/parse", {"text": " "}).status_code == 400, "empty claim -> 400")

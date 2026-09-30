@@ -4,6 +4,7 @@ import Lineage from "../components/Lineage";
 import MagnitudeRuler from "../components/MagnitudeRuler";
 import TraceGraph from "../components/TraceGraph";
 import TwoVerdicts from "../components/TwoVerdicts";
+import WhatIfLab from "../components/WhatIfLab";
 import { ModelBadge, ProviderIcon, describeModel, useLlm } from "../components/ModelSettings";
 import { useRun } from "../components/Shell";
 import { Button, ErrorNote, FindingLink, Loading, SeverityTag, useDocumentTitle } from "../components/ui";
@@ -261,6 +262,15 @@ export default function FindingDetail() {
         {rephrasing && <p role="status" className="m-0 mt-1 text-sm text-ink-3">A local model can take up to a minute on the first request.</p>}
         {rephraseErr && <p role="alert" className="m-0 mt-1 text-sm text-ink-3">Rephrasing failed ({rephraseErr}); the template above stands.</p>}
       </Section>
+
+      {data.record && f.resource.resource_type === "Observation" && (data.record.stats.length > 0 || data.record.value) && (
+        <details className="mt-10 rounded-xl border border-line bg-panel">
+          <summary className="cursor-pointer px-4 py-3 text-lg font-bold">What if? Change the numbers of this record</summary>
+          <div className="border-t border-line p-3 sm:p-4">
+            <WhatIfLab observationId={f.resource.resource_id} record={data.record} />
+          </div>
+        </details>
+      )}
 
       {(data.same_resource.length > 0 || f.related_resources.length > 0) && (
         <Section id="rel-h" title="Related">

@@ -97,3 +97,21 @@ only unless the user chooses to remember it) and travels in the body of that use
 the one call, never stores or logs it, and redacts it from provider errors. FastAPI's default 422 body echoes submitted
 values, so validation errors now report only location and reason. Users choose providers, not URLs, to rule out
 server-side request forgery on a hosted instance; free-form endpoints need `DD_LLM_ALLOW_CUSTOM_URL=true`.
+
+**D-024 A what-if lab on real records, and the server asked about the same numbers.** Judges and users did not see the point
+from static screens. The home page now lets anyone edit the anchor record's statistics; the rules re-run on a copy (the
+published data and the audit are never changed) and a checklist shows each rule pass or fail. "Ask the real FHIR server" POSTs
+the edited copy to `Observation/$validate`, which validates and stores nothing, at most once every 2 s whoever asks. The copy's
+`meta.profile` is removed first: the sandbox holds no StructureDefinitions (DISCOVERY D1), so the declared OAH profile would
+only produce "profile not found" errors unrelated to the numbers; without it the server validates against base R4, as its own
+instance check does. It accepted a mean of 999,999,999 °C, a median of −500 °C and a standard deviation of −5 (DISCOVERY D3).
+Trying the lab exposed two faults of our own, both fixed with tests: no rule caught a negative standard deviation (new
+SEM-STAT-006, CRITICAL; a new fault type in the evaluation), and large numbers were printed in scientific notation in eight
+published finding summaries ("differ by 1.67633e+06"; now "1,676,332.35").
+
+**D-025 Users can check their own data.** Data Doctor was only useful for the one sandbox. `POST /api/check`, the *Check your
+data* page and `datadoctor check <file>` accept a FHIR resource, a Bundle, a JSON array or NDJSON (at most 5 MB and 2,000
+resources; other resource types are skipped with a note). The records join the published dataset for one request, so references
+resolve and series rules compare them with the published years; an uploaded id equal to a published one replaces that record for
+this check only, and an unchanged copy is labelled as such. Findings are reported for the uploaded records only, nothing is
+stored, and the CLI exits with status 1 on an ERROR or CRITICAL finding so it can gate a data pipeline.

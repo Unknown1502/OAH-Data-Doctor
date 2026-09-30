@@ -177,6 +177,29 @@ export default function Claims() {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [preview, setPreview] = useState<ParseResult | null>(null);
+
+  // Live reading while typing: keyword rules only (the API never calls a language model for a preview).
+  useEffect(() => {
+    const t = text.trim();
+    if (t.length < 6) {
+      setPreview(null);
+      return;
+    }
+    let alive = true;
+    const h = window.setTimeout(async () => {
+      try {
+        const p = await post<ParseResult>("/claims/parse", { text: t, preview: true });
+        if (alive) setPreview(p);
+      } catch {
+        /* the full check reports any problem */
+      }
+    }, 400);
+    return () => {
+      alive = false;
+      window.clearTimeout(h);
+    };
+  }, [text]);
 
   useEffect(() => {
     const id = params.get("id");
@@ -238,6 +261,19 @@ export default function Claims() {
         <textarea id="claim-text" rows={2} maxLength={500} value={text} onChange={(e) => setText(e.target.value)}
           placeholder="e.g. PM2.5 at Benevento site 01 exceeded the WHO guideline in 2019"
           className="mt-2 w-full rounded-md border border-line bg-chalk px-3 py-2 text-lg" />
+        {preview && text.trim() && (
+          <div className="mt-2 flex flex-wrap items-center gap-1.5 text-sm">
+            <span className="text-ink-3">Reading so far:</span>
+            {preview.understood.map((u) => {
+              const [k, v] = u.split(/:\s(.+)/);
+              const shown = k === "claim type" && v in TYPE_TEXT ? `kind: ${TYPE_TEXT[v as StructuredClaim["type"]].toLowerCase()}` : u;
+              return <span key={u} className="rounded-full bg-karst-soft px-2.5 py-0.5 text-karst">{shown}</span>;
+            })}
+            <span aria-live="polite" className={preview.claim ? "text-algae" : "text-ink-2"}>
+              {preview.claim ? "✓ ready to check" : preview.problems[0] ?? ""}
+            </span>
+          </div>
+        )}
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <Button kind="primary" type="submit" disabled={!text.trim() || busy}>{busy ? "Checking…" : "Check this claim"}</Button>
           {busy && llm.activeName && <span role="status" className="text-sm text-ink-3">{describeModel(llm.activeName).label} is helping read the claim; a local model can take up to a minute.</span>}

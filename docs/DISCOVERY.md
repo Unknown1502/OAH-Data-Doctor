@@ -52,6 +52,7 @@ Decisions that follow from this:
 |---|---|---|
 | `GET /Observation/Obs-Almyros-TemperatureWater-2013/$validate` | 08:42:16 | 200, `severity: information`, **"No issues detected during validation"** |
 | `POST /Observation/$validate` with `profile=…/observation-with-component-oah` | 08:42:17 | 200 with 2 × `error`: *"Profile reference … has not been checked because it could not be found, and the validator is set to not fetch unknown profiles"* |
+| `POST /Observation/$validate`, the anchor without its (unresolvable) profile, edited to mean 999,999,999 °C; median −500 °C; SD −5 (what-if lab) | 16:46:02 | 200, each **"No issues detected during validation"** |
 | Snapshot: `GET …/$validate` for all 385 OAH-IG Observations | 09:08–09:11 | **0 with an error**. 244 report "No issues detected"; 141 (health measures) carry one best-practice *warning* only |
 
 So `$validate` works, but only against base R4. It **cannot** check OAH profiles, and it accepts a water temperature of
