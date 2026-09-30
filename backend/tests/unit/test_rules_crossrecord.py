@@ -102,3 +102,24 @@ def test_xrec001_different_years_are_not_compared():
     b = _pm("pm10", "P10", average=20.0)
     b["effectivePeriod"] = {"start": "2018-01-01", "end": "2018-12-31"}
     assert run("SEM-XREC-001", dataset(a, b)) == []
+
+
+def test_xrec001_regression_units_are_converted_before_comparing():
+    # Found by the fault-injection evaluation: PM10 published in mg/m3 (0.02026) vs PM2.5 in ug/m3 (18.0)
+    # is PM2.5 < PM10 once converted; comparing raw numbers wrongly flagged it.
+    a = _pm("pm2-5", "P25", average=18.0, median=15.0, maximum=80.0)
+    b = _pm("pm10", "P10", average=0.02026, median=0.0171, maximum=0.113)
+    for c in b["component"]:
+        c["valueQuantity"]["code"] = c["valueQuantity"]["unit"] = "mg/m3"
+    assert run("SEM-XREC-001", dataset(a, b)) == []
+
+
+def test_temp001_regression_unit_change_is_not_a_scale_break():
+    ds = dataset(_cd(2013, 0.25), _cd(2014, 0.25), _cd(2019, 0.25))
+    extra = _cd(2018, 0.00025)
+    for c in extra["component"]:
+        c["valueQuantity"]["code"] = c["valueQuantity"]["unit"] = "mg/L"
+        c["valueQuantity"]["value"] = c["valueQuantity"]["value"] / 1000 if c["valueQuantity"]["value"] != 0.00025 else 0.00025
+    ds2 = dataset(_cd(2013, 0.25), _cd(2014, 0.25), _cd(2019, 0.25), extra)
+    assert run("SEM-TEMP-001", ds) == []
+    assert run("SEM-TEMP-001", ds2) == []

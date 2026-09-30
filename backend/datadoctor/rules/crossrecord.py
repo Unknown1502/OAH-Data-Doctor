@@ -11,7 +11,14 @@ from collections import defaultdict
 from collections.abc import Iterator
 
 from datadoctor.domain.enums import Category, Severity
-from datadoctor.domain.models import Cohort, Evidence, Finding, NormalizedObservation, ObservedValue
+from datadoctor.domain.models import (
+    Cohort,
+    Evidence,
+    Finding,
+    NormalizedObservation,
+    ObservedValue,
+    StatComponent,
+)
 from datadoctor.rules.base import (
     RuleContext,
     RuleSpec,
@@ -23,8 +30,26 @@ from datadoctor.rules.base import (
     tolerance,
 )
 
+
+def canonical(ctx: RuleContext, obs: NormalizedObservation, s: StatComponent | None, record_dec: int) -> tuple[float, float] | None:
+    """(value, rounding tolerance) of a statistic in its indicator's canonical unit, via the explicit conversion table.
+
+    Returns None when the statistic is missing or its unit cannot be converted: cross-record rules never compare
+    raw numbers published in different units (regression found by the fault-injection evaluation).
+    """
+    if s is None or s.quantity.value is None or not obs.indicator_key:
+        return None
+    ind = ctx.kn.indicators.get(obs.indicator_key)
+    unit = s.quantity.code
+    if ind is None or unit is None:
+        return None
+    conv = ctx.kn.convert(s.quantity.value, unit, ind.canonical_unit)
+    if conv is None:
+        return None
+    return conv[0], stat_tol(s, record_dec) * abs(conv[1].get("factor", 1))
+
 SPEC_TEMP = RuleSpec(
-    id="SEM-TEMP-001", version="1.0", title="Scale break within a time series",
+    id="SEM-TEMP-001", version="1.1", title="Scale break within a time series",
     category=Category.SEMANTIC, severity="ERROR",
     confidence="0.8 — the other years agree within 10x while this one is >= 100x away",
     applies_to="Annual summary statistics for the same site and indicator with >= 3 years",
@@ -44,8 +69,8 @@ def series_scale_break(ctx: RuleContext) -> Iterator[Finding]:
             continue
         flagged: dict[str, list[tuple[str, float, float]]] = defaultdict(list)
         for stat in ("average", "median", "minimum", "maximum"):
-            pts = [(o, o.stat(stat)) for o in obs_list]
-            vals = [(o, s.quantity.value) for o, s in pts if s and s.quantity.value and s.quantity.value > 0]
+            vals = [(o, cv[0]) for o in obs_list
+                    if (cv := canonical(ctx, o, o.stat(stat), record_decimals(o))) is not None and cv[0] > 0]
             if len(vals) < 3:
                 continue
             for i, (o, v) in enumerate(vals):
@@ -197,7 +222,7 @@ def complements_sum(ctx: RuleContext) -> Iterator[Finding]:
 
 
 SPEC_X = RuleSpec(
-    id="SEM-XREC-001", version="1.0", title="Sub-fraction exceeds its super-fraction (PM2.5 > PM10)",
+    id="SEM-XREC-001", version="1.1", title="Sub-fraction exceeds its super-fraction (PM2.5 > PM10)",
     category=Category.SEMANTIC,
     severity="ERROR when any statistic exceeds by > 10 % (relative); WARNING otherwise",
     confidence="0.7 — impossible for co-located measurements on the same days; different data coverage could explain it",
@@ -223,11 +248,11 @@ def subset_exceeds_superset(ctx: RuleContext) -> Iterator[Finding]:
             rs, rp = record_decimals(sub), record_decimals(sup)
             viol = []
             for stat in ("average", "median", "maximum", "minimum"):
-                a, b = sub.stat(stat), sup.stat(stat)
-                if not (a and b) or a.quantity.value is None or b.quantity.value is None:
-                    continue
-                if a.quantity.value - b.quantity.value > stat_tol(a, rs) + stat_tol(b, rp):
-                    viol.append((stat, a.quantity.value, b.quantity.value))
+                ca, cb = canonical(ctx, sub, sub.stat(stat), rs), canonical(ctx, sup, sup.stat(stat), rp)
+                if ca is None or cb is None:
+                    continue  # missing, or no explicit unit conversion: never compare raw numbers across units
+                if ca[0] - cb[0] > ca[1] + cb[1]:
+                    viol.append((stat, ca[0], cb[0]))
             if not viol:
                 continue
             worst = max((va - vb) / vb if vb > 0 else math.inf for _, va, vb in viol)
