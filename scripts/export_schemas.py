@@ -8,7 +8,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
 from datadoctor.audit.service import AuditResult  # noqa: E402
-from datadoctor.domain.models import ClaimResult, Comparison, Finding, Provenance, StructuredClaim  # noqa: E402
+from datadoctor.domain.models import (  # noqa: E402
+    ClaimResult,
+    Comparison,
+    Finding,
+    Provenance,
+    StructuredClaim,
+)
 
 MODELS = {"finding": Finding, "comparison": Comparison, "claim": StructuredClaim, "claim_result": ClaimResult,
           "provenance": Provenance, "audit_result": AuditResult}
