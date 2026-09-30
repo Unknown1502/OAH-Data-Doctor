@@ -62,7 +62,7 @@ export default function Report() {
         {sup.error && <ErrorNote error={sup.error} />}
         {!sup.data && !sup.error && <Loading what="the support table" />}
         {sup.data && (
-          <div className="max-h-[70vh] overflow-auto rounded-xl border border-line bg-panel">
+          <div className="max-h-[70vh] overflow-auto rounded-xl border border-line bg-panel" tabIndex={0} role="region" aria-labelledby="sup-h">
             <table className="data">
               <caption className="sr-only">Support status per data set and indicator</caption>
               <thead>

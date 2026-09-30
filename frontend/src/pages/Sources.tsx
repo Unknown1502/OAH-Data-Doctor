@@ -1,6 +1,7 @@
 import { useRun } from "../components/Shell";
 import { Button, Loading, SourceBadge, useDocumentTitle } from "../components/ui";
-import { useApi } from "../lib/api";
+import { useState } from "react";
+import { post, useApi } from "../lib/api";
 import { when } from "../lib/format";
 import type { RuleSpec } from "../lib/types";
 
@@ -14,6 +15,7 @@ export default function Sources() {
   useDocumentTitle("Sources and rules");
   const { status, runId, scan, scanning } = useRun();
   const rules = useApi<RuleSpec[]>("/rules", [runId]);
+  const [cleared, setCleared] = useState(false);
   const src = status?.source;
   const cats = Array.from(new Set((rules.data ?? []).map((r) => r.category)));
 
@@ -36,6 +38,9 @@ export default function Sources() {
           <div className="mt-4 flex flex-wrap gap-3">
             <Button kind="primary" onClick={() => scan("live")} disabled={scanning}>Scan live sandbox</Button>
             <Button onClick={() => scan("snapshot")} disabled={scanning}>Use the latest snapshot</Button>
+            <Button kind="quiet" onClick={async () => { await post("/analyses/reset", {}); setCleared(true); }}>
+              {cleared ? "Cleared the comparisons and claims you ran" : "Clear the comparisons and claims I ran"}
+            </Button>
           </div>
         </div>
 
