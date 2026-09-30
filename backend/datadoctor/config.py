@@ -36,8 +36,11 @@ class Settings:
     http_retries: int = 4
     page_size: int = 200
     cache_ttl_s: int = 900
-    llm_provider: str = "none"  # none | anthropic
-    llm_model: str = "claude-haiku-4-5"
+    llm_provider: str = "none"  # none | ollama | openai-compatible | anthropic (see ai/llm.py)
+    llm_model: str = ""  # empty = provider default (ollama: qwen2.5:3b)
+    llm_base_url: str | None = None  # ollama: http://localhost:11434; openai-compatible: e.g. https://api.groq.com/openai/v1
+    llm_api_key: str | None = None  # only for hosted openai-compatible endpoints; never logged
+    llm_timeout_s: float = 120.0
     ingest_types: tuple[str, ...] = field(default=INGEST_TYPES)
 
     @property
@@ -65,5 +68,8 @@ def get_settings() -> Settings:
         http_delay_s=float(env.get("DD_HTTP_DELAY_S", "0.25")),
         http_timeout_s=float(env.get("DD_HTTP_TIMEOUT_S", "60")),
         llm_provider=env.get("DD_LLM_PROVIDER", "none"),
-        llm_model=env.get("DD_LLM_MODEL", "claude-haiku-4-5"),
+        llm_model=env.get("DD_LLM_MODEL", ""),
+        llm_base_url=env.get("DD_LLM_BASE_URL") or None,
+        llm_api_key=env.get("DD_LLM_API_KEY") or None,
+        llm_timeout_s=float(env.get("DD_LLM_TIMEOUT_S", "120")),
     )

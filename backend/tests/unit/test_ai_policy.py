@@ -31,4 +31,4 @@ def test_llm_text_with_invented_numbers_falls_back_to_template():
 
 
 def test_no_provider_means_template():
-    assert isinstance(get_explainer("none", "claude-opus-5"), TemplateExplainer)
+    assert isinstance(get_explainer(None), TemplateExplainer)

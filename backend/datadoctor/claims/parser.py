@@ -8,20 +8,26 @@ claims/engine.py. Neither parser can invent a record id: unresolvable intents ar
 
 from __future__ import annotations
 
+import json
 import re
 from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from datadoctor.ai.llm import LLMClient, LLMError
 from datadoctor.domain.enums import ClaimType
 from datadoctor.domain.models import Dataset, NormalizedObservation, StructuredClaim
 from datadoctor.knowledge.loader import Knowledge
 
 
 class ClaimIntent(BaseModel):
-    type: Literal["COMPARE_HIGHER", "TREND_INCREASE", "EXCEEDS_THRESHOLD", "ASSOCIATION", "CAUSAL"] | None = None
-    indicator_key: str | None = None
-    outcome_indicator_key: str | None = None
+    type: Literal["COMPARE_HIGHER", "TREND_INCREASE", "EXCEEDS_THRESHOLD", "ASSOCIATION", "CAUSAL"] | None = Field(
+        default=None,
+        description="COMPARE_HIGHER: one measure, two places or groups, A higher than B. TREND_INCREASE: one measure at one "
+                    "place rose over the years. EXCEEDS_THRESHOLD: a value is above a limit or guideline. ASSOCIATION: two "
+                    "measures are linked. CAUSAL: one measure causes or makes worse another.")
+    indicator_key: str | None = Field(default=None, description="Key of the (exposure) measure, from the vocabulary")
+    outcome_indicator_key: str | None = Field(default=None, description="Key of the outcome measure, only for ASSOCIATION or CAUSAL")
     locations: list[str] = Field(default_factory=list, description="Location resource ids, in the order mentioned")
     year_from: int | None = None
     year_to: int | None = None
@@ -38,11 +44,15 @@ class ParseResult(BaseModel):
 
 
 _TYPE_PATTERNS = [
-    (ClaimType.CAUSAL, r"\b(causes?|caused|causing|leads? to|drives?|results? in|responsible for)\b"),
+    (ClaimType.CAUSAL, r"\b(causes?|caused|causing|leads? to|drives?|results? in|responsible for|harm\w*|damag\w*|"
+                       r"trigger\w*)\b|\bmakes? (?:\w+ ){0,4}(?:sick|ill|unwell)\b"),
     (ClaimType.ASSOCIATION, r"\b(associated|association|correlat\w*|linked|link between|related to)\b"),
-    (ClaimType.EXCEEDS_THRESHOLD, r"\b(exceed\w*|above the (?:limit|guideline|threshold)|breach\w*|over the (?:limit|guideline))\b"),
-    (ClaimType.TREND_INCREASE, r"\b(increas\w*|ris(?:e|es|ing)|rose|went up|upward|trend\w*|warm(?:ed|ing))\b"),
-    (ClaimType.COMPARE_HIGHER, r"\b(higher|greater|more|worse|warmer|larger|bigger)\b.*\bthan\b"),
+    (ClaimType.EXCEEDS_THRESHOLD, r"\b(exceed\w*|breach\w*)\b|\b(?:above|over|beyond) the (?:\w+ ){0,2}"
+                                  r"(?:limit|guideline|threshold|standard)s?\b"),
+    # "A is warmer than B" is a comparison; checked before trends so the same comparatives without "than" become trends.
+    (ClaimType.COMPARE_HIGHER, r"\b(higher|greater|more|worse|warmer|hotter|larger|bigger)\b.*\bthan\b"),
+    (ClaimType.TREND_INCREASE, r"\b(increas\w*|ris(?:e|es|ing)|rose|went up|upward|trend\w*|warm(?:ed|ing))\b|"
+                               r"\b(?:got|gets|became|becomes|getting|grew|growing)\s+(?:warmer|hotter|higher|worse|bigger)\b"),
 ]
 
 _SYNONYMS = {
@@ -50,7 +60,8 @@ _SYNONYMS = {
     "conductivity": "electrical-conductivity", "ph": "ph", "dissolved oxygen": "dissolved-oxygen", "oxygen": "dissolved-oxygen",
     "nitrate": "nitrate", "nitrite": "nitrite", "ammonium": "ammonium", "chloride": "chloride", "sulphate": "sulphate",
     "sulfate": "sulphate", "no2": "no2", "nitrogen dioxide": "no2", "ozone": "o3", "o3": "o3", "pm10": "pm10",
-    "pm2.5": "pm2-5", "pm 2.5": "pm2-5", "pm25": "pm2-5", "fine particulate": "pm2-5", "benzene": "benzene",
+    "pm2.5": "pm2-5", "pm 2.5": "pm2-5", "pm25": "pm2-5", "fine particulate": "pm2-5", "fine particles": "pm2-5",
+    "benzene": "benzene",
     "obesity": "obesity", "bmi": "bmi-above-30", "cardiovascular": "cvd", "cvd": "cvd", "heart disease": "cvd",
     "diabetes": "diabetes", "high blood pressure": "high-blood-pressure", "hypertension": "hypertension-treatment",
     "mental health": "mental-health", "long-term disease": "long-term-disease", "cadmium": "cadmium-dissolved",
@@ -181,23 +192,29 @@ def resolve(intent: ClaimIntent, ds: Dataset, kn: Knowledge, text: str | None = 
                            threshold_id=th["id"], text=text), understood, problems
 
 
-def parse_llm(text: str, ds: Dataset, kn: Knowledge, model: str) -> ClaimIntent:
-    """Optional: ask Claude to fill a ClaimIntent. The verdict never depends on this call."""
-    import anthropic
+SYSTEM = """You map a research claim about environmental and health data onto a fixed vocabulary.
+Use only indicator keys and location ids that appear in the vocabulary; leave a field null if the claim does not state it.
+Do not judge whether the claim is true.
 
-    client = anthropic.Anthropic(timeout=20.0, max_retries=1)
-    vocab = {"indicator_keys": {k: v.label for k, v in kn.indicators.items()},
-             "locations": {lid: loc.name for lid, loc in ds.locations.items() if loc.scope.value == "oah-ig"}}
-    resp = client.messages.parse(
-        model=model, max_tokens=2048, output_config={"effort": "low"},
-        system="Map the research claim onto the given vocabulary. Use only keys and location ids that appear in it; "
-               "leave a field null if the claim does not state it. Do not judge whether the claim is true.",
-        messages=[{"role": "user", "content": f"Vocabulary: {vocab}\n\nClaim: {text}"}],
-        output_format=ClaimIntent,
-    )
-    if resp.stop_reason == "refusal" or resp.parsed_output is None:
-        raise ValueError("LLM did not return a claim intent")
-    intent: ClaimIntent = resp.parsed_output
+Examples:
+Claim: "Water temperature at Almyros increased from 2013 to 2020"
+{"type": "TREND_INCREASE", "indicator_key": "water-temperature", "locations": ["Loc-Almyros"], "year_from": 2013, "year_to": 2020}
+Claim: "NO2 was higher at Benevento site 01 than at site 02 in 2019"
+{"type": "COMPARE_HIGHER", "indicator_key": "no2", "locations": ["Loc-Benevento-01", "Loc-Benevento-02"], "year_from": 2019, "year_to": 2019}
+Claim: "PM10 at Benevento site 04 exceeded the WHO guideline in 2018"
+{"type": "EXCEEDS_THRESHOLD", "indicator_key": "pm10", "locations": ["Loc-Benevento-04"], "year_from": 2018, "year_to": 2018, "threshold_hint": "who"}
+Claim: "Ozone makes people in Benevento develop diabetes"
+{"type": "CAUSAL", "indicator_key": "o3", "outcome_indicator_key": "diabetes", "locations": ["Loc-Benevento-01"]}"""
+
+
+def parse_llm(text: str, ds: Dataset, kn: Knowledge, client: LLMClient) -> ClaimIntent:
+    """Optional: ask a language model to fill a ClaimIntent. The verdict never depends on this call."""
+    vocab = {"claim_types": ["COMPARE_HIGHER", "TREND_INCREASE", "EXCEEDS_THRESHOLD", "ASSOCIATION", "CAUSAL"],
+             "indicator_keys": {k: v.label for k, v in kn.indicators.items()},
+             "locations": {lid: loc.name for lid, loc in ds.locations.items() if loc.scope.value == "oah-ig"},
+             "statistics": ["average", "median", "maximum", "minimum"], "threshold_hints": ["who", "eu", "drinking-water"]}
+    user = "Vocabulary: " + json.dumps(vocab) + "\n\nClaim: " + text
+    intent = client.complete_json(SYSTEM, user, ClaimIntent)
     # Never trust unknown keys from the model.
     if intent.indicator_key not in kn.indicators:
         intent.indicator_key = None
@@ -207,14 +224,33 @@ def parse_llm(text: str, ds: Dataset, kn: Knowledge, model: str) -> ClaimIntent:
     return intent
 
 
-def parse_claim(text: str, ds: Dataset, kn: Knowledge, provider: str = "none", model: str = "claude-opus-5") -> ParseResult:
-    method = "deterministic"
-    intent = parse_deterministic(text, ds, kn)
-    if provider == "anthropic":
+def _merge(llm: ClaimIntent, rules: ClaimIntent) -> ClaimIntent:
+    """Rules first, the model fills the gaps.
+
+    The keyword parser is precise when it recognises something; a small free model is not always (a 3B model read
+    "got warmer between 2013 and 2020" as a two-place comparison). So every field the rules found is kept, and the
+    model only supplies fields the rules missed. Model-proposed keys and ids are already validated in parse_llm.
+    """
+    data = llm.model_dump()
+    for k, v in rules.model_dump().items():
+        if v not in (None, [], ""):
+            data[k] = v
+    return ClaimIntent(**data)
+
+
+def parse_claim(text: str, ds: Dataset, kn: Knowledge, client: LLMClient | None = None) -> ParseResult:
+    rules_intent = parse_deterministic(text, ds, kn)
+    intent, method = rules_intent, "deterministic"
+    if client is not None:
         try:
-            intent = parse_llm(text, ds, kn, model)
-            method = f"llm:{model}"
-        except Exception:  # noqa: BLE001 - any failure keeps the deterministic parse
-            method = "deterministic (LLM unavailable)"
+            intent = _merge(parse_llm(text, ds, kn, client), rules_intent)
+            method = f"llm:{client.name}"
+        except LLMError as exc:
+            method = f"deterministic (language model unavailable: {str(exc)[:80]})"
     claim, understood, problems = resolve(intent, ds, kn, text)
+    if claim is None and intent is not rules_intent:
+        fallback, u2, p2 = resolve(rules_intent, ds, kn, text)
+        if fallback is not None:
+            return ParseResult(intent=rules_intent, claim=fallback, method="deterministic (model reading did not resolve)",
+                               understood=u2, problems=p2)
     return ParseResult(intent=intent, claim=claim, method=method, understood=understood, problems=problems)

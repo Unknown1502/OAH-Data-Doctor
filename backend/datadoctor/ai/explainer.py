@@ -1,11 +1,12 @@
-"""Plain-language explanations of ALREADY-COMPUTED findings (the only place an LLM may be used).
+"""Plain-language explanations of ALREADY-COMPUTED findings (the only place a language model may write prose).
 
 Contract (docs/AI_POLICY.md):
-- the explainer receives a finding and returns prose; it never sees raw data and never decides anything;
+- the explainer receives a finding and returns prose; the model never sees raw data and never decides anything;
 - the deterministic TemplateExplainer is the default and the fallback;
-- LLM output is rejected (-> template) if it contains any number that does not occur in the finding's evidence,
+- model output is rejected (-> template) if it contains any number that does not occur in the finding's evidence,
   or if the call fails, times out, or is refused;
-- tests use MockExplainer; the product works fully with DD_LLM_PROVIDER=none.
+- any provider works (ai/llm.py): a free local model through Ollama, a free OpenAI-compatible endpoint, or Claude;
+- tests use MockExplainer / fake clients; the product works fully with DD_LLM_PROVIDER=none.
 """
 
 from __future__ import annotations
@@ -18,6 +19,7 @@ from typing import Protocol
 
 from pydantic import BaseModel
 
+from datadoctor.ai.llm import LLMClient, LLMError
 from datadoctor.domain.models import Finding
 
 log = logging.getLogger(__name__)
@@ -25,7 +27,7 @@ log = logging.getLogger(__name__)
 
 class Explanation(BaseModel):
     text: str
-    method: str  # template | llm:<model> | mock
+    method: str  # template | llm:<provider:model> | mock
     fallback_reason: str | None = None
 
 
@@ -45,7 +47,7 @@ def _facts(f: Finding) -> dict:
 
 
 class TemplateExplainer:
-    """Deterministic plain-language rendering. Always available; used whenever an LLM is off or fails."""
+    """Deterministic plain-language rendering. Always available; used whenever a model is off or fails."""
 
     def explain(self, finding: Finding) -> Explanation:
         f = finding
@@ -71,42 +73,66 @@ def _numbers(text: str) -> set[float]:
     return out
 
 
+_CAUSE = re.compile(r"\b(because|due to|caused by|as a result of|the reason|typo|mistyped|entered wrong\w*|"
+                    r"data[- ]entry error|correction needed|must be corrected|should be corrected|needs? (?:to be )?correct\w*)\b",
+                    re.I)
+
+
+_CONNECTIVE = {"because", "due to", "caused by", "as a result of"}
+_HEDGE = re.compile(r"\b(could|might|may|possibly|perhaps|potentially)\b(?:\s+(?:also\s+)?be)?\s*$", re.I)
+
+
+def adds_cause_or_correction(text: str, finding: Finding) -> bool:
+    """True if the text asserts a cause or a correction that the finding's facts do not contain (policy: root cause
+    unknown; never auto-correct). A deterministic safety net for small models that drift in meaning.
+
+    A hedged cause ("this could be due to ...") is tolerated only when the finding itself lists unverified hypotheses;
+    a flat assertion ("this is due to ...") or an accusation or correction ("typo", "correction needed") never is."""
+    facts = json.dumps(_facts(finding), ensure_ascii=False).lower()
+    for m in _CAUSE.finditer(text):
+        phrase = m.group(0).lower()
+        if phrase in facts:
+            continue
+        if phrase in _CONNECTIVE and finding.hypotheses and _HEDGE.search(text[max(0, m.start() - 30):m.start()]):
+            continue
+        return True
+    return False
+
+
 def numbers_are_grounded(text: str, finding: Finding) -> bool:
     allowed = _numbers(json.dumps(_facts(finding), ensure_ascii=False)) | {round(x, 6) for x in range(0, 11)}
     allowed |= {round(float(o.value), 6) for o in finding.evidence.observed if isinstance(o.value, int | float)}
     return _numbers(text) <= allowed
 
 
-class AnthropicExplainer:
-    SYSTEM = ("You rewrite a data-quality finding for an environmental-health researcher in plain language. "
-              "Use only the facts provided. Do not add numbers, causes, or recommendations that are not in the facts. "
-              "Never state why a value is wrong: root cause is unknown unless the facts say otherwise. "
-              "Write at most 120 words, no headings.")
+SYSTEM = ("You rewrite a data-quality finding for an environmental-health researcher in plain language. "
+          "Use only the facts provided. Do not add numbers, causes, or recommendations that are not in the facts. "
+          "Never state why a value is wrong: root cause is unknown unless the facts say otherwise. Do not write \"because\", "
+          "\"due to\" or \"caused by\"; mention a possible explanation only as unverified. "
+          "Write at most 120 words, no headings, no lists.")
 
-    def __init__(self, model: str, timeout_s: float = 20.0) -> None:
-        import anthropic  # optional dependency: pip install ".[ai]"
 
-        self._anthropic = anthropic
-        self._client = anthropic.Anthropic(timeout=timeout_s, max_retries=1)
-        self._model = model
+class LLMExplainer:
+    """Rephrases a finding with any configured model; falls back to the template on any problem."""
+
+    def __init__(self, client: LLMClient) -> None:
+        self._client = client
         self._fallback = TemplateExplainer()
 
     def explain(self, finding: Finding) -> Explanation:
-        a = self._anthropic
         try:
-            resp = self._client.messages.create(
-                model=self._model, max_tokens=2048, system=self.SYSTEM, output_config={"effort": "low"},
-                messages=[{"role": "user", "content": "Facts (JSON):\n" + json.dumps(_facts(finding), ensure_ascii=False)}],
-            )
-        except (a.APIStatusError, a.APIConnectionError, a.APITimeoutError) as exc:
+            text = self._client.complete(SYSTEM, "Facts (JSON):\n" + json.dumps(_facts(finding), ensure_ascii=False), max_tokens=400)
+        except LLMError as exc:
             log.warning("LLM explanation failed: %s", exc)
-            return self._fallback.explain(finding).model_copy(update={"fallback_reason": f"LLM call failed: {type(exc).__name__}"})
-        if resp.stop_reason == "refusal":
-            return self._fallback.explain(finding).model_copy(update={"fallback_reason": "LLM declined"})
-        text = "".join(b.text for b in resp.content if b.type == "text").strip()
-        if not text or not numbers_are_grounded(text, finding):
-            return self._fallback.explain(finding).model_copy(update={"fallback_reason": "LLM output contained ungrounded numbers"})
-        return Explanation(text=text, method=f"llm:{self._model}")
+            return self._fallback.explain(finding).model_copy(update={"fallback_reason": str(exc)[:200]})
+        if not text:
+            return self._fallback.explain(finding).model_copy(update={"fallback_reason": "LLM returned no text"})
+        reason = ("LLM output contained ungrounded numbers" if not numbers_are_grounded(text, finding)
+                  else "LLM output asserted a cause or correction" if adds_cause_or_correction(text, finding) else None)
+        if reason:
+            log.info("Rephrasing of %s discarded (%s): %s", finding.id, reason, text[:400])
+            return self._fallback.explain(finding).model_copy(update={"fallback_reason": reason})
+        return Explanation(text=text, method=f"llm:{self._client.name}")
 
 
 class MockExplainer:
@@ -119,10 +145,5 @@ class MockExplainer:
         return Explanation(text=self.text, method="mock")
 
 
-def get_explainer(provider: str, model: str) -> Explainer:
-    if provider == "anthropic":
-        try:
-            return AnthropicExplainer(model)
-        except Exception as exc:  # noqa: BLE001 - missing package or credentials: stay deterministic
-            log.warning("LLM explainer unavailable (%s); using templates", exc)
-    return TemplateExplainer()
+def get_explainer(client: LLMClient | None) -> Explainer:
+    return LLMExplainer(client) if client is not None else TemplateExplainer()

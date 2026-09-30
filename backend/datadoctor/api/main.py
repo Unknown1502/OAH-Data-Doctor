@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import functools
 import hashlib
 import logging
 import os
@@ -18,13 +19,14 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from datadoctor import __version__
-from datadoctor.ai.explainer import get_explainer
+from datadoctor.ai.explainer import TemplateExplainer, get_explainer
+from datadoctor.ai.llm import LLMClient, get_llm
 from datadoctor.api.state import AppState
 from datadoctor.audit.service import blocking_keys
 from datadoctor.claims.engine import ClaimError, evaluate_claim
 from datadoctor.claims.parser import parse_claim
 from datadoctor.comparability.engine import ComparisonError, compare
-from datadoctor.config import REPO_ROOT, get_settings
+from datadoctor.config import REPO_ROOT, Settings, get_settings
 from datadoctor.domain.enums import Scope, Severity
 from datadoctor.domain.models import Finding, StructuredClaim
 from datadoctor.ingestion.snapshot import list_snapshots
@@ -97,6 +99,7 @@ def status() -> dict[str, Any]:
             "scan": s.scan if s else None, "mode": s.settings.source_mode if s else None,
             "fhir_base": s.settings.fhir_base if s else None,
             "llm": s.settings.llm_provider if s else "none",
+            "llm_name": (c.name if (c := _llm(s.settings)) else None) if s else None,
             "rule_count": len(load_rules()),
             "snapshots": list_snapshots(s.settings.snapshots_dir) if s else []}
 
@@ -203,15 +206,21 @@ def finding_detail(fid: str) -> dict[str, Any]:
     return {"finding": f.model_dump(), "raw": raw, "record": record,
             "server_validation": s.ds.server_validation.get(f.resource.key),
             "impact": impact(s.graph, f).model_dump(),
-            "explanation": get_explainer("none", s.settings.llm_model).explain(f).model_dump(),
+            "explanation": TemplateExplainer().explain(f).model_dump(),
             "same_resource": same, "rule": load_rules()[f.rule_id].spec.as_dict()}
+
+
+@functools.lru_cache(maxsize=4)
+def _llm(settings: Settings) -> LLMClient | None:
+    """One client per configuration (reuses its HTTP connection pool across requests)."""
+    return get_llm(settings)
 
 
 @app.post("/api/findings/{fid}/explain")
 def explain(fid: str) -> dict[str, Any]:
     s = state()
     f = _finding(fid)
-    return get_explainer(s.settings.llm_provider, s.settings.llm_model).explain(f).model_dump()
+    return get_explainer(_llm(s.settings)).explain(f).model_dump()
 
 
 @app.post("/api/validate/{rtype}/{rid}")
@@ -325,7 +334,7 @@ def parse_endpoint(req: ParseRequest) -> dict[str, Any]:
     assert s.ds is not None
     if not req.text.strip() or len(req.text) > 500:
         raise HTTPException(400, "claim text must be 1-500 characters")
-    return parse_claim(req.text, s.ds, s.kn, s.settings.llm_provider, s.settings.llm_model).model_dump()
+    return parse_claim(req.text, s.ds, s.kn, _llm(s.settings)).model_dump()
 
 
 @app.get("/api/analyses")
