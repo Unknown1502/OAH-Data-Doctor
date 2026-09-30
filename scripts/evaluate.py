@@ -18,6 +18,7 @@ from __future__ import annotations
 import asyncio
 import copy
 import datetime as dt
+import json
 import math
 import random
 import sys
@@ -68,7 +69,6 @@ def main() -> None:
     with_value = [o.id for o in obs.values() if o.value is not None and o.value.value is not None]
     temps = [o.id for o in obs.values() if o.indicator_key == "water-temperature" and o.value is not None]
     prev = [o.id for o in obs.values() if o.indicator_key and kn.indicators[o.indicator_key].kind == "prevalence"]
-    groups = ds.groups
 
     def audit(raw: Raw) -> list[Any]:
         return run_all(build_dataset(raw, ds.source, kn), kn)
@@ -325,6 +325,13 @@ def main() -> None:
           "The property-based tests (`backend/tests/property`) complement this: 300 randomly generated real samples, summarised "
           "and rounded at 0 to 4 decimals, never trigger an identity rule.", ""]
     (ROOT / "docs" / "EVALUATION.md").write_text("\n".join(L), encoding="utf-8")
+    (ROOT / "docs" / "evaluation.json").write_text(json.dumps({
+        "snapshot_id": res.source.snapshot_id, "seed": SEED, "rules_version": res.rules_version,
+        "injected": total_inj, "detected": total_det, "detection_ci": wilson(total_det, total_inj),
+        "benign_records": total_benign, "benign_new_findings": total_fp, "fp_ci": wilson(total_fp, total_benign),
+        "collateral": collateral_total, "fault_types": len(fault_rows),
+        "faults": [{"name": r[0], "expected": r[1], "injected": r[3], "detected": r[4]} for r in fault_rows],
+    }, indent=1), encoding="utf-8")
     print("\n".join(L[:14]))
 
 
