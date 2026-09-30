@@ -36,6 +36,8 @@ class AuditSummary(BaseModel):
     oah_observations: int
     oah_observations_with_blocking: int
     integrity_pass_rate: float | None = Field(description="share of OAH IG observations with no ERROR/CRITICAL finding")
+    server_validation: dict[str, int] = Field(default_factory=dict,
+                                              description="server $validate outcomes for flagged OAH observations (snapshot runs)")
     anchor: dict[str, Any]
 
 
@@ -87,6 +89,16 @@ def summarise(ds: Dataset, findings: list[Finding], kn: Knowledge) -> AuditSumma
     for rs in ds.raw.values():
         for rid in rs:
             scope_counts[Scope.OAH_IG.value if rid in kn.ig_instances else Scope.THIRD_PARTY.value] += 1
+    sv: dict[str, int] = {}
+    if ds.server_validation:
+        flagged_validated = [o for o in oah_blocked if o.key in ds.server_validation]
+        no_errors = [o for o in flagged_validated
+                     if not any(i.get("severity") in ("error", "fatal") for i in ds.server_validation[o.key].get("issue", []))]
+        sv = {"validated_total": len(ds.server_validation),
+              "validated_with_errors": sum(1 for oo in ds.server_validation.values()
+                                           if any(i.get("severity") in ("error", "fatal") for i in oo.get("issue", []))),
+              "flagged_observations_validated": len(flagged_validated),
+              "flagged_observations_passing_server_validation": len(no_errors)}
     return AuditSummary(
         resources_by_type=ds.counts(),
         resources_by_scope=dict(scope_counts),
@@ -99,6 +111,7 @@ def summarise(ds: Dataset, findings: list[Finding], kn: Knowledge) -> AuditSumma
         oah_observations=len(oah_obs),
         oah_observations_with_blocking=len(oah_blocked),
         integrity_pass_rate=round(1 - len(oah_blocked) / len(oah_obs), 4) if oah_obs else None,
+        server_validation=sv,
         anchor=anchor_info,
     )
 

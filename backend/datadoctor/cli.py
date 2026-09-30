@@ -42,28 +42,46 @@ def _print_summary(res: AuditResult) -> None:
     print(f"anchor      : {a['id']} present={a['present']} values={a.get('values')} unit={a.get('unit')} rules={a['rules_fired']}")
 
 
-def _independent_check(f: Finding, ds: Dataset) -> str:
-    """Re-derive statistical findings directly from raw JSON, without the rule implementation."""
-    raw = ds.raw.get(f.resource.resource_type, {}).get(f.resource.resource_id)
-    if raw is None or not f.rule_id.startswith("SEM-STAT"):
-        return "n/a (non-statistical rule: review the evidence)"
+def _raw_stats(raw: dict[str, Any] | None) -> dict[str, float]:
     v: dict[str, float] = {}
-    for c in raw.get("component", []):
+    for c in (raw or {}).get("component", []):
         for cc in c.get("code", {}).get("coding", []):
             if cc.get("system") == STATS and "valueQuantity" in c and c["valueQuantity"].get("value") is not None:
                 v[cc["code"]] = float(c["valueQuantity"]["value"])
+    return v
+
+
+def _independent_check(f: Finding, ds: Dataset) -> str:
+    """Re-derive a finding directly from the raw JSON with separate, deliberately naive code (no tolerances,
+    no rule helpers). A pre-review aid for the human reviewer, not a substitute for judgement."""
+    raw = ds.raw.get(f.resource.resource_type, {}).get(f.resource.resource_id)
+    v = _raw_stats(raw)
     mn, mx, av, md, sd = (v.get(k) for k in ("minimum", "maximum", "average", "median", "std-dev"))
-    checks = {
-        "SEM-STAT-001": lambda: not (mn <= md <= mx),  # type: ignore[operator]
-        "SEM-STAT-002": lambda: not (mn <= av <= mx),  # type: ignore[operator]
-        "SEM-STAT-003": lambda: abs(av - md) > sd,  # type: ignore[operator]
-        "SEM-STAT-004": lambda: sd > (mx - mn) / math.sqrt(2),  # type: ignore[operator]
-        "SEM-STAT-005": lambda: mn > mx,  # type: ignore[operator]
-    }
     try:
-        return "CONFIRMED (raw values violate the constraint)" if checks[f.rule_id]() else "NOT CONFIRMED"
-    except TypeError:
+        if f.rule_id == "SEM-STAT-001":
+            ok = not (mn <= md <= mx)  # type: ignore[operator]
+        elif f.rule_id == "SEM-STAT-002":
+            ok = not (mn <= av <= mx)  # type: ignore[operator]
+        elif f.rule_id == "SEM-STAT-003":
+            ok = abs(av - md) > sd  # type: ignore[operator]
+        elif f.rule_id == "SEM-STAT-004":
+            ok = sd > (mx - mn) / math.sqrt(2)  # type: ignore[operator]
+        elif f.rule_id == "SEM-STAT-005":
+            ok = mn > mx  # type: ignore[operator]
+        elif f.rule_id == "SEM-SCALE-001":
+            ok = max(av / md, md / av) >= 100  # type: ignore[operator]
+        elif f.rule_id == "SEM-RANGE-001":
+            b = f.evidence.measures.get("bounds", {})
+            vals = [o.value for o in f.evidence.observed if isinstance(o.value, (int, float))]
+            ok = bool(vals) and all((("min" in b and x < b["min"]) or ("max" in b and x > b["max"])) for x in vals)
+        elif f.rule_id == "SEM-XREC-001" and f.related_resources:
+            sup = _raw_stats(ds.raw["Observation"].get(f.related_resources[0].resource_id))
+            ok = any(v.get(k) is not None and sup.get(k) is not None and v[k] > sup[k] for k in ("average", "median", "maximum"))
+        else:
+            return "n/a (rule without a closed-form re-check: review the evidence)"
+    except (TypeError, ZeroDivisionError):
         return "n/a (statistic missing)"
+    return "CONFIRMED (raw values violate the constraint)" if ok else "NOT CONFIRMED — review carefully"
 
 
 def _gate0_report(res: AuditResult, ds: Dataset, seed: int, n: int) -> str:
