@@ -3,7 +3,6 @@
 from datadoctor.domain.enums import Severity
 from tests.helpers import OAH, P, dataset, group, location, run, stats_obs, value_obs
 
-
 # --- STR-UNIT-001 ------------------------------------------------------------------------------------
 
 def test_unit001_missing_ucum_code_is_error():

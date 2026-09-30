@@ -81,7 +81,7 @@ def parse_deterministic(text: str, ds: Dataset, kn: Knowledge) -> ClaimIntent:
     intent = ClaimIntent()
     for ctype, pat in _TYPE_PATTERNS:
         if re.search(pat, t):
-            intent.type = ctype.value  # type: ignore[assignment]
+            intent.type = ctype.value
             break
     hits: list[tuple[int, str]] = []
     for word, key in sorted(_SYNONYMS.items(), key=lambda kv: -len(kv[0])):
@@ -123,7 +123,8 @@ def _pick(ds: Dataset, loc: str, ind: str | None, year: int | None) -> Normalize
 
 
 def resolve(intent: ClaimIntent, ds: Dataset, kn: Knowledge, text: str | None = None) -> tuple[StructuredClaim | None, list[str], list[str]]:
-    understood, problems = [], []
+    understood: list[str] = []
+    problems: list[str] = []
     if intent.type is None:
         return None, understood, ["Could not tell what kind of claim this is (compare, trend, threshold, association or cause)."]
     ctype = ClaimType(intent.type)

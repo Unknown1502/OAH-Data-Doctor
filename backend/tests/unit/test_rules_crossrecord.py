@@ -2,7 +2,6 @@
 
 from tests.helpers import AIR, OAH, dataset, group, run, stats_obs, value_obs
 
-
 # --- SEM-TEMP-001: scale break inside a time series ------------------------------------------------
 
 def _cd(year: int, mean: float) -> dict:

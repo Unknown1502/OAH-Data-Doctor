@@ -33,7 +33,7 @@ def _levels(ctx: RuleContext, obs: NormalizedObservation, ind: IndicatorDef) -> 
     for s in obs.stats:
         if s.stat in LEVEL_STATS and s.quantity.value is not None:
             items.append((s.stat, s.quantity.value, s.quantity.decimals, s.quantity.code, s.fhir_path))
-    out = []
+    out: list[tuple[str, float, float, str | None]] = []
     note = ""
     for label, v, dec, code, path in items:
         unit = code

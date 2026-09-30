@@ -102,7 +102,7 @@ def manifest_digest(manifest: dict[str, Any]) -> str:
 
 
 def list_snapshots(snapshots_dir: Path) -> list[dict[str, Any]]:
-    out = []
+    out: list[dict[str, Any]] = []
     if not snapshots_dir.exists():
         return out
     for d in sorted(snapshots_dir.iterdir(), reverse=True):

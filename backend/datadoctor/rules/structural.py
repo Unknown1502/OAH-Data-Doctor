@@ -38,13 +38,14 @@ def values_at(node: Any, path: str) -> list[Any]:
 
 
 def _check(resource: dict[str, Any], chk: dict[str, Any]) -> str | None:
-    path, kind, want = chk["path"], chk["type"], chk.get("value")
+    path, kind = chk["path"], chk["type"]
+    want: Any = chk.get("value")
     if kind == "min":
         n = len(values_at(resource, path))
-        return f"{path}: found {n}, profile requires at least {want}" if n < want else None
+        return f"{path}: found {n}, profile requires at least {want}" if n < int(want) else None
     if kind == "max":
         n = len(values_at(resource, path))
-        return f"{path}: found {n}, profile allows at most {want}" if n > want else None
+        return f"{path}: found {n}, profile allows at most {want}" if n > int(want) else None
     if kind == "fixed":
         bad = [v for v in values_at(resource, path) if v != want]
         return f"{path}: found {bad[0]!r}, profile fixes it to {want!r}" if bad else None
@@ -56,7 +57,7 @@ def _check(resource: dict[str, Any], chk: dict[str, Any]) -> str | None:
         parent = chk["parent"]
         rel = path[len(parent) + 1:]
         for i, item in enumerate(values_at(resource, parent)):
-            if len(values_at(item, rel)) < want:
+            if len(values_at(item, rel)) < int(want):
                 return f"{parent}[{i}].{rel}: missing, profile requires at least {want}"
         return None
     raise ValueError(f"unknown check type {kind}")

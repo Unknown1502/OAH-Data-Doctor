@@ -126,7 +126,7 @@ def overview() -> dict[str, Any]:
     by_cat = Counter(f.category.value for f in res.findings)
     anchor = next((f for f in res.findings if f.resource.resource_id == res.summary.anchor["id"] and f.rule_id == "SEM-STAT-001"), None)
     hero = anchor or next(iter(res.findings), None)
-    sites = Counter()
+    sites: Counter[str] = Counter()
     for f in oah:
         if f.severity in (Severity.ERROR, Severity.CRITICAL) and f.resource.resource_type == "Observation":
             o = s.ds.observations.get(f.resource.resource_id)

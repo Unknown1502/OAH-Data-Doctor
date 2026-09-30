@@ -8,7 +8,6 @@ from typing import Any
 
 from datadoctor.audit.analyses import AnalysesResult
 from datadoctor.audit.service import AuditResult
-from datadoctor.domain.enums import Severity
 from datadoctor.reporting.support import SupportRow
 
 STATUS_TEXT = {"USABLE": "Usable", "USABLE_WITH_CAVEATS": "Usable with caveats", "PARTLY_USABLE": "Partly usable",

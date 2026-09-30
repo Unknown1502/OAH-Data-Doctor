@@ -3,7 +3,6 @@
 from datadoctor.domain.enums import Severity
 from tests.helpers import OAH, dataset, group, location, run, stats_obs, value_obs
 
-
 # --- SEM-RANGE-001 (impossible) / SEM-RANGE-002 (unusual) -------------------------------------------
 
 def test_range001_water_temperature_above_boiling_is_critical():

@@ -232,7 +232,7 @@ def main(argv: list[str] | None = None) -> int:
             print("no snapshots")
             return 1
         problems = verify_snapshot(st.snapshots_dir / sid)
-        print(f"{sid}: {'OK — every file matches its sha256' if not problems else problems}")
+        print(f"{sid}: {problems if problems else 'OK, every file matches its sha256'}")
         return 1 if problems else 0
     return 0
 

@@ -10,6 +10,7 @@ Contract (docs/AI_POLICY.md):
 
 from __future__ import annotations
 
+import contextlib
 import json
 import logging
 import re
@@ -65,10 +66,8 @@ _NUM = re.compile(r"-?\d[\d,]*\.?\d*")
 def _numbers(text: str) -> set[float]:
     out = set()
     for m in _NUM.findall(text):
-        try:
+        with contextlib.suppress(ValueError):
             out.add(round(float(m.replace(",", "")), 6))
-        except ValueError:
-            pass
     return out
 
 

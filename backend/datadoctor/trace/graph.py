@@ -93,8 +93,8 @@ def build_graph(ds: Dataset, kn: Knowledge, comparisons: list[Comparison], claim
         g.add(o.key, "observation", o.id, scope=o.scope.value)
     for loc in ds.locations.values():
         g.add(f"Location/{loc.id}", "location", loc.name or loc.id)
-    for gid, c in ds.groups.items():
-        g.add(f"Group/{gid}", "group", c.label)
+    for gid, cohort in ds.groups.items():
+        g.add(f"Group/{gid}", "group", cohort.label)
     for o in ds.observations.values():
         if o.subject_ref:
             g.link(o.subject_ref, o.key, "context-of")
@@ -121,14 +121,14 @@ def build_graph(ds: Dataset, kn: Knowledge, comparisons: list[Comparison], claim
             for st in SERIES_STATS:
                 if o.stat(st):
                     series[(o.subject_ref, o.indicator_key, st)].append(o.key)
-    for (loc, ind, st), members in series.items():
+    for (loc_ref, ind, st), members in series.items():
         if len(members) < MIN_SERIES:
             continue
-        sid = f"series:{loc.split('/')[-1]}:{ind}:{st}"
-        locname = ds.locations.get(loc.split("/")[-1])
-        g.add(sid, "series", f"Annual {st} series of {kn.indicators[ind].label.lower()} at {locname.name if locname else loc}",
-              location=loc, indicator=ind, statistic=st, points=len(members))
-        g.link(loc, sid, "context-of")
+        sid = f"series:{loc_ref.split('/')[-1]}:{ind}:{st}"
+        place = ds.locations.get(loc_ref.split("/")[-1])
+        g.add(sid, "series", f"Annual {st} series of {kn.indicators[ind].label.lower()} at {place.name if place else loc_ref}",
+              location=loc_ref, indicator=ind, statistic=st, points=len(members))
+        g.link(loc_ref, sid, "context-of")
         for m in members:
             g.link(m, sid, "point-of")
 

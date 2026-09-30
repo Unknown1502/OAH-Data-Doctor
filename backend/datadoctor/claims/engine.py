@@ -169,14 +169,14 @@ def _trend(claim: StructuredClaim, ds: Dataset, kn: Knowledge, findings: list[Fi
                        [f"{len(bad)} of {len(pts)} points in the series have ERROR/CRITICAL integrity findings "
                         f"({', '.join(sorted({f.rule_id for f in blocking}))}). A trend computed from them would be meaningless."],
                        trace, claim_id=cid, blocking_findings=sorted({f.id for f in blocking}), inputs=inputs,
-                       statistics={"years": years, "values": [o.stat(stat).quantity.value for o in pts if o.stat(stat)]},
+                       statistics={"years": years, "values": [s.quantity.value for o in pts if (s := o.stat(stat))]},
                        safe_alternatives=[f"No safe trend statement can be made for {_label(kn, claim.indicator_key)} here until "
                                           "the data owner reviews the flagged records."])
-    units = {o.stat(stat).quantity.code for o in pts if o.stat(stat)}
+    units = {s.quantity.code for o in pts if (s := o.stat(stat))}
     if len(units) > 1:
         return _result(claim, ds, kn, ClaimVerdict.UNSUPPORTED, [f"Units change within the series ({sorted(u or '?' for u in units)})."],
                        trace, claim_id=cid, inputs=inputs)
-    ys = [o.stat(stat).quantity.value or 0.0 for o in pts if o.stat(stat)]
+    ys = [s.quantity.value or 0.0 for o in pts if (s := o.stat(stat))]
     xs = [float(o.year or 0) for o in pts]
     mk = mann_kendall(ys)
     slope = theil_sen(xs, ys)
@@ -279,8 +279,8 @@ def _association(claim: StructuredClaim, ds: Dataset, kn: Knowledge, findings: l
     units = sorted(set(exp_by_loc) & set(out_by_loc))
     trace.append({"step": "CLM-ASC-001", "check": "paired spatial units", "outcome": len(units)})
     inputs = sorted({exp_by_loc[u].key for u in units} | {o.key for u in units for o in out_by_loc[u]})
-    exp_years = sorted({exp_by_loc[u].year for u in units if exp_by_loc[u].year})
-    out_years = sorted({o.year for u in units for o in out_by_loc[u] if o.year})
+    exp_years = sorted({y for u in units if (y := exp_by_loc[u].year) is not None})
+    out_years = sorted({y for u in units for o in out_by_loc[u] if (y := o.year) is not None})
     stats: dict[str, Any] = {"paired_units": [u.split("/")[-1] for u in units], "exposure_years": exp_years, "outcome_years": out_years}
     reasons = []
     if exp_years and out_years and set(exp_years) != set(out_years):

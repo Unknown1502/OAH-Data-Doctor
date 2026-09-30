@@ -12,7 +12,16 @@ from collections.abc import Iterator
 
 from datadoctor.domain.enums import Category, Severity
 from datadoctor.domain.models import Cohort, Evidence, Finding, NormalizedObservation, ObservedValue
-from datadoctor.rules.base import RuleContext, RuleSpec, fmt, obs_ref, record_decimals, rule, stat_tol, tolerance
+from datadoctor.rules.base import (
+    RuleContext,
+    RuleSpec,
+    fmt,
+    obs_ref,
+    record_decimals,
+    rule,
+    stat_tol,
+    tolerance,
+)
 
 SPEC_TEMP = RuleSpec(
     id="SEM-TEMP-001", version="1.0", title="Scale break within a time series",
@@ -50,10 +59,11 @@ def series_scale_break(ctx: RuleContext) -> Iterator[Finding]:
                     flagged[o.id].append((stat, v, 10 ** centre))
         for oid, items in sorted(flagged.items()):
             o = ctx.ds.observations[oid]
+            first = o.stat(items[0][0])
             siblings = sorted((x for x in obs_list if x.id != oid), key=lambda x: x.year or 0)
             yield ctx.make(
                 SPEC_TEMP,
-                resource=obs_ref(o, o.stat(items[0][0]).fhir_path if o.stat(items[0][0]) else None, ctx.display(o)),
+                resource=obs_ref(o, first.fhir_path if first else None, ctx.display(o)),
                 related=[obs_ref(x) for x in siblings],
                 severity=Severity.ERROR, confidence=0.8,
                 summary=(f"{ctx.display(o)}: the {items[0][0]} ({fmt(items[0][1])}) is about "
@@ -61,7 +71,7 @@ def series_scale_break(ctx: RuleContext) -> Iterator[Finding]:
                          f"statistic in the other {len(siblings)} years (~{fmt(round(items[0][2], 6))})."),
                 evidence=Evidence(
                     observed=[ObservedValue(label=f"{s} {o.year}", value=v) for s, v, _ in items]
-                    + [ObservedValue(label=f"{items[0][0]} {x.year}", value=(x.stat(items[0][0]).quantity.value if x.stat(items[0][0]) else None))
+                    + [ObservedValue(label=f"{items[0][0]} {x.year}", value=(st.quantity.value if (st := x.stat(items[0][0])) else None))
                        for x in siblings],
                     constraint="a series point lies within 100x of the other points' median",
                     expected="Year-to-year values of one statistic at one site stay on one scale.",
