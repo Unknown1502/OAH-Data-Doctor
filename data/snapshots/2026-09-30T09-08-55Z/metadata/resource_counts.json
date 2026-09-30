@@ -1,0 +1,49 @@
+{
+ "parameter": [
+  {
+   "name": "Communication",
+   "valueInteger": 6
+  },
+  {
+   "name": "Device",
+   "valueInteger": 6
+  },
+  {
+   "name": "Group",
+   "valueInteger": 27
+  },
+  {
+   "name": "Library",
+   "valueInteger": 18
+  },
+  {
+   "name": "Location",
+   "valueInteger": 28
+  },
+  {
+   "name": "Observation",
+   "valueInteger": 519
+  },
+  {
+   "name": "Organization",
+   "valueInteger": 8
+  },
+  {
+   "name": "Practitioner",
+   "valueInteger": 13
+  },
+  {
+   "name": "Provenance",
+   "valueInteger": 37
+  },
+  {
+   "name": "QuestionnaireResponse",
+   "valueInteger": 6
+  },
+  {
+   "name": "ServiceRequest",
+   "valueInteger": 4
+  }
+ ],
+ "resourceType": "Parameters"
+}

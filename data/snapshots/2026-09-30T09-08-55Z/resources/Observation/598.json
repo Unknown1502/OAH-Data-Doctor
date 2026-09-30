@@ -1,0 +1,59 @@
+{
+ "basedOn": [
+  {
+   "reference": "ServiceRequest/597"
+  }
+ ],
+ "code": {
+  "coding": [
+   {
+    "code": "coliforms",
+    "display": "Coliforms",
+    "system": "http://hl7.eu/fhir/ig/oah/CodeSystem/temporarySystem-oah-eu"
+   }
+  ]
+ },
+ "effectiveDateTime": "2026-09-23T15:21:22.173Z",
+ "id": "598",
+ "meta": {
+  "lastUpdated": "2026-09-23T15:21:22.690+00:00",
+  "profile": [
+   "http://hl7.eu/fhir/ig/oah/StructureDefinition/observation-indicators-oah"
+  ],
+  "tag": [
+   {
+    "code": "demo",
+    "display": "StreamLink demo record",
+    "system": "https://n-h-l.github.io/streamlink-oneaquahealth/fhir/CodeSystem/streamlink-tags"
+   },
+   {
+    "code": "simulated",
+    "display": "Simulated data (demo only)",
+    "system": "https://n-h-l.github.io/streamlink-oneaquahealth/fhir/CodeSystem/streamlink-tags"
+   }
+  ],
+  "versionId": "1"
+ },
+ "note": [
+  {
+   "text": "SIMULATED result for demonstration. No real sample was taken."
+  }
+ ],
+ "performer": [
+  {
+   "reference": "Organization/595"
+  }
+ ],
+ "resourceType": "Observation",
+ "status": "final",
+ "subject": {
+  "display": "Mina Hospital",
+  "reference": "Location/590"
+ },
+ "valueQuantity": {
+  "code": "{CFU}/dL",
+  "system": "http://unitsofmeasure.org",
+  "unit": "CFU/100 mL",
+  "value": 2400
+ }
+}

@@ -1,0 +1,43 @@
+{
+ "id": "455",
+ "identifier": [
+  {
+   "system": "https://github.com/alejandro-publius/second-look/fhir/location-id",
+   "value": "campus-reach"
+  }
+ ],
+ "meta": {
+  "lastUpdated": "2026-09-21T06:53:45.935+00:00",
+  "profile": [
+   "http://hl7.eu/fhir/ig/oah/StructureDefinition/location-oah"
+  ],
+  "tag": [
+   {
+    "code": "second-look",
+    "system": "https://github.com/alejandro-publius/second-look"
+   }
+  ],
+  "versionId": "1"
+ },
+ "mode": "instance",
+ "name": "Strawberry Creek, campus reach",
+ "partOf": {
+  "reference": "Location/454"
+ },
+ "resourceType": "Location",
+ "text": {
+  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Strawberry Creek, campus reach. A reach used in Second Look creek checks.</p></div>",
+  "status": "generated"
+ },
+ "type": [
+  {
+   "coding": [
+    {
+     "code": "420531007",
+     "display": "River",
+     "system": "http://snomed.info/sct"
+    }
+   ]
+  }
+ ]
+}

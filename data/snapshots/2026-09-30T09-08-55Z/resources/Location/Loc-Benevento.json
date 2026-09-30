@@ -1,0 +1,39 @@
+{
+ "description": "City of Benevento (Campania, IT)",
+ "id": "Loc-Benevento",
+ "identifier": [
+  {
+   "system": "https://oneaquahealth.eu/location-id",
+   "value": "benevento"
+  }
+ ],
+ "meta": {
+  "lastUpdated": "2025-11-21T15:54:35.287+00:00",
+  "profile": [
+   "http://hl7.eu/fhir/ig/oah/StructureDefinition/location-oah"
+  ],
+  "versionId": "1"
+ },
+ "mode": "instance",
+ "name": "Benevento",
+ "position": {
+  "latitude": 41.13,
+  "longitude": 14.78
+ },
+ "resourceType": "Location",
+ "text": {
+  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Location Loc-Benevento</b></p><a name=\"Loc-Benevento\"> </a><a name=\"hcLoc-Benevento\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-location-oah.html\">Location: OAH Indicators</a></p></div><p><b>identifier</b>: <code>https://oneaquahealth.eu/location-id</code>/benevento</p><p><b>name</b>: Benevento</p><p><b>description</b>: City of Benevento (Campania, IT)</p><p><b>mode</b>: Instance</p><p><b>type</b>: <span title=\"Codes:{http://snomed.info/sct 288520005}\">City environment</span></p><h3>Positions</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Longitude</b></td><td><b>Latitude</b></td></tr><tr><td style=\"display: none\">*</td><td>14.78</td><td>41.13</td></tr></table></div>",
+  "status": "generated"
+ },
+ "type": [
+  {
+   "coding": [
+    {
+     "code": "288520005",
+     "display": "City environment",
+     "system": "http://snomed.info/sct"
+    }
+   ]
+  }
+ ]
+}

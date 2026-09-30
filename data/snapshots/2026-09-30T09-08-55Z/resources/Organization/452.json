@@ -1,0 +1,26 @@
+{
+ "active": true,
+ "id": "452",
+ "identifier": [
+  {
+   "system": "https://github.com/alejandro-publius/second-look/fhir/org",
+   "value": "second-look"
+  }
+ ],
+ "meta": {
+  "lastUpdated": "2026-09-21T06:53:45.935+00:00",
+  "tag": [
+   {
+    "code": "second-look",
+    "system": "https://github.com/alejandro-publius/second-look"
+   }
+  ],
+  "versionId": "1"
+ },
+ "name": "Second Look project",
+ "resourceType": "Organization",
+ "text": {
+  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Second Look project. Issues the observer test and keeps the record.</p></div>",
+  "status": "generated"
+ }
+}

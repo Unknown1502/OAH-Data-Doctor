@@ -1,0 +1,35 @@
+{
+ "description": "Borough of Oslo (Nordre Aker, NO)",
+ "id": "Loc-Nordre-Aker",
+ "identifier": [
+  {
+   "system": "https://oneaquahealth.eu/location-id",
+   "value": "nordre-aker"
+  }
+ ],
+ "meta": {
+  "lastUpdated": "2026-01-27T06:50:29.013+00:00",
+  "profile": [
+   "http://hl7.eu/fhir/ig/oah/StructureDefinition/location-oah"
+  ],
+  "versionId": "1"
+ },
+ "mode": "instance",
+ "name": "Nordre Aker",
+ "resourceType": "Location",
+ "text": {
+  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Location Loc-Nordre-Aker</b></p><a name=\"Loc-Nordre-Aker\"> </a><a name=\"hcLoc-Nordre-Aker\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-location-oah.html\">Location: OAH Indicators</a></p></div><p><b>identifier</b>: <code>https://oneaquahealth.eu/location-id</code>/nordre-aker</p><p><b>name</b>: Nordre Aker</p><p><b>description</b>: Borough of Oslo (Nordre Aker, NO)</p><p><b>mode</b>: Instance</p><p><b>type</b>: <span title=\"Codes:{http://snomed.info/sct 288520005}\">City environment</span></p></div>",
+  "status": "generated"
+ },
+ "type": [
+  {
+   "coding": [
+    {
+     "code": "288520005",
+     "display": "City environment",
+     "system": "http://snomed.info/sct"
+    }
+   ]
+  }
+ ]
+}

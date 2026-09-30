@@ -1,0 +1,42 @@
+{
+ "description": "Coastal stream segment sampled for OAH monitoring",
+ "id": "Loc-Almyros",
+ "identifier": [
+  {
+   "system": "https://oneaquahealth.eu/location-id",
+   "value": "almyros-1"
+  }
+ ],
+ "meta": {
+  "lastUpdated": "2025-11-15T15:39:36.751+00:00",
+  "profile": [
+   "http://hl7.eu/fhir/ig/oah/StructureDefinition/location-oah"
+  ],
+  "versionId": "1"
+ },
+ "mode": "instance",
+ "name": "Almyros monitoring reach",
+ "partOf": {
+  "reference": "Location/Almyros"
+ },
+ "position": {
+  "latitude": 35.33399,
+  "longitude": 25.04834
+ },
+ "resourceType": "Location",
+ "text": {
+  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Location Loc-Almyros</b></p><a name=\"Loc-Almyros\"> </a><a name=\"hcLoc-Almyros\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-location-oah.html\">Location: OAH Indicators</a></p></div><p><b>identifier</b>: <code>https://oneaquahealth.eu/location-id</code>/almyros-1</p><p><b>name</b>: Almyros monitoring reach</p><p><b>description</b>: Coastal stream segment sampled for OAH monitoring</p><p><b>mode</b>: Instance</p><p><b>type</b>: <span title=\"Codes:{http://snomed.info/sct 420531007}\">River</span></p><h3>Positions</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Longitude</b></td><td><b>Latitude</b></td></tr><tr><td style=\"display: none\">*</td><td>25.04834</td><td>35.33399</td></tr></table><p><b>partOf</b>: <a href=\"Location-Almyros.html\">Location Almyros</a></p></div>",
+  "status": "generated"
+ },
+ "type": [
+  {
+   "coding": [
+    {
+     "code": "420531007",
+     "display": "River",
+     "system": "http://snomed.info/sct"
+    }
+   ]
+  }
+ ]
+}

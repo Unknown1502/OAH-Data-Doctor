@@ -1,0 +1,42 @@
+{
+ "description": "Benevento ARPAC air-quality station (site 03).",
+ "id": "Loc-Benevento-03",
+ "identifier": [
+  {
+   "system": "https://oneaquahealth.eu/location-id",
+   "value": "benevento-03"
+  }
+ ],
+ "meta": {
+  "lastUpdated": "2025-11-21T15:54:35.287+00:00",
+  "profile": [
+   "http://hl7.eu/fhir/ig/oah/StructureDefinition/location-oah"
+  ],
+  "versionId": "1"
+ },
+ "mode": "instance",
+ "name": "Benevento monitoring site 03",
+ "partOf": {
+  "reference": "Location/Loc-Benevento"
+ },
+ "position": {
+  "latitude": 41.129,
+  "longitude": 14.781
+ },
+ "resourceType": "Location",
+ "text": {
+  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Location Loc-Benevento-03</b></p><a name=\"Loc-Benevento-03\"> </a><a name=\"hcLoc-Benevento-03\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-location-oah.html\">Location: OAH Indicators</a></p></div><p><b>identifier</b>: <code>https://oneaquahealth.eu/location-id</code>/benevento-03</p><p><b>name</b>: Benevento monitoring site 03</p><p><b>description</b>: Benevento ARPAC air-quality station (site 03).</p><p><b>mode</b>: Instance</p><p><b>type</b>: <span title=\"Codes:{http://snomed.info/sct 288520005}\">City environment</span></p><h3>Positions</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Longitude</b></td><td><b>Latitude</b></td></tr><tr><td style=\"display: none\">*</td><td>14.781</td><td>41.129</td></tr></table><p><b>partOf</b>: <a href=\"Location-Loc-Benevento.html\">Location Benevento</a></p></div>",
+  "status": "generated"
+ },
+ "type": [
+  {
+   "coding": [
+    {
+     "code": "288520005",
+     "display": "City environment",
+     "system": "http://snomed.info/sct"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,70 @@
+{
+ "category": [
+  {
+   "coding": [
+    {
+     "code": "survey",
+     "display": "Survey",
+     "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+    }
+   ]
+  }
+ ],
+ "code": {
+  "coding": [
+   {
+    "code": "foam",
+    "display": "Foam/colour/smell",
+    "system": "http://hl7.eu/fhir/ig/oah/CodeSystem/temporarySystem-oah-eu"
+   },
+   {
+    "code": "water-aspect",
+    "display": "How does the water look?",
+    "system": "https://n-h-l.github.io/streamlink-oneaquahealth/fhir/CodeSystem/streamlink"
+   }
+  ],
+  "text": "How does the water look?"
+ },
+ "derivedFrom": [
+  {
+   "reference": "QuestionnaireResponse/566"
+  }
+ ],
+ "effectiveDateTime": "2026-09-23T15:21:12.987Z",
+ "id": "574",
+ "meta": {
+  "lastUpdated": "2026-09-23T15:21:18.661+00:00",
+  "profile": [
+   "http://hl7.eu/fhir/ig/oah/StructureDefinition/observation-indicators-oah",
+   "https://n-h-l.github.io/streamlink-oneaquahealth/fhir/StructureDefinition/sl-citizen-observation"
+  ],
+  "tag": [
+   {
+    "code": "demo",
+    "display": "StreamLink demo record",
+    "system": "https://n-h-l.github.io/streamlink-oneaquahealth/fhir/CodeSystem/streamlink-tags"
+   }
+  ],
+  "versionId": "2"
+ },
+ "performer": [
+  {
+   "reference": "Practitioner/591"
+  }
+ ],
+ "resourceType": "Observation",
+ "status": "final",
+ "subject": {
+  "display": "Mina Hospital",
+  "reference": "Location/590"
+ },
+ "valueCodeableConcept": {
+  "coding": [
+   {
+    "code": "foam",
+    "display": "Foam on the surface",
+    "system": "https://n-h-l.github.io/streamlink-oneaquahealth/fhir/CodeSystem/streamlink"
+   }
+  ]
+ }
+}

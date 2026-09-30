@@ -1,0 +1,42 @@
+{
+ "description": "Urban stream segment sampled for OAH monitoring",
+ "id": "Loc-Giofyros",
+ "identifier": [
+  {
+   "system": "https://oneaquahealth.eu/location-id",
+   "value": "giofyros-1"
+  }
+ ],
+ "meta": {
+  "lastUpdated": "2025-11-15T15:39:36.751+00:00",
+  "profile": [
+   "http://hl7.eu/fhir/ig/oah/StructureDefinition/location-oah"
+  ],
+  "versionId": "1"
+ },
+ "mode": "instance",
+ "name": "Giofyros monitoring reach",
+ "partOf": {
+  "reference": "Location/Giofyros"
+ },
+ "position": {
+  "latitude": 35.32135,
+  "longitude": 25.10592
+ },
+ "resourceType": "Location",
+ "text": {
+  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Location Loc-Giofyros</b></p><a name=\"Loc-Giofyros\"> </a><a name=\"hcLoc-Giofyros\"> </a><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\"/><p style=\"margin-bottom: 0px\">Profile: <a href=\"StructureDefinition-location-oah.html\">Location: OAH Indicators</a></p></div><p><b>identifier</b>: <code>https://oneaquahealth.eu/location-id</code>/giofyros-1</p><p><b>name</b>: Giofyros monitoring reach</p><p><b>description</b>: Urban stream segment sampled for OAH monitoring</p><p><b>mode</b>: Instance</p><p><b>type</b>: <span title=\"Codes:{http://snomed.info/sct 420531007}\">River</span></p><h3>Positions</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Longitude</b></td><td><b>Latitude</b></td></tr><tr><td style=\"display: none\">*</td><td>25.10592</td><td>35.32135</td></tr></table><p><b>partOf</b>: <a href=\"Location-Giofyros.html\">Location Giofyros</a></p></div>",
+  "status": "generated"
+ },
+ "type": [
+  {
+   "coding": [
+    {
+     "code": "420531007",
+     "display": "River",
+     "system": "http://snomed.info/sct"
+    }
+   ]
+  }
+ ]
+}

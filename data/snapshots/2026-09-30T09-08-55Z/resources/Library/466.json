@@ -1,0 +1,85 @@
+{
+ "author": [
+  {
+   "name": "Second Look project, Berkeley, a follower city"
+  }
+ ],
+ "content": [
+  {
+   "contentType": "text/html",
+   "title": "The repository: code, FSH, the emitter and every test",
+   "url": "https://github.com/alejandro-publius/second-look"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "title": "One worked visit at Strawberry Creek as a collection Bundle",
+   "url": "https://github.com/alejandro-publius/second-look/blob/main/fhir/golden/visit-strawberry-creek-1.json"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "title": "Read only endpoint: one Bundle per visit, by visit id",
+   "url": "https://second-look-api.thealexschroeder.workers.dev/api/fhir/Bundle"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "title": "Provenance of one mirrored visit on this server",
+   "url": "Provenance/465"
+  }
+ ],
+ "copyright": "Code MIT. Photos and copy CC BY 4.0. No personal data: observers are known only by a hash of a random token.",
+ "date": "2026-09-21",
+ "description": "Second Look data set: citizen creek checks from Berkeley, a follower city, with the observer's per feature test score carried on every observation. 1 visit records mirrored to this server. The repository holds the code, the FSH and the tests.",
+ "extension": [
+  {
+   "url": "http://hl7.eu/fhir/ig/oah/StructureDefinition/library-size",
+   "valueQuantity": {
+    "unit": "visit records",
+    "value": 1
+   }
+  },
+  {
+   "url": "http://hl7.eu/fhir/ig/oah/StructureDefinition/library-numberOfRecords",
+   "valueInteger": 1
+  }
+ ],
+ "id": "466",
+ "identifier": [
+  {
+   "system": "https://github.com/alejandro-publius/second-look/fhir/library-id",
+   "value": "second-look-citizen-creek-checks"
+  }
+ ],
+ "meta": {
+  "lastUpdated": "2026-09-21T06:53:46.737+00:00",
+  "profile": [
+   "http://hl7.eu/fhir/ig/oah/StructureDefinition/library-oah"
+  ],
+  "tag": [
+   {
+    "code": "second-look",
+    "system": "https://github.com/alejandro-publius/second-look"
+   }
+  ],
+  "versionId": "1"
+ },
+ "name": "SecondLookCitizenCreekChecks",
+ "publisher": "Second Look project",
+ "resourceType": "Library",
+ "status": "active",
+ "text": {
+  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Second Look data set: citizen creek checks from Berkeley, a follower city, with the observer's per feature test score carried on every observation. 1 visit records mirrored to this server. The repository holds the code, the FSH and the tests.</p></div>",
+  "status": "generated"
+ },
+ "title": "Second Look: citizen creek checks with observer scores, Berkeley",
+ "type": {
+  "coding": [
+   {
+    "code": "asset-collection",
+    "display": "Asset Collection",
+    "system": "http://terminology.hl7.org/CodeSystem/library-type"
+   }
+  ]
+ },
+ "url": "https://github.com/alejandro-publius/second-look/fhir/Library/second-look-citizen-creek-checks",
+ "version": "2026.09"
+}

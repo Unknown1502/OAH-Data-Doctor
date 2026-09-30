@@ -1,0 +1,134 @@
+{
+ "activity": {
+  "coding": [
+   {
+    "code": "CREATE",
+    "display": "create",
+    "system": "http://terminology.hl7.org/CodeSystem/v3-DataOperation"
+   }
+  ]
+ },
+ "agent": [
+  {
+   "type": {
+    "coding": [
+     {
+      "code": "author",
+      "display": "Author",
+      "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type"
+     }
+    ]
+   },
+   "who": {
+    "reference": "Practitioner/591"
+   }
+  }
+ ],
+ "entity": [
+  {
+   "role": "source",
+   "what": {
+    "reference": "QuestionnaireResponse/566"
+   }
+  }
+ ],
+ "extension": [
+  {
+   "extension": [
+    {
+     "url": "score",
+     "valueDecimal": 1
+    }
+   ],
+   "url": "https://n-h-l.github.io/streamlink-oneaquahealth/fhir/StructureDefinition/sl-trust-assessment"
+  }
+ ],
+ "id": "589",
+ "meta": {
+  "lastUpdated": "2026-09-23T15:21:14.415+00:00",
+  "profile": [
+   "https://n-h-l.github.io/streamlink-oneaquahealth/fhir/StructureDefinition/sl-check-provenance"
+  ],
+  "tag": [
+   {
+    "code": "demo",
+    "display": "StreamLink demo record",
+    "system": "https://n-h-l.github.io/streamlink-oneaquahealth/fhir/CodeSystem/streamlink-tags"
+   }
+  ],
+  "versionId": "1"
+ },
+ "recorded": "2026-09-23T15:21:12.987Z",
+ "resourceType": "Provenance",
+ "target": [
+  {
+   "reference": "QuestionnaireResponse/566"
+  },
+  {
+   "reference": "Observation/567"
+  },
+  {
+   "reference": "Observation/568"
+  },
+  {
+   "reference": "Observation/569"
+  },
+  {
+   "reference": "Observation/570"
+  },
+  {
+   "reference": "Observation/571"
+  },
+  {
+   "reference": "Observation/572"
+  },
+  {
+   "reference": "Observation/573"
+  },
+  {
+   "reference": "Observation/574"
+  },
+  {
+   "reference": "Observation/575"
+  },
+  {
+   "reference": "Observation/576"
+  },
+  {
+   "reference": "Observation/577"
+  },
+  {
+   "reference": "Observation/578"
+  },
+  {
+   "reference": "Observation/579"
+  },
+  {
+   "reference": "Observation/580"
+  },
+  {
+   "reference": "Observation/581"
+  },
+  {
+   "reference": "Observation/582"
+  },
+  {
+   "reference": "Observation/583"
+  },
+  {
+   "reference": "Observation/584"
+  },
+  {
+   "reference": "Observation/585"
+  },
+  {
+   "reference": "Observation/586"
+  },
+  {
+   "reference": "Observation/587"
+  },
+  {
+   "reference": "Observation/588"
+  }
+ ]
+}

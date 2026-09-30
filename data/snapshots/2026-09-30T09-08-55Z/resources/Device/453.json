@@ -1,0 +1,45 @@
+{
+ "deviceName": [
+  {
+   "name": "Second Look web app",
+   "type": "user-friendly-name"
+  }
+ ],
+ "id": "453",
+ "identifier": [
+  {
+   "system": "https://github.com/alejandro-publius/second-look/fhir/device",
+   "value": "second-look-web"
+  }
+ ],
+ "meta": {
+  "lastUpdated": "2026-09-21T06:53:45.935+00:00",
+  "tag": [
+   {
+    "code": "second-look",
+    "system": "https://github.com/alejandro-publius/second-look"
+   }
+  ],
+  "versionId": "1"
+ },
+ "resourceType": "Device",
+ "status": "active",
+ "text": {
+  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Second Look web app, version 0.1.0. Assembled this record.</p></div>",
+  "status": "generated"
+ },
+ "type": {
+  "coding": [
+   {
+    "code": "software",
+    "display": "Second Look software",
+    "system": "https://github.com/alejandro-publius/second-look/fhir/CodeSystem/second-look"
+   }
+  ]
+ },
+ "version": [
+  {
+   "value": "0.1.0"
+  }
+ ]
+}

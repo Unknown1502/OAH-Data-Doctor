@@ -1,0 +1,404 @@
+{
+ "author": [
+  {
+   "name": "Oslo Kommune"
+  }
+ ],
+ "contact": [
+  {
+   "name": "OneAquaHealth Project",
+   "telecom": [
+    {
+     "system": "url",
+     "value": "https://www.oneaquahealth.eu"
+    }
+   ]
+  }
+ ],
+ "content": [
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-long-term-disease-Male"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-long-term-disease-Female"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-long-term-disease-All"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-long-term-disease-Age-18-29"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-long-term-disease-Age-30-39"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-long-term-disease-Age-40-49"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-long-term-disease-Age-50-59"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-long-term-disease-Age-60-69"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-long-term-disease-Age-70-plus"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-long-term-disease-Male"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-long-term-disease-Female"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-long-term-disease-All"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-long-term-disease-Age-18-29"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-long-term-disease-Age-30-39"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-long-term-disease-Age-40-49"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-long-term-disease-Age-50-59"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-long-term-disease-Age-60-69"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-long-term-disease-Age-70-plus"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-18-Male"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-18-Female"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-18-All"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-18-Age-18-29"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-18-Age-30-39"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-18-Age-40-49"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-18-Age-50-59"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-18-Age-60-69"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-18-Age-70-plus"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-25-Male"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-25-Female"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-25-All"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-25-Age-18-29"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-25-Age-30-39"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-25-Age-40-49"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-25-Age-50-59"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-25-Age-60-69"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-25-Age-70-plus"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-30-Male"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-30-Female"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-30-All"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-30-Age-18-29"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-30-Age-30-39"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-30-Age-40-49"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-30-Age-50-59"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-30-Age-60-69"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-below-30-Age-70-plus"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-above-30-Male"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-above-30-Female"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-above-30-All"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-above-30-Age-18-29"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-above-30-Age-30-39"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-above-30-Age-40-49"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-above-30-Age-50-59"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-above-30-Age-60-69"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-bmi-above-30-Age-70-plus"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-diabate-copd-cvd-Male"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-diabate-copd-cvd-Female"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-diabate-copd-cvd-All"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-diabate-copd-cvd-Age-18-29"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-diabate-copd-cvd-Age-30-39"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-diabate-copd-cvd-Age-40-49"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-diabate-copd-cvd-Age-50-59"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-diabate-copd-cvd-Age-60-69"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-diabate-copd-cvd-Age-70-plus"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-diabate-copd-cvd-Male"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-diabate-copd-cvd-Female"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-diabate-copd-cvd-All"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-diabate-copd-cvd-Age-18-29"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-diabate-copd-cvd-Age-30-39"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-diabate-copd-cvd-Age-40-49"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-diabate-copd-cvd-Age-50-59"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-diabate-copd-cvd-Age-60-69"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-no-diabate-copd-cvd-Age-70-plus"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-mental-health-Male"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-mental-health-Female"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-mental-health-All"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-mental-health-Age-18-29"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-mental-health-Age-30-39"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-mental-health-Age-40-49"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-mental-health-Age-50-59"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-mental-health-Age-60-69"
+  },
+  {
+   "contentType": "application/fhir+json",
+   "url": "Observation/Obs-OS-mental-health-Age-70-plus"
+  }
+ ],
+ "date": "2025-05-27",
+ "description": "Consolidated Oslo dataset with 81 disease prevalence observations (Nordre Aker, 2024).",
+ "extension": [
+  {
+   "url": "http://hl7.eu/fhir/ig/oah/StructureDefinition/library-size",
+   "valueQuantity": {
+    "unit": "observations",
+    "value": 81
+   }
+  },
+  {
+   "url": "http://hl7.eu/fhir/ig/oah/StructureDefinition/library-numberOfRecords",
+   "valueInteger": 81
+  }
+ ],
+ "id": "Library-Oslo-All",
+ "identifier": [
+  {
+   "system": "https://oneaquahealth.eu/library-id",
+   "value": "oslo-all"
+  }
+ ],
+ "jurisdiction": [
+  {
+   "coding": [
+    {
+     "code": "150",
+     "display": "Europe",
+     "system": "http://unstats.un.org/unsd/methods/m49/m49.htm"
+    }
+   ]
+  }
+ ],
+ "meta": {
+  "lastUpdated": "2026-01-27T06:50:29.013+00:00",
+  "profile": [
+   "http://hl7.eu/fhir/ig/oah/StructureDefinition/library-oah"
+  ],
+  "versionId": "1"
+ },
+ "name": "OsloAllResults",
+ "publisher": "OneAquaHealth Project",
+ "resourceType": "Library",
+ "status": "active",
+ "text": {
+  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">\n<div>\n    <table class=\"grid dict\">\n        \n        \n        <tr>\n            <th scope=\"row\"><b>Title: </b></th>\n            <td style=\"padding-left: 4px;\">Oslo observations (all cohorts)</td>\n        </tr>\n        \n\n        \n        \n        <tr>\n            <th scope=\"row\"><b>Id: </b></th>\n            <td style=\"padding-left: 4px;\">Library-Oslo-All</td>\n        </tr>\n        \n\n        \n        \n        <tr>\n            <th scope=\"row\"><b>Version: </b></th>\n            <td style=\"padding-left: 4px;\">0.1.0-ci-build</td>\n        </tr>\n        \n\n        \n        <tr>\n            <th scope=\"row\"><b>Url: </b></th>\n            <td style=\"padding-left: 4px;\"><a href=\"Library-Library-Oslo-All.html\">Oslo observations (all cohorts)</a></td>\n        </tr>\n        \n\n        \n        <tr>\n            <th scope=\"row\">\n                <b>\n                    \n                        \n                    \n                </b>\n            </th>\n            <td style=\"padding-left: 4px;\">\n                \n                <p style=\"margin-bottom: 5px;\">\n                    <span>oslo-all</span>\n                </p>\n                \n            </td>\n        </tr>\n        \n\n        \n\n        \n\n        \n\n        \n        <tr>\n            <th scope=\"row\"><b>Type: </b></th>\n            <td style=\"padding-left: 4px;\">\n                \n                    \n                        \n                        <p style=\"margin-bottom: 5px;\">\n                            <b>system: </b> <span><a href=\"http://terminology.hl7.org/7.0.1/CodeSystem-library-type.html\">http://terminology.hl7.org/CodeSystem/library-type</a></span>\n                        </p>\n                        \n                        \n                        <p style=\"margin-bottom: 5px;\">\n                            <b>code: </b> <span>asset-collection</span>\n                        </p>\n                        \n                        \n                        <p style=\"margin-bottom: 5px;\">\n                            <b>display: </b> <span>Asset Collection</span>\n                        </p>\n                        \n                    \n                \n                \n            </td>\n        </tr>\n        \n\n        \n\n        \n        <tr>\n            <th scope=\"row\"><b>Date: </b></th>\n            <td style=\"padding-left: 4px;\">2025-05-27</td>\n        </tr>\n        \n\n        \n        <tr>\n            <th scope=\"row\"><b>Publisher: </b></th>\n            <td style=\"padding-left: 4px;\">OneAquaHealth Project</td>\n        </tr>\n        \n\n        \n        <tr>\n            <th scope=\"row\"><b>Description: </b></th>\n            <td style=\"padding-left: 4px;\"><div><p>Consolidated Oslo dataset with 81 disease prevalence observations (Nordre Aker, 2024).</p>\n</div></td>\n        </tr>\n        \n\n        \n\n        \n\n        \n\n        \n        <tr>\n            <th scope=\"row\"><b>Jurisdiction: </b></th>\n            <td style=\"padding-left: 4px;\">150</td>\n        </tr>\n        \n\n        \n\n        \n\n        \n\n        \n\n        \n\n        \n\n        \n\n        \n\n        \n\n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n        \n        \n        <tr>\n          <td colspan=\"2\">\n            <table>\n              <tr><th><b>Content: </b> application/fhir+json</th></tr>\n              <tr><td><pre><code/></pre></td></tr>\n            </table>\n          </td>\n        </tr>\n        \n        \n    </table>\n</div>\n</div>",
+  "status": "extensions"
+ },
+ "title": "Oslo observations (all cohorts)",
+ "type": {
+  "coding": [
+   {
+    "code": "asset-collection",
+    "display": "Asset Collection",
+    "system": "http://terminology.hl7.org/CodeSystem/library-type"
+   }
+  ]
+ },
+ "url": "https://oneaquahealth.eu/library/OsloAll",
+ "version": "0.1.0-ci-build"
+}

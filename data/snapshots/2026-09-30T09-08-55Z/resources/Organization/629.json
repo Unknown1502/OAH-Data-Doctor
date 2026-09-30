@@ -1,0 +1,21 @@
+{
+ "active": true,
+ "id": "629",
+ "meta": {
+  "lastUpdated": "2026-09-29T23:45:03.343+00:00",
+  "tag": [
+   {
+    "code": "demo",
+    "display": "StreamPulse historical replay; no field sampling performed",
+    "system": "https://mohitt31.github.io/streampulse/fhir/CodeSystem/sandbox-tags"
+   }
+  ],
+  "versionId": "1"
+ },
+ "name": "StreamPulse DEMO processing organization",
+ "resourceType": "Organization",
+ "text": {
+  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>StreamPulse DEMO processing organization. Not an environmental authority or the original sensor operator.</p></div>",
+  "status": "generated"
+ }
+}

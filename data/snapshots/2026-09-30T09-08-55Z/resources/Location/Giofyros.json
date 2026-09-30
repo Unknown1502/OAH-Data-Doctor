@@ -1,0 +1,32 @@
+{
+ "description": "Giofyros River, Crete, Greece",
+ "id": "Giofyros",
+ "identifier": [
+  {
+   "system": "https://oneaquahealth.eu/location-id",
+   "value": "giofyros"
+  }
+ ],
+ "meta": {
+  "lastUpdated": "2025-11-15T15:39:36.751+00:00",
+  "versionId": "1"
+ },
+ "mode": "instance",
+ "name": "Giofyros",
+ "resourceType": "Location",
+ "text": {
+  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: Location Giofyros</b></p><a name=\"Giofyros\"> </a><a name=\"hcGiofyros\"> </a><p><b>identifier</b>: <code>https://oneaquahealth.eu/location-id</code>/giofyros</p><p><b>name</b>: Giofyros</p><p><b>description</b>: Giofyros River, Crete, Greece</p><p><b>mode</b>: Instance</p><p><b>type</b>: <span title=\"Codes:{http://snomed.info/sct 420531007}\">River</span></p></div>",
+  "status": "generated"
+ },
+ "type": [
+  {
+   "coding": [
+    {
+     "code": "420531007",
+     "display": "River",
+     "system": "http://snomed.info/sct"
+    }
+   ]
+  }
+ ]
+}
