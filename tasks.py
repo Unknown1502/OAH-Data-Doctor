@@ -44,7 +44,6 @@ def node_bin(pkg_path: str) -> list[str]:
 def setup() -> None:
     if not PY.exists():
         venv.EnvBuilder(with_pip=True).create(VENV)
-    sh([str(PY), "-m", "pip", "install", "--quiet", "--upgrade", "pip"])
     sh([str(PY), "-m", "pip", "install", "--quiet", "-e", ".[dev]"])
     if shutil.which(NPM) is None:
         print("npm not found: install Node.js 20+ to build the UI (the API and CLI work without it).")
