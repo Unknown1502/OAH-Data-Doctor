@@ -1,0 +1,140 @@
+{
+ "snapshot_id": "2026-09-30T09-08-55Z",
+ "seed": 20260930,
+ "rules_version": "77925a293d32a9d6",
+ "injected": 251,
+ "detected": 251,
+ "detection_ci": "98.5\u2013100.0 %",
+ "benign_records": 100,
+ "benign_new_findings": 0,
+ "fp_ci": "0.0\u20133.7 %",
+ "collateral": 0,
+ "fault_types": 15,
+ "faults": [
+  {
+   "name": "Median scaled x100",
+   "expected": [
+    "SEM-SCALE-001",
+    "SEM-STAT-001",
+    "SEM-STAT-003"
+   ],
+   "injected": 20,
+   "detected": 20
+  },
+  {
+   "name": "Median scaled x10,000",
+   "expected": [
+    "SEM-SCALE-001",
+    "SEM-STAT-001"
+   ],
+   "injected": 20,
+   "detected": 20
+  },
+  {
+   "name": "Mean scaled x1,000",
+   "expected": [
+    "SEM-SCALE-001",
+    "SEM-STAT-002",
+    "SEM-STAT-003"
+   ],
+   "injected": 20,
+   "detected": 20
+  },
+  {
+   "name": "Minimum and maximum swapped",
+   "expected": [
+    "SEM-STAT-005"
+   ],
+   "injected": 20,
+   "detected": 20
+  },
+  {
+   "name": "Median above maximum (x1.5)",
+   "expected": [
+    "SEM-STAT-001"
+   ],
+   "injected": 20,
+   "detected": 20
+  },
+  {
+   "name": "SD larger than the range allows",
+   "expected": [
+    "SEM-STAT-004"
+   ],
+   "injected": 20,
+   "detected": 20
+  },
+  {
+   "name": "Water temperature 150 C",
+   "expected": [
+    "SEM-RANGE-001"
+   ],
+   "injected": 6,
+   "detected": 6
+  },
+  {
+   "name": "Prevalence 120 %",
+   "expected": [
+    "SEM-RANGE-001"
+   ],
+   "injected": 20,
+   "detected": 20
+  },
+  {
+   "name": "UCUM unit code removed",
+   "expected": [
+    "STR-UNIT-001"
+   ],
+   "injected": 20,
+   "detected": 20
+  },
+  {
+   "name": "Subject reference dangling",
+   "expected": [
+    "STR-REF-001"
+   ],
+   "injected": 20,
+   "detected": 20
+  },
+  {
+   "name": "Pooled share above both subgroups",
+   "expected": [
+    "SEM-COHORT-001"
+   ],
+   "injected": 9,
+   "detected": 9
+  },
+  {
+   "name": "Complementary shares +10 points",
+   "expected": [
+    "SEM-COHORT-002"
+   ],
+   "injected": 18,
+   "detected": 18
+  },
+  {
+   "name": "PM2.5 set 30 % above PM10",
+   "expected": [
+    "SEM-XREC-001"
+   ],
+   "injected": 17,
+   "detected": 17
+  },
+  {
+   "name": "Two sites given identical coordinates",
+   "expected": [
+    "SEM-SPATIAL-001"
+   ],
+   "injected": 4,
+   "detected": 4
+  },
+  {
+   "name": "Library record count off by one",
+   "expected": [
+    "STR-LIB-001"
+   ],
+   "injected": 17,
+   "detected": 17
+  }
+ ]
+}
