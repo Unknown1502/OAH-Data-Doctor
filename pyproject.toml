@@ -26,6 +26,7 @@ dev = [
   "ruff>=0.4",
   "mypy>=1.9",
   "types-PyYAML",
+  "httpx2>=2",  # FastAPI's TestClient prefers it (otherwise a deprecation warning)
 ]
 ai = ["anthropic>=0.40"]
 

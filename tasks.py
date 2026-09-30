@@ -12,6 +12,7 @@
     python tasks.py gate0       write docs/GATE0_REPORT.md from a live audit
     python tasks.py evaluate    fault-injection evaluation -> docs/EVALUATION.md
     python tasks.py offline     demo check with the network off: snapshot audit + e2e
+    python tasks.py acceptance  expected outcomes of every API endpoint, against a running app (see scripts/acceptance.py)
 """
 
 from __future__ import annotations
@@ -98,6 +99,7 @@ TASKS = {
     "snapshot": lambda: cli("snapshot"), "audit": lambda: cli("audit", "--source", "auto"),
     "gate0": lambda: cli("gate0", "--source", "live"),
     "evaluate": lambda: sh([str(PY), "scripts/evaluate.py"]),
+    "acceptance": lambda: sh([str(PY), "scripts/acceptance.py", *sys.argv[2:]]),
 }
 
 if __name__ == "__main__":

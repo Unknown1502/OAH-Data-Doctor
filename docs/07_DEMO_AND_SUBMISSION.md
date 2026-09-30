@@ -11,7 +11,8 @@
 - [ ] Human reviewer signs off the 20-finding sample in docs/GATE0_REPORT.md (regenerate first: `python tasks.py gate0`).
 - [ ] `python tasks.py snapshot` shortly before recording, if the sandbox is reachable, then `python scripts/render_docs.py`
       (README and docs/SUBMISSION.md numbers come from the latest snapshot) and commit.
-- [ ] Fresh-clone test: `git clone … && python tasks.py setup && python tasks.py test && python tasks.py run`.
+- [ ] Fresh-clone test: `git clone … && python tasks.py setup && python tasks.py test && python tasks.py run`, then in a
+      second terminal `python tasks.py acceptance` (every endpoint against its expected outcome; exit 0 = all passed).
 - [ ] Offline test: disconnect the network, `DD_SOURCE=snapshot python tasks.py run`, walk the demo script.
 - [ ] Record the video following docs/DEMO_SCRIPT.md (3–5 minutes).
 - [ ] Push to a public GitHub repository; replace the placeholder rules canonical URL (DECISIONS D-009) if desired.

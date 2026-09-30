@@ -141,7 +141,8 @@ python tasks.py run        # http://127.0.0.1:8321  (live sandbox, falls back to
 - Windows: clone into a short folder (for example `C:\src\oah-data-doctor`). Some third-party Python packages install
   deeply nested files, and pip stops with a long-path error inside very deep folders unless Windows long paths are enabled.
 - Command line: `python tools/oah_audit.py audit --source live`, plus `snapshot`, `gate0` and `verify-snapshot`.
-- Evaluation: `python tasks.py evaluate`. End-to-end: `python tasks.py e2e`.
+- Evaluation: `python tasks.py evaluate`. End-to-end: `python tasks.py e2e`. Acceptance (expected outcomes of every API
+  endpoint, against a running app): `python tasks.py acceptance`.
 - Configuration: `.env.example`. No secrets are needed.
 - Optional free language model: install [Ollama](https://ollama.com), run `ollama pull qwen2.5:3b`, and set
   `DD_LLM_PROVIDER=ollama` in `.env`. A "Rephrase" button then appears on each finding. Free hosted endpoints work with

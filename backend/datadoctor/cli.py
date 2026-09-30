@@ -16,8 +16,9 @@ from datadoctor.config import REPO_ROOT, get_settings
 from datadoctor.domain.enums import Scope, Severity
 from datadoctor.domain.models import Dataset, Finding
 from datadoctor.ingestion.cache import HttpCache
-from datadoctor.ingestion.fhir_client import FhirClient
-from datadoctor.ingestion.snapshot import create_snapshot, list_snapshots, verify_snapshot
+from datadoctor.ingestion.fhir_client import FhirClient, SandboxUnavailable
+from datadoctor.ingestion.snapshot import SnapshotError, create_snapshot, list_snapshots, verify_snapshot
+from datadoctor.ingestion.source import NoDataAvailable
 from datadoctor.knowledge.loader import load_knowledge
 
 STATS = "http://terminology.hl7.org/CodeSystem/observation-statistics"
@@ -203,7 +204,34 @@ async def _cmd_gate0(args: argparse.Namespace) -> None:
     print(f"gate 0 report: {target}")
 
 
+def utf8_output() -> None:
+    """Windows writes redirected output (a pipe, a file, a CI log) in the legacy code page, which garbles characters such
+    as "—" and crashes on "→". Use UTF-8 on every platform."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure) and (stream.encoding or "").lower().replace("-", "") != "utf8":
+            reconfigure(encoding="utf-8", errors="replace")
+
+
+# Expected failures get one clear line and a hint, not a traceback.
+_HINTS = {
+    NoDataAvailable: "Check the network or DD_FHIR_BASE, or use --source auto (falls back to the latest verified snapshot) "
+                     "or --source snapshot.",
+    SandboxUnavailable: "Check the network or DD_FHIR_BASE, or use --source snapshot.",
+    SnapshotError: "The snapshot does not match its manifest; take a fresh one with `snapshot`, or pick another with --snapshot-id.",
+}
+
+
 def main(argv: list[str] | None = None) -> int:
+    utf8_output()
+    try:
+        return _main(argv)
+    except tuple(_HINTS) as exc:
+        print(f"error: {exc}\nhint: {next(h for t, h in _HINTS.items() if isinstance(exc, t))}", file=sys.stderr)
+        return 1
+
+
+def _main(argv: list[str] | None) -> int:
     ap = argparse.ArgumentParser(prog="datadoctor", description="OAH Data Doctor — scientific integrity auditor")
     sub = ap.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("snapshot", help="fetch everything from the live sandbox into data/snapshots/<utc>/")
@@ -212,7 +240,7 @@ def main(argv: list[str] | None = None) -> int:
         p = sub.add_parser(name)
         p.add_argument("--source", choices=["live", "snapshot", "auto"], default=None)
         p.add_argument("--snapshot-id", default=None)
-        p.add_argument("--out", default=None)
+        p.add_argument("--out", default=None, metavar="DIR", help="folder for audit.json (default: data/reports/<run id>/)")
         if name == "gate0":
             p.add_argument("--seed", type=int, default=20260930)
             p.add_argument("--sample", type=int, default=20)

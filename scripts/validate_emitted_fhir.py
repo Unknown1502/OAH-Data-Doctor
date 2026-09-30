@@ -61,4 +61,7 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
+    from datadoctor.cli import utf8_output
+
+    utf8_output()  # readable output when redirected on Windows
     asyncio.run(main())
