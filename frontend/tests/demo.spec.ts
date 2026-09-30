@@ -132,14 +132,19 @@ test("a user can bring their own model key; it stays in the tab and goes only to
   await dialog.getByRole("button", { name: "Connect" }).click();
   await expect(dialog).toBeHidden();
 
-  await expect(page.getByRole("button", { name: "Language model: groq:llama-3.3-70b-versatile" })).toBeVisible();
+  // The top bar now always says which model is in use and whose key pays for it.
+  const modelButton = page.getByRole("button", { name: /^Language model: Groq llama-3.3-70b-versatile/ });
+  await expect(modelButton).toBeVisible();
+  await expect(modelButton).toContainText("your key");
   // Tab-only by default: sessionStorage, not localStorage.
   expect(await page.evaluate(() => [sessionStorage.getItem("dd-llm") !== null, localStorage.getItem("dd-llm")])).toEqual([true, null]);
-  await page.getByRole("button", { name: "Rephrase with groq:llama-3.3-70b-versatile" }).click();
-  await expect(page.getByText("Rephrased by groq:llama-3.3-70b-versatile")).toBeVisible();
+  await page.getByRole("button", { name: "Rephrase with Groq llama-3.3-70b-versatile" }).click();
+  const credit = page.locator("p", { hasText: "Rephrased by" });
+  await expect(credit).toContainText("Groq");
+  await expect(credit).toContainText("llama-3.3-70b-versatile");
   expect(sent).toEqual({ llm: { provider: "groq", model: "llama-3.3-70b-versatile", api_key: key } });
 
-  await page.getByRole("button", { name: /Language model: groq/ }).click();
+  await modelButton.click();
   await dialog.getByRole("button", { name: "Disconnect" }).click();
   await dialog.getByRole("button", { name: "Close" }).click();
   await expect(page.getByRole("button", { name: "Language model: off" })).toBeVisible();

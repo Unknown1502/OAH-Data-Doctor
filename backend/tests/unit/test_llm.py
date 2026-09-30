@@ -115,7 +115,9 @@ def test_get_llm_selects_provider_and_never_raises():
     assert get_llm(replace(base, llm_provider="ollama", llm_model="llama3.2:3b")).name == "ollama:llama3.2:3b"
     assert get_llm(replace(base, llm_provider="openai-compatible")) is None  # no base URL: misconfigured -> deterministic
     hosted = get_llm(replace(base, llm_provider="openai-compatible", llm_model="m", llm_base_url="https://api.groq.com/openai/v1"))
-    assert isinstance(hosted, OpenAICompatibleClient)
+    assert isinstance(hosted, OpenAICompatibleClient) and hosted.name == "groq:m"  # a known endpoint is named after its provider
+    other = get_llm(replace(base, llm_provider="openai-compatible", llm_model="m", llm_base_url="http://localhost:1234/v1"))
+    assert other is not None and other.name == "localhost:m"
     assert get_llm(replace(base, llm_provider="something-else")) is None
 
 

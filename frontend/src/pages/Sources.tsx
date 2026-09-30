@@ -1,4 +1,4 @@
-import { useLlm } from "../components/ModelSettings";
+import { ModelBadge, useLlm } from "../components/ModelSettings";
 import { useRun } from "../components/Shell";
 import { Button, Loading, SourceBadge, useDocumentTitle } from "../components/ui";
 import { useState } from "react";
@@ -113,7 +113,14 @@ export default function Sources() {
           computed finding, and fill gaps when the keyword rules read a typed claim. Any model works: a free local one through Ollama, a free
           hosted endpoint, or Claude. A rephrasing is thrown away and the fixed template is used instead if it contains a number that is not in
           the evidence, or if it states a cause or a correction the finding does not. The language model is currently{" "}
-          {llm.activeName ? `enabled (${llm.activeName}${llm.config ? ", your own settings" : ""})` : "switched off"}.
+          {llm.activeName ? (
+            <>
+              enabled: <ModelBadge name={llm.activeName} source={llm.config ? "yours" : "server"} /> ({llm.config ? "your key" : "this server's setting"})
+            </>
+          ) : (
+            "switched off"
+          )}
+          .
           {status?.llm_user_keys && (
             <>
               {" "}You can use your own provider and key, including free tiers: choose{" "}

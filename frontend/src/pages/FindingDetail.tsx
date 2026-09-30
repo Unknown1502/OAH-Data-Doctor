@@ -4,7 +4,7 @@ import Lineage from "../components/Lineage";
 import MagnitudeRuler from "../components/MagnitudeRuler";
 import TraceGraph from "../components/TraceGraph";
 import TwoVerdicts from "../components/TwoVerdicts";
-import { useLlm } from "../components/ModelSettings";
+import { ModelBadge, ProviderIcon, describeModel, useLlm } from "../components/ModelSettings";
 import { useRun } from "../components/Shell";
 import { Button, ErrorNote, FindingLink, Loading, SeverityTag, useDocumentTitle } from "../components/ui";
 import { download, post, useApi } from "../lib/api";
@@ -224,32 +224,40 @@ export default function FindingDetail() {
       <Section id="ex-h" title="In plain words">
         <div className="max-w-[72ch] whitespace-pre-line leading-relaxed">{explanation.text}</div>
         <p className="mt-2 text-sm text-ink-3">
-          {explanation.method === "template"
-            ? "Written from the finding by a fixed template."
-            : `Rephrased by ${explanation.method.replace("llm:", "")} from the finding's facts only; its numbers and any stated cause were checked against the finding.`}
+          {explanation.method === "template" ? (
+            "Written from the finding by a fixed template."
+          ) : (
+            <>
+              Rephrased by <ModelBadge name={explanation.method.replace(/^llm:/, "")} /> from the finding's facts only; its numbers and any
+              stated cause were checked against the finding.
+            </>
+          )}
           {explanation.fallback_reason && ` (${explanation.fallback_reason}; template used.)`}{" "}
           {explanation.method !== "template" && (
             <button type="button" className="text-karst underline underline-offset-2" onClick={() => setExplained(null)}>
               Show the full template version
             </button>
           )}
-          {llm.activeName && explanation.method === "template" && !explanation.fallback_reason && (
-            <button type="button" className="text-karst underline underline-offset-2 disabled:no-underline disabled:text-ink-3" disabled={rephrasing}
-              onClick={async () => {
-                setRephrasing(true);
-                setRephraseErr(null);
-                try {
-                  setExplained(await post(`/findings/${encodeURIComponent(f.id)}/explain`, llm.body));
-                } catch (e) {
-                  setRephraseErr(String(e instanceof Error ? e.message : e));
-                } finally {
-                  setRephrasing(false);
-                }
-              }}>
-              {rephrasing ? `Rephrasing with ${llm.activeName}…` : `Rephrase with ${llm.activeName}`}
-            </button>
-          )}
         </p>
+        {llm.activeName && explanation.method === "template" && !explanation.fallback_reason && (
+          <button type="button" disabled={rephrasing}
+            className="mt-3 inline-flex max-w-full items-center gap-1.5 rounded-lg border border-line-strong bg-panel px-3.5 py-2 text-[0.95rem] text-ink hover:bg-sunk disabled:cursor-wait disabled:opacity-70"
+            onClick={async () => {
+              setRephrasing(true);
+              setRephraseErr(null);
+              try {
+                setExplained(await post(`/findings/${encodeURIComponent(f.id)}/explain`, llm.body));
+              } catch (e) {
+                setRephraseErr(String(e instanceof Error ? e.message : e));
+              } finally {
+                setRephrasing(false);
+              }
+            }}>
+            {rephrasing ? "Rephrasing with" : "Rephrase with"} <ProviderIcon id={describeModel(llm.activeName).provider} className="h-4 w-4" />
+            <span className="font-semibold">{describeModel(llm.activeName).label}</span>{" "}
+            <span className="min-w-0 truncate text-ink-2">{describeModel(llm.activeName).model}{rephrasing ? "…" : ""}</span>
+          </button>
+        )}
         {rephrasing && <p role="status" className="m-0 mt-1 text-sm text-ink-3">A local model can take up to a minute on the first request.</p>}
         {rephraseErr && <p role="alert" className="m-0 mt-1 text-sm text-ink-3">Rephrasing failed ({rephraseErr}); the template above stands.</p>}
       </Section>

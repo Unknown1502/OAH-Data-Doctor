@@ -108,22 +108,58 @@ export function ProviderIcon({ id, className = "h-5 w-5" }: { id: string; classN
   );
 }
 
-/** Top-bar control: shows which model (if any) rephrases findings, and opens the settings. */
+const PROVIDER_LABEL: Record<string, string> = {
+  groq: "Groq", gemini: "Google Gemini", openrouter: "OpenRouter", mistral: "Mistral", openai: "OpenAI",
+  anthropic: "Claude", ollama: "Ollama", custom: "Custom endpoint",
+};
+
+/** "groq:llama-3.3-70b-versatile" -> { provider: "groq", label: "Groq", model: "llama-3.3-70b-versatile" }. */
+export function describeModel(name: string) {
+  const i = name.indexOf(":");
+  const provider = i > 0 ? name.slice(0, i) : name;
+  return { provider, label: PROVIDER_LABEL[provider] ?? provider, model: i > 0 ? name.slice(i + 1) : "" };
+}
+
+/** Which model is (or was) at work: provider mark, provider name and model, wherever a model touches the page. */
+export function ModelBadge({ name, source }: { name: string; source?: "yours" | "server" }) {
+  const { provider, label, model } = describeModel(name);
+  return (
+    <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line-strong bg-sunk px-2.5 align-middle text-sm leading-7 text-ink">
+      <ProviderIcon id={provider} className="h-3.5 w-3.5" />
+      <span className="font-semibold">{label}</span>{" "}
+      <span className="min-w-0 truncate text-ink-2">{model}</span>
+      {source && <span className="sr-only">{source === "yours" ? " (your key)" : " (this server's setting)"}</span>}
+    </span>
+  );
+}
+
+/** Top-bar control: always shows which model (if any) is in use and whose key pays for it; opens the settings. */
 export function ModelButton({ status }: { status: Status | null }) {
   const { activeName, config, open } = useLlm();
   if (!status?.llm_user_keys) return null;
+  const d = activeName ? describeModel(activeName) : null;
   return (
     <button
       type="button"
       onClick={open}
       aria-haspopup="dialog"
-      className="inline-flex max-w-[20rem] items-center gap-2 rounded-lg border border-line-strong bg-panel px-3 py-1.5 text-sm text-ink-2 hover:bg-sunk hover:text-ink"
-      title={activeName ? `${activeName} (${config ? "your key" : "this server's setting"})` : "No language model: fixed templates only"}
+      className="inline-flex max-w-[24rem] items-center gap-1.5 overflow-hidden rounded-lg border border-line-strong bg-panel px-3 py-1.5 text-sm text-ink-2 hover:bg-sunk hover:text-ink"
+      title={d ? `${d.label} ${d.model}: ${config ? "your key" : "this server's setting"}. Select to change.` : "No language model: fixed templates only. Select to add one."}
     >
-      {config && <ProviderIcon id={config.provider} className="h-4 w-4 text-ink" />}
-      <span className="truncate">
-        Language model: <span className="font-semibold text-ink">{activeName ?? "off"}</span>
-      </span>
+      {d ? (
+        <>
+          <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-algae" />
+          <span className="sr-only">Language model: </span>
+          <ProviderIcon id={d.provider} className="h-4 w-4 text-ink" />
+          <span className="font-semibold text-ink">{d.label}</span>{" "}
+          <span className="min-w-0 truncate">{d.model}</span>{" "}
+          <span className="shrink-0 rounded-full bg-sunk px-1.5 text-xs text-ink-2">{config ? "your key" : "server"}</span>
+        </>
+      ) : (
+        <>
+          Language model: <span className="font-semibold text-ink">off</span>
+        </>
+      )}
     </button>
   );
 }

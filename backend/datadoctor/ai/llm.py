@@ -259,7 +259,11 @@ def get_llm(settings: Settings) -> LLMClient | None:
         if provider == "ollama":
             return OllamaClient(model, settings.llm_base_url or "http://localhost:11434", settings.llm_timeout_s)
         if provider == "openai-compatible":
-            return OpenAICompatibleClient(model, settings.llm_base_url or "", settings.llm_api_key, settings.llm_timeout_s)
+            base = (settings.llm_base_url or "").rstrip("/")
+            # Name a known endpoint after its provider (groq:..., gemini:...) so the UI can show which one is in use.
+            known = next((p.id for p in PRESETS.values() if p.base_url and p.base_url.rstrip("/") == base), None)
+            return OpenAICompatibleClient(model, base, settings.llm_api_key, settings.llm_timeout_s,
+                                          name=f"{known}:{model}" if known else None)
         if provider == "anthropic":
             return AnthropicClient(model)
     except Exception:  # noqa: BLE001 - misconfiguration or missing package: stay deterministic

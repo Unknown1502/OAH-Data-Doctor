@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useLlm } from "../components/ModelSettings";
+import { ModelBadge, describeModel, useLlm } from "../components/ModelSettings";
 import { useRun } from "../components/Shell";
 import { Button, ErrorNote, FindingLink, Verdict, useDocumentTitle } from "../components/ui";
 import { post, useApi } from "../lib/api";
@@ -240,7 +240,7 @@ export default function Claims() {
           className="mt-2 w-full rounded-md border border-line bg-chalk px-3 py-2 text-lg" />
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <Button kind="primary" type="submit" disabled={!text.trim() || busy}>{busy ? "Checking…" : "Check this claim"}</Button>
-          {busy && llm.activeName && <span role="status" className="text-sm text-ink-3">{llm.activeName} is helping read the claim; a local model can take up to a minute.</span>}
+          {busy && llm.activeName && <span role="status" className="text-sm text-ink-3">{describeModel(llm.activeName).label} is helping read the claim; a local model can take up to a minute.</span>}
           <span className="text-sm text-ink-3">Try:</span>
           {EXAMPLES.map((e) => (
             <button key={e} type="button" onClick={() => { setText(e); check(e); }} className="rounded-full border border-line px-3 py-1 text-sm text-ink-2 hover:border-karst hover:text-karst">
@@ -248,6 +248,12 @@ export default function Claims() {
             </button>
           ))}
         </div>
+        {llm.activeName && (
+          <p className="mb-0 mt-3 text-sm text-ink-3">
+            Language model helping to read claims: <ModelBadge name={llm.activeName} source={llm.config ? "yours" : "server"} />. The verdict is
+            always computed by rules.
+          </p>
+        )}
       </form>
 
       <details className="mt-4 rounded-xl border border-line bg-panel">
@@ -261,9 +267,12 @@ export default function Claims() {
         <section aria-labelledby="read-h" className="mt-8 rounded-xl border border-line bg-panel p-4">
           <h2 id="read-h" className="m-0 text-lg font-bold">How Data Doctor read your claim</h2>
           <p className="m-0 mt-1 text-sm text-ink-3">
-            {parsed.method.startsWith("llm")
-              ? `Read by fixed keyword rules, with gaps filled by the language model ${parsed.method.replace("llm:", "")}. The verdict below is still computed by rules.`
-              : parsed.method.startsWith("deterministic (")
+            {parsed.method.startsWith("llm") ? (
+              <>
+                Read by fixed keyword rules, with gaps filled by <ModelBadge name={parsed.method.replace(/^llm:/, "")} />. The verdict below is
+                still computed by rules.
+              </>
+            ) : parsed.method.startsWith("deterministic (")
                 ? `Read by fixed keyword rules${parsed.method.slice("deterministic".length)}.`
                 : "Read by fixed keyword rules."}
           </p>
