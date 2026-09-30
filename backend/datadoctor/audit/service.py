@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import asyncio
 import datetime as dt
 import hashlib
+import logging
 from collections import Counter
 from typing import Any
 
@@ -13,6 +15,8 @@ from datadoctor import __version__
 from datadoctor.config import Settings
 from datadoctor.domain.enums import Scope, Severity
 from datadoctor.domain.models import Dataset, Finding, SourceInfo
+from datadoctor.ingestion.cache import HttpCache
+from datadoctor.ingestion.fhir_client import FhirClient
 from datadoctor.ingestion.source import load_data
 from datadoctor.knowledge.loader import Knowledge, load_knowledge
 from datadoctor.normalization.normalizer import build_dataset
@@ -20,6 +24,7 @@ from datadoctor.provenance.lineage import almyros_lineage
 from datadoctor.rules.base import rules_version
 from datadoctor.rules.registry import load_rules, run_all
 
+log = logging.getLogger(__name__)
 ANCHOR_ID = "Obs-Almyros-TemperatureWater-2013"
 BLOCKING = (Severity.ERROR, Severity.CRITICAL)
 
@@ -133,8 +138,51 @@ def audit_dataset(ds: Dataset, kn: Knowledge) -> AuditResult:
     )
 
 
+async def validate_flagged_on_server(settings: Settings, ds: Dataset, findings: list[Finding], *,
+                                     concurrency: int = 4) -> dict[str, Any]:
+    """Ask the FHIR server's own `$validate` (read-only GET) about every official observation Data Doctor flags.
+
+    Snapshots store these verdicts; a live run fetches them so the "server says valid / Data Doctor says impossible"
+    comparison is available for live data too. Requests are rate-limited by the client's polite delay and cached.
+    """
+    keys = sorted(k for k in blocking_keys(findings)
+                  if k.startswith("Observation/") and (o := ds.observations.get(k.split("/", 1)[1])) is not None
+                  and o.scope is Scope.OAH_IG)
+    out: dict[str, Any] = {}
+    cache = HttpCache(settings.db_path, settings.cache_ttl_s)
+    try:
+        async with FhirClient(settings.fhir_base, cache, delay_s=settings.http_delay_s, timeout_s=settings.http_timeout_s,
+                              retries=1) as client:
+            sem = asyncio.Semaphore(concurrency)
+
+            async def one(key: str) -> None:
+                async with sem:
+                    rtype, rid = key.split("/", 1)
+                    out[key] = await client.validate_instance(rtype, rid)
+
+            await asyncio.gather(*(one(k) for k in keys))
+    finally:
+        cache.close()
+    return out
+
+
+async def complete_live_validation(settings: Settings, ds: Dataset, res: AuditResult, kn: Knowledge) -> AuditResult:
+    """For live runs without stored server verdicts, fetch them and recompute the summary. Never fails the audit."""
+    from datadoctor.domain.enums import SourceKind
+
+    if ds.source.kind is not SourceKind.LIVE or ds.server_validation:
+        return res
+    try:
+        ds.server_validation = await validate_flagged_on_server(settings, ds, res.findings)
+    except Exception as exc:  # noqa: BLE001 - the audit stands without server verdicts; the UI says "not checked"
+        log.warning("server $validate of flagged records failed: %s", exc)
+        return res
+    return res.model_copy(update={"summary": summarise(ds, res.findings, kn)})
+
+
 async def run_audit(settings: Settings, mode: str | None = None, snapshot_id: str | None = None) -> tuple[AuditResult, Dataset]:
     kn = load_knowledge(settings.knowledge_dir)
     raw, source, validation = await load_data(settings, mode, snapshot_id)
     ds = build_dataset(raw, source, kn, validation)
-    return audit_dataset(ds, kn), ds
+    res = await complete_live_validation(settings, ds, audit_dataset(ds, kn), kn)
+    return res, ds

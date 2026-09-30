@@ -10,7 +10,7 @@ import sqlite3
 from typing import Any
 
 from datadoctor.audit.analyses import AnalysesResult, run_catalog
-from datadoctor.audit.service import AuditResult, audit_dataset
+from datadoctor.audit.service import AuditResult, audit_dataset, complete_live_validation
 from datadoctor.config import Settings
 from datadoctor.domain.models import Dataset
 from datadoctor.ingestion.source import load_data
@@ -68,6 +68,7 @@ class AppState:
                 raw, source, validation = await load_data(self.settings, mode, snapshot_id)
                 ds = build_dataset(raw, source, self.kn, validation)
                 res = await asyncio.to_thread(audit_dataset, ds, self.kn)
+                res = await complete_live_validation(self.settings, ds, res, self.kn)
                 self.ds, self.result = ds, res
                 await asyncio.to_thread(self.recompute_analyses)
                 self.db.execute("INSERT OR REPLACE INTO runs VALUES (?, ?, ?, ?)",

@@ -65,6 +65,7 @@ class FhirClient:
             follow_redirects=False,
         )
         self._last_request = 0.0
+        self._pace = asyncio.Lock()
         self.log: list[FetchRecord] = []
 
     async def aclose(self) -> None:
@@ -94,10 +95,11 @@ class FhirClient:
 
     # -- transport ----------------------------------------------------------------------------------
     async def _polite_wait(self) -> None:
-        wait = self._delay - (time.monotonic() - self._last_request)
-        if wait > 0:
-            await asyncio.sleep(wait)
-        self._last_request = time.monotonic()
+        async with self._pace:  # concurrent requests still start at least `delay` apart
+            wait = self._delay - (time.monotonic() - self._last_request)
+            if wait > 0:
+                await asyncio.sleep(wait)
+            self._last_request = time.monotonic()
 
     async def request(self, method: str, path_or_url: str, *, body: Any = None, use_cache: bool = True) -> tuple[int, str]:
         url = self._url(path_or_url)

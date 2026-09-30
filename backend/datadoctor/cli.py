@@ -35,6 +35,11 @@ def _print_summary(res: AuditResult) -> None:
     print(f"findings    : {s.findings_total}  {s.findings_by_severity}  scope={s.findings_by_scope}")
     print(f"integrity   : {s.oah_observations - s.oah_observations_with_blocking}/{s.oah_observations} OAH observations "
           f"free of ERROR/CRITICAL findings ({(s.integrity_pass_rate or 0) * 100:.1f}%)")
+    sv = s.server_validation
+    if sv:
+        print(f"server      : $validate on {sv['validated_total']} records, {sv['validated_with_errors']} with errors; "
+              f"{sv['flagged_observations_passing_server_validation']}/{sv['flagged_observations_validated']} flagged "
+              "official observations pass the server's own validation")
     print("by rule     :")
     for rid, n in s.findings_by_rule.items():
         print(f"   {rid:16s} {n}")
