@@ -1,10 +1,11 @@
 import { useEffect, useId, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import EvidenceLadder from "../components/EvidenceLadder";
 import { ModelBadge, describeModel, useLlm } from "../components/ModelSettings";
 import { useRun } from "../components/Shell";
 import { Button, ErrorNote, FindingLink, Verdict, useDocumentTitle } from "../components/ui";
 import { post, useApi } from "../lib/api";
-import { num, pretty, tone } from "../lib/format";
+import { num, pretty, sentence, tone } from "../lib/format";
 import type { ClaimResult, Knowledge, ObservationItem, ParseResult, StructuredClaim } from "../lib/types";
 
 const TYPE_TEXT: Record<StructuredClaim["type"], string> = {
@@ -162,6 +163,54 @@ function Builder({ onRun }: { onRun: (c: StructuredClaim) => void }) {
         <Button kind="primary" type="submit" disabled={!ready}>Check this claim</Button>
       </div>
     </form>
+  );
+}
+
+const DIM_MARK: Record<string, { glyph: string; cls: string; word: string }> = {
+  PASS: { glyph: "✓", cls: "text-algae", word: "passes" },
+  CONDITIONAL: { glyph: "⚠", cls: "text-sulfur", word: "caveat" },
+  FAIL: { glyph: "✕", cls: "text-cinnabar", word: "fails" },
+};
+
+/** Scientific linting: what was understood, and how each dimension of the evidence held up (all from the API). */
+function CheckList({ result, parsed }: { result: ClaimResult; parsed: ParseResult | null }) {
+  const understood = parsed?.claim ? parsed.understood : [];
+  const dims = (result.comparison?.dimensions ?? []).filter((d) => d.status !== "N/A");
+  if (!understood.length && !dims.length && !result.blocking_findings.length) return null;
+  return (
+    <div className="mt-6 rounded-xl border border-line bg-panel p-5">
+      <h3 className="m-0 text-lg font-semibold">Why</h3>
+      <ul className="m-0 mt-3 list-none space-y-1.5 p-0">
+        {understood.map((u) => (
+          <li key={u} className="flex gap-2">
+            <span className="w-4 shrink-0 text-center text-algae" aria-hidden="true">✓</span>
+            <span><span className="sr-only">Understood: </span>{sentence(u)}</span>
+          </li>
+        ))}
+        {dims.map((d) => {
+          const m = DIM_MARK[d.status] ?? DIM_MARK.CONDITIONAL;
+          return (
+            <li key={d.dimension} className="flex gap-2">
+              <span className={`w-4 shrink-0 text-center ${m.cls}`} aria-hidden="true">{m.glyph}</span>
+              <span>
+                <strong>{sentence(d.dimension.replace(/_/g, " "))}</strong>
+                <span className="sr-only"> ({m.word})</span>: <span className="text-ink-2">{pretty(d.reason)}</span>
+              </span>
+            </li>
+          );
+        })}
+        {result.blocking_findings.length > 0 && (
+          <li className="flex gap-2">
+            <span className="w-4 shrink-0 text-center text-cinnabar" aria-hidden="true">✕</span>
+            <span>
+              <strong>Integrity</strong>
+              <span className="sr-only"> (fails)</span>:{" "}
+              <span className="text-ink-2">{result.blocking_findings.length} error or critical finding(s) on the records this claim uses.</span>
+            </span>
+          </li>
+        )}
+      </ul>
+    </div>
   );
 }
 
@@ -329,6 +378,17 @@ export default function Claims() {
             <ul className="mt-3 max-w-[75ch] pl-5">{result.reasons.map((r) => <li key={r} className="mb-1">{pretty(r)}</li>)}</ul>
             <Stats s={result.statistics} />
           </div>
+
+          <CheckList result={result} parsed={parsed} />
+
+          {result.ladder?.length > 0 && (
+            <div className="mt-6 rounded-xl border border-line bg-panel p-5">
+              <h3 className="m-0 text-lg font-semibold">How far the evidence reaches</h3>
+              <div className="mt-2">
+                <EvidenceLadder rungs={result.ladder} upTo={result.supported_up_to} />
+              </div>
+            </div>
+          )}
 
           {result.safe_alternatives.length > 0 && (
             <div className="mt-6 rounded-xl border border-algae/40 bg-algae-soft p-4">

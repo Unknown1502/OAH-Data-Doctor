@@ -36,6 +36,34 @@ export default function Home() {
 
   return (
     <article>
+      <section aria-labelledby="run-h" className="mb-10 border-b border-line pb-6">
+        <h2 id="run-h" className="m-0 mb-4 text-sm font-semibold text-ink-2">
+          Data health: can you trust this dataset? What this audit read and found
+        </h2>
+        <dl className="m-0 grid grid-cols-2 gap-6 md:grid-cols-4">
+          <Readout label="Observations checked" value={num(s.observations_checked)} note={`${num(s.oah_observations)} official OAH examples`} />
+          <Readout
+            label="Findings"
+            value={num(s.findings_total)}
+            note={SEVERITY_ORDER.filter((k) => s.findings_by_severity[k]).map((k) => `${s.findings_by_severity[k]} ${SEVERITY_TEXT[k].toLowerCase()}`).join(", ")}
+          />
+          <Readout
+            label="Official records safe to use as published"
+            value={`${num(s.oah_observations - s.oah_observations_with_blocking)} of ${num(s.oah_observations)}`}
+            note="no error or critical finding"
+          />
+          {sv?.flagged_observations_validated ? (
+            <Readout
+              label="Flagged records the server calls valid"
+              value={`${num(sv.flagged_observations_passing_server_validation)} of ${num(sv.flagged_observations_validated)}`}
+              note="HAPI $validate reported no error"
+              tone="bad"
+            />
+          ) : (
+            <Readout label="Affected records" value={num(s.affected_resources)} />
+          )}
+        </dl>
+      </section>
       <section aria-labelledby="hero-h" className="mb-12">
         <p className="m-0 mb-3 text-ink-2">
           A record from the {o.source.kind === "live" ? "live OneAquaHealth sandbox" : `OneAquaHealth sandbox snapshot of ${when(o.source.fetched_at)}`}
@@ -62,6 +90,21 @@ export default function Home() {
             <TwoVerdicts serverOutcome={h.server_validation} findings={[h.finding, ...h.same_resource]} record={h.finding.resource.display ?? ""} />
           </div>
         )}
+        {h && (
+          <div className="mt-5">
+            <p className="m-0 max-w-[70ch] text-ink-2">
+              <strong className="text-ink">What it may affect:</strong> {h.impact.statement}
+            </p>
+            <p className="mb-0 mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <Link className="inline-flex rounded-lg border border-karst bg-karst px-4 py-2 font-semibold text-chalk no-underline hover:brightness-110" to={`/findings/${encodeURIComponent(h.finding.id)}`}>
+                Open the evidence for this record
+              </Link>
+              <Link className="font-semibold text-karst underline underline-offset-4" to="/findings">
+                See all {num(s.findings_total)} findings
+              </Link>
+            </p>
+          </div>
+        )}
         {h?.record && (
           <section aria-labelledby="lab-h" className="mt-10">
             <h2 id="lab-h" className="m-0 text-2xl font-bold tracking-tight">
@@ -74,46 +117,9 @@ export default function Home() {
             <WhatIfLab observationId={h.finding.resource.resource_id} record={h.record} />
           </section>
         )}
-        {h && (
-          <p className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
-            <Link className="font-semibold text-karst underline underline-offset-4" to={`/findings/${encodeURIComponent(h.finding.id)}`}>
-              Open the evidence for this record
-            </Link>
-            <Link className="font-semibold text-karst underline underline-offset-4" to="/findings">
-              See all {num(s.findings_total)} findings
-            </Link>
-          </p>
-        )}
+
       </section>
 
-      <section aria-labelledby="run-h" className="mb-12 border-y border-line py-6">
-        <h2 id="run-h" className="sr-only">
-          This run
-        </h2>
-        <dl className="m-0 grid grid-cols-2 gap-6 md:grid-cols-4">
-          <Readout label="Observations checked" value={num(s.observations_checked)} note={`${num(s.oah_observations)} official OAH examples`} />
-          <Readout
-            label="Findings"
-            value={num(s.findings_total)}
-            note={SEVERITY_ORDER.filter((k) => s.findings_by_severity[k]).map((k) => `${s.findings_by_severity[k]} ${SEVERITY_TEXT[k].toLowerCase()}`).join(", ")}
-          />
-          <Readout
-            label="Official records safe to use as published"
-            value={`${num(s.oah_observations - s.oah_observations_with_blocking)} of ${num(s.oah_observations)}`}
-            note="no error or critical finding"
-          />
-          {sv?.flagged_observations_validated ? (
-            <Readout
-              label="Flagged records the server calls valid"
-              value={`${num(sv.flagged_observations_passing_server_validation)} of ${num(sv.flagged_observations_validated)}`}
-              note="HAPI $validate reported no error"
-              tone="bad"
-            />
-          ) : (
-            <Readout label="Affected records" value={num(s.affected_resources)} />
-          )}
-        </dl>
-      </section>
 
       <div className="grid gap-12 lg:grid-cols-[1.1fr_1fr]">
         <section aria-labelledby="sites-h" className="min-w-0">

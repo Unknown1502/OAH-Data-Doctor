@@ -68,7 +68,7 @@ rephrases computed findings: any number, cause or correction it adds is detected
 
 - 271 of 271 injected faults detected (95 % CI 98.6–100.0 %), and 0 new findings on
   100 records after benign transformations. We say plainly that this measures rule sensitivity, not real-world accuracy.
-- 244 backend tests and 25 end-to-end tests, including offline runs and WCAG 2.1 AA accessibility checks.
+- 249 backend tests and 29 end-to-end tests, including offline runs and WCAG 2.1 AA accessibility checks.
 - Our FHIR output validates against R4 (0 schema errors; HAPI: no issues).
 - Honesty by construction: no hand-typed numbers (these documents are rendered from a run), root cause always "unknown",
   read-only access, and live and snapshot data always labelled.

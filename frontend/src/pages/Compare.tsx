@@ -88,6 +88,28 @@ function Side({ d, name }: { d: Descriptor; name: string }) {
   );
 }
 
+/** What each side published for one dimension, from the comparison's own descriptors (nothing recomputed here). */
+function sideValue(dim: string, d: Descriptor): string {
+  switch (dim) {
+    case "Measure":
+      return d.measure_label ?? "not stated";
+    case "Unit":
+      return unit(d.unit) || "none";
+    case "Medium":
+      return d.medium;
+    case "Population":
+      return d.cohort?.label ?? "whole population";
+    case "Period":
+      return d.period ? `${d.period.start ?? "?"} to ${d.period.end ?? "?"}` : "not stated";
+    case "Aggregation":
+      return aggregationText(d.aggregation);
+    case "Method / performer":
+      return d.method ?? "not documented";
+    default:
+      return "";
+  }
+}
+
 export default function Compare() {
   useDocumentTitle("Compare");
   const { runId } = useRun();
@@ -187,30 +209,45 @@ export default function Compare() {
             </div>
           </div>
 
-          <div className="mt-6 overflow-x-auto rounded-xl border border-line bg-panel">
-            <table className="data">
-              <caption className="px-3 pt-3 text-left font-semibold">Dimension by dimension</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Dimension</th>
-                  <th scope="col">Result</th>
-                  <th scope="col">Why</th>
-                  <th scope="col">Rule</th>
-                </tr>
-              </thead>
-              <tbody>
-                {result.dimensions.map((d) => (
-                  <tr key={d.rule_id}>
-                    <th scope="row" className="!bg-transparent !font-semibold !text-ink">{d.dimension}</th>
-                    <td className="whitespace-nowrap">
-                      <Chip text={DIM_TEXT[d.status]} toneOf={d.status === "FAIL" ? (d.rule_id === "CMP-INTEGRITY" ? "BLOCKED" : "NOT") : d.status} />
-                    </td>
-                    <td className="max-w-[60ch]">{pretty(d.reason)}</td>
-                    <td className="code whitespace-nowrap text-sm text-ink-3">{d.rule_id}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="mt-6 rounded-xl border border-line bg-panel">
+            <h3 className="m-0 px-4 pt-3 text-lg font-semibold">Dimension by dimension</h3>
+            <p className="m-0 px-4 pb-2 text-sm text-ink-3">Open a dimension to see what A and B published for it.</p>
+            <ul className="m-0 list-none p-0">
+              {result.dimensions.map((d) => (
+                <li key={d.rule_id} className="border-t border-line">
+                  <details className="group">
+                    <summary className="grid cursor-pointer gap-x-4 gap-y-1 px-4 py-2.5 hover:bg-sunk sm:grid-cols-[11rem_8rem_minmax(0,1fr)] sm:items-baseline">
+                      <span className="font-semibold">{d.dimension}</span>
+                      <span>
+                        <Chip text={DIM_TEXT[d.status]} toneOf={d.status === "FAIL" ? (d.rule_id === "CMP-INTEGRITY" ? "BLOCKED" : "NOT") : d.status} />
+                      </span>
+                      <span className="text-ink-2">{pretty(d.reason)}</span>
+                    </summary>
+                    <div className="grid gap-3 border-t border-dashed border-line bg-sunk/40 px-4 py-3 sm:grid-cols-2">
+                      {d.dimension === "Integrity" ? (
+                        <div className="sm:col-span-2">
+                          {Array.isArray(d.details.findings) && (d.details.findings as string[]).length > 0 ? (
+                            <ul className="m-0 pl-5 text-sm">
+                              {(d.details.findings as string[]).map((id) => <li key={id}><FindingLink id={id}>{id}</FindingLink></li>)}
+                            </ul>
+                          ) : (
+                            <p className="m-0 text-sm text-ink-2">No finding on either record.</p>
+                          )}
+                        </div>
+                      ) : (
+                        (["a", "b"] as const).map((side) => (
+                          <div key={side} className="min-w-0">
+                            <p className="m-0 text-xs font-semibold text-ink-3">{side.toUpperCase()}: {result[side].label}</p>
+                            <p className="readout m-0 mt-0.5 break-words">{sideValue(d.dimension, result[side])}</p>
+                          </div>
+                        ))
+                      )}
+                      <p className="code m-0 text-xs text-ink-3 sm:col-span-2">{d.rule_id}</p>
+                    </div>
+                  </details>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {result.transformations.length > 0 && (
@@ -229,10 +266,32 @@ export default function Compare() {
               </ul>
             </div>
           )}
-          {result.supported_alternatives.length > 0 && (
+          {(result.supported_alternatives.length > 0 || result.verdict !== "DIRECT") && (
             <div className="mt-6 rounded-xl border border-algae/40 bg-algae-soft p-4">
-              <h3 className="m-0 text-lg font-semibold text-algae">What you can compare instead</h3>
-              <ul className="mb-0 mt-1 pl-5">{result.supported_alternatives.map((t) => <li key={t}>{pretty(t)}</li>)}</ul>
+              <h3 className="m-0 text-lg font-semibold text-algae">What you can do instead</h3>
+              <ul className="m-0 mt-2 list-none space-y-1.5 p-0">
+                {result.supported_alternatives.map((t) => (
+                  <li key={t} className="flex gap-2">
+                    <span className="w-4 shrink-0 text-center text-algae" aria-hidden="true">✓</span>
+                    <span><span className="sr-only">Supported: </span>{pretty(t)}</span>
+                  </li>
+                ))}
+                {result.transformations.map((t) => (
+                  <li key={t} className="flex gap-2">
+                    <span className="w-4 shrink-0 text-center text-sulfur" aria-hidden="true">⚠</span>
+                    <span><span className="sr-only">Needs a transformation: </span>{pretty(t)}</span>
+                  </li>
+                ))}
+                {(result.verdict === "NOT" || result.verdict === "BLOCKED_BY_INTEGRITY") && (
+                  <li className="flex gap-2">
+                    <span className="w-4 shrink-0 text-center text-cinnabar" aria-hidden="true">✕</span>
+                    <span><span className="sr-only">Not valid: </span>A direct comparison of these two values.</span>
+                  </li>
+                )}
+                {result.supported_alternatives.length === 0 && result.verdict !== "DIRECT" && (
+                  <li className="text-ink-2">No alternative was found among the published records; report each value on its own, with its population and period.</li>
+                )}
+              </ul>
             </div>
           )}
         </section>

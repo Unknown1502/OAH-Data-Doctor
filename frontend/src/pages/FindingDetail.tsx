@@ -2,12 +2,13 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Lineage from "../components/Lineage";
 import MagnitudeRuler from "../components/MagnitudeRuler";
+import RawResourceDrawer from "../components/RawResourceDrawer";
 import TraceGraph from "../components/TraceGraph";
 import TwoVerdicts from "../components/TwoVerdicts";
 import WhatIfLab from "../components/WhatIfLab";
 import { ModelBadge, ProviderIcon, describeModel, useLlm } from "../components/ModelSettings";
 import { useRun } from "../components/Shell";
-import { Button, ErrorNote, FindingLink, Loading, SeverityTag, useDocumentTitle } from "../components/ui";
+import { Button, ErrorNote, FindingLink, Loading, SeverityTag, SourceBadge, useDocumentTitle } from "../components/ui";
 import { download, post, useApi } from "../lib/api";
 import { num, pretty, sentence, unit, when } from "../lib/format";
 import { rulerFor } from "../lib/ruler";
@@ -60,7 +61,7 @@ export default function FindingDetail() {
   const [rephraseErr, setRephraseErr] = useState<string | null>(null);
   const [liveCheck, setLiveCheck] = useState<{ outcome: OperationOutcome; checked_at: string } | null>(null);
   const [liveErr, setLiveErr] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [rawOpen, setRawOpen] = useState(false);
   useDocumentTitle(data ? `${data.finding.rule_id} on ${data.finding.resource.display ?? data.finding.resource.resource_id}` : "Finding");
 
   if (error)
@@ -85,15 +86,18 @@ export default function FindingDetail() {
       setLiveErr((e as Error).message);
     }
   };
-  const copyJson = async () => {
-    try {
-      await navigator.clipboard.writeText(JSON.stringify(f, null, 2));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
+
+  const exportFinding = () => {
+    const url = URL.createObjectURL(new Blob([JSON.stringify(f, null, 2)], { type: "application/json" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${f.id}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
+  const src = f.provenance?.source;
+  const factor = typeof f.evidence.measures.factor === "number" ? (f.evidence.measures.factor as number) : null;
+  const highlight = f.evidence.observed.map((o) => o.fhir_path).filter((x): x is string => !!x);
 
   return (
     <article className="space-y-8">
@@ -105,26 +109,52 @@ export default function FindingDetail() {
       </nav>
 
       <header>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
           <SeverityTag severity={f.severity} />
-          <span className="text-ink-2">
-            {f.rule_id}: {f.title}
-          </span>
-          <span className="text-ink-2">
-            Confidence {f.confidence_label} (<span className="readout">{f.confidence}</span>)
-          </span>
+          <span className="rounded-full border border-line px-2.5 py-0.5 text-sm text-ink-2">{f.category.charAt(0) + f.category.slice(1).toLowerCase()}</span>
+          <span className="readout text-sm text-ink-2">{f.rule_id}</span>
+          {src && <SourceBadge source={src} />}
         </div>
         <h1 className="m-0 mt-3 max-w-[30ch] text-[clamp(1.8rem,3.6vw,2.7rem)] font-bold leading-tight tracking-tight">
           {f.resource.display ?? key}
         </h1>
-        <p className="mt-4 max-w-[70ch] text-lg leading-relaxed">{sentence(pretty(f.summary.replace(`${f.resource.display ?? ""}: `, "")))}</p>
+        <p className="mt-3 max-w-[70ch] text-lg leading-relaxed">{sentence(pretty(f.summary.replace(`${f.resource.display ?? ""}: `, "")))}</p>
       </header>
 
-      {ruler && ruler.values.length > 1 && (
-        <div className="rounded-xl border border-line bg-panel p-5">
-          <MagnitudeRuler {...ruler} caption={f.resource.display ?? undefined} animate={false} />
+      <section aria-label="What is wrong and why" className="grid overflow-hidden rounded-xl border border-line bg-panel lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+        <div className="border-b border-line p-5 lg:border-b-0 lg:border-r">
+          <h2 className="m-0 text-sm font-semibold text-ink-2">Observed</h2>
+          <dl className="m-0 mt-3 space-y-2.5">
+            {f.evidence.observed.map((o, i) => (
+              <div key={i} className="flex items-baseline justify-between gap-4 border-b border-line pb-2 last:border-b-0">
+                <dt className="text-ink-2">{o.label}</dt>
+                <dd className="readout m-0 text-right text-2xl font-semibold">
+                  {num(o.value)} <span className="text-base font-normal text-ink-2">{unit(o.unit)}</span>
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
-      )}
+        <div className="p-5">
+          <h2 className="m-0 text-sm font-semibold text-ink-2">Why it was flagged</h2>
+          <p className="mb-0 mt-3 text-lg leading-snug">{f.evidence.expected}</p>
+          <p className="mb-0 mt-2 text-ink-2">
+            It does not hold here: <code className="code text-ink">{f.evidence.constraint}</code>.
+            {factor !== null && factor > 1 && <> The values differ by a factor of <strong className="readout text-ink">{num(factor)}</strong>.</>}
+          </p>
+          <div className="mt-4 rounded-lg border border-sulfur/50 bg-sulfur-soft px-4 py-3">
+            <p className="m-0 font-semibold">
+              Root cause: <span className="uppercase tracking-wide">unknown</span>
+            </p>
+            <p className="m-0 mt-1 text-sm text-ink-2">
+              Data Doctor shows that these values cannot all be right. It does not claim to know which one is wrong, or why.
+            </p>
+          </div>
+          <p className="mb-0 mt-3 text-sm text-ink-2">
+            Confidence {f.confidence_label} (<span className="readout">{f.confidence}</span>), rule {data.rule.id} version {data.rule.version}.
+          </p>
+        </div>
+      </section>
 
       {f.resource.resource_type === "Observation" && (
         <div>
@@ -145,13 +175,14 @@ export default function FindingDetail() {
         </div>
       )}
 
-      <div className="grid gap-8 lg:grid-cols-[1.25fr_1fr]">
+      <div className="grid gap-8 lg:grid-cols-[1.35fr_1fr]">
         <Section id="ev-h" title="Evidence">
-          <p className="m-0 text-ink-2">
-            Constraint: <strong className="text-ink">{f.evidence.constraint}</strong>
-          </p>
-          <p className="mt-1 text-ink-2">{f.evidence.expected}</p>
-          <div className="mt-3 overflow-x-auto rounded-lg border border-line">
+          {ruler && ruler.values.length > 1 && (
+            <div className="mb-4 rounded-xl border border-line bg-panel p-4">
+              <MagnitudeRuler {...ruler} caption={f.resource.display ?? undefined} animate={false} />
+            </div>
+          )}
+          <div className="overflow-x-auto rounded-lg border border-line">
             <table className="data">
               <caption className="sr-only">Values observed in the record</caption>
               <thead>
@@ -186,13 +217,41 @@ export default function FindingDetail() {
               ))}
             </dl>
           )}
+          <dl className="mt-5 grid gap-x-6 gap-y-1.5 border-t border-line pt-4 text-sm sm:grid-cols-[8rem_1fr]">
+            <dt className="text-ink-2">Resource</dt>
+            <dd className="code m-0 break-all">{key}</dd>
+            <dt className="text-ink-2">Rule</dt>
+            <dd className="m-0"><span className="code">{data.rule.id}</span> v{data.rule.version}: {data.rule.title}</dd>
+            {src && (
+              <>
+                <dt className="text-ink-2">Source</dt>
+                <dd className="m-0 break-words">{src.kind === "live" ? "Live" : `Snapshot ${src.snapshot_id}`}, {src.base_url}</dd>
+                <dt className="text-ink-2">Retrieved</dt>
+                <dd className="m-0">{when(src.fetched_at)}</dd>
+              </>
+            )}
+            {f.provenance && (
+              <>
+                <dt className="text-ink-2">Record version</dt>
+                <dd className="m-0">{f.provenance.resource_version_id ?? "—"}, last updated {f.provenance.resource_last_updated ?? "—"}</dd>
+                <dt className="text-ink-2">Record sha256</dt>
+                <dd className="code m-0 break-all">{f.provenance.resource_sha256}</dd>
+                <dt className="text-ink-2">Checked with</dt>
+                <dd className="m-0 break-words">rules {f.provenance.rules_version}, knowledge {f.provenance.knowledge_version}, {f.provenance.ig_source}</dd>
+              </>
+            )}
+            <dt className="text-ink-2">Finding id</dt>
+            <dd className="code m-0 break-all">{f.id}</dd>
+          </dl>
+          {data.raw && (
+            <p className="mb-0 mt-4">
+              <Button onClick={() => setRawOpen(true)}>View the raw resource</Button>
+            </p>
+          )}
         </Section>
 
-        <Section id="mean-h" title="What it means">
+        <Section id="mean-h" title="What this means">
           <p className="m-0">{pretty(f.interpretation)}</p>
-          <p className="mt-3">
-            <strong>Root cause:</strong> {f.root_cause === "unknown" ? "unknown. Data Doctor shows that these values cannot all be right; it does not claim to know which one is wrong, or why." : f.root_cause}
-          </p>
           {f.hypotheses.length > 0 && (
             <div className="mt-3 rounded-lg border border-dashed border-line-strong p-3">
               <p className="m-0 text-sm font-semibold text-ink-2">Possible explanations, not verified</p>
@@ -206,6 +265,13 @@ export default function FindingDetail() {
           <p className="mt-3">
             <strong>What to do:</strong> {f.remediation}
           </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <a href="#tr-h" className="inline-flex items-center rounded-lg border border-line-strong bg-panel px-3.5 py-2 text-[0.95rem] font-semibold text-ink no-underline hover:bg-sunk">
+              View impact
+            </a>
+            {data.raw && <Button onClick={() => setRawOpen(true)}>View raw resource</Button>}
+            <Button onClick={exportFinding}>Export finding</Button>
+          </div>
           <p className="mt-3 text-sm text-ink-3">
             Rule {data.rule.id} v{data.rule.version}: {data.rule.rationale}
           </p>
@@ -299,41 +365,19 @@ export default function FindingDetail() {
         </Section>
       )}
 
-      <Section id="raw-h" title="Raw FHIR and provenance">
-        {data.raw && (
-          <details className="rounded-lg border border-line bg-panel">
-            <summary className="px-4 py-2 font-semibold">
-              {f.resource.resource_type}/{f.resource.resource_id} exactly as served
-            </summary>
-            <pre className="json m-0 max-h-[28rem] overflow-auto border-t border-line px-4 py-3">{JSON.stringify(data.raw, null, 2)}</pre>
-          </details>
-        )}
-        {f.provenance && (
-          <dl className="mt-4 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-[auto_1fr]">
-            <dt className="text-ink-2">Source</dt>
-            <dd className="m-0">
-              {f.provenance.source.kind === "live" ? "Live" : `Snapshot ${f.provenance.source.snapshot_id}`}, {f.provenance.source.base_url}, fetched{" "}
-              {when(f.provenance.source.fetched_at)}
-            </dd>
-            <dt className="text-ink-2">Record version</dt>
-            <dd className="m-0">
-              {f.provenance.resource_version_id ?? "—"}, last updated {f.provenance.resource_last_updated ?? "—"}
-            </dd>
-            <dt className="text-ink-2">Record sha256</dt>
-            <dd className="code m-0 break-all">{f.provenance.resource_sha256}</dd>
-            <dt className="text-ink-2">Checked with</dt>
-            <dd className="m-0">
-              rules {f.provenance.rules_version}, knowledge {f.provenance.knowledge_version}, {f.provenance.ig_source}
-            </dd>
-            <dt className="text-ink-2">Finding id</dt>
-            <dd className="code m-0">{f.id}</dd>
-          </dl>
-        )}
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Button onClick={copyJson}>{copied ? "Copied finding JSON" : "Copy finding JSON"}</Button>
-          <Button onClick={() => download("/reports/operation-outcome.json")}>Download FHIR OperationOutcome (all findings)</Button>
-        </div>
-      </Section>
+      {data.raw && (
+        <RawResourceDrawer
+          open={rawOpen}
+          onClose={() => setRawOpen(false)}
+          title={`${key}, exactly as served`}
+          resource={data.raw}
+          highlight={highlight}
+          source={src ? <>{src.kind === "live" ? "Live" : `Snapshot ${src.snapshot_id}`}, retrieved {when(src.fetched_at)} from {src.base_url}</> : null}
+        />
+      )}
+      <p className="text-sm text-ink-3">
+        <Button onClick={() => download("/reports/operation-outcome.json")}>Download FHIR OperationOutcome (all findings)</Button>
+      </p>
     </article>
   );
 }

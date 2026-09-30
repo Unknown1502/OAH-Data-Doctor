@@ -163,7 +163,14 @@ export interface Status {
   has_run: boolean;
   run_id: string | null;
   source: SourceInfo | null;
-  scan: { running: boolean; mode: string | null; started_at: string | null; error: string | null } | null;
+  scan: {
+    running: boolean;
+    mode: string | null;
+    started_at: string | null;
+    error: string | null;
+    /** Real stages of the scan, reported by the backend as they happen. */
+    stages?: { id: string; label: string; state: "running" | "done" | "failed"; detail: string | null; at: string }[];
+  } | null;
   mode: string | null;
   fhir_base: string | null;
   llm: string;
@@ -244,6 +251,17 @@ export interface ClaimResult {
   statistics: Record<string, unknown>;
   safe_alternatives: string[];
   inputs: string[];
+  /** The verdict restated per rung: Observation, Description, Comparison, Association, Causation. */
+  ladder: ClaimRung[];
+  supported_up_to: string | null;
+}
+
+export interface ClaimRung {
+  level: "observation" | "description" | "comparison" | "association" | "causation";
+  label: string;
+  status: "supported" | "conditional" | "unsupported" | "blocked" | "not_claimed";
+  why: string;
+  claimed: boolean;
 }
 
 export interface ParseResult {

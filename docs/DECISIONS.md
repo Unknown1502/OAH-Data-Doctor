@@ -123,3 +123,23 @@ FHIR server. Values are shown with every published decimal (no rounding, no unit
 published in `/api/observations`. Annual summaries and single measurements of the same measure are never drawn as one series;
 a point's colour is its record's most severe finding, which the chart says, because a plausible median can sit on a record
 with an impossible mean. When the physically possible band is too thin to draw at the chart's scale, the caption says so.
+
+**D-027 The frontend as one investigation, and what it will not fake.** Following the frontend brief, the console now reads
+as one investigation: what was scanned and found, the top finding, its evidence, what it would contaminate, whether it can be
+compared, what may be claimed, the report. Changes: IBM Plex Sans for prose and IBM Plex Mono for IDs, FHIRPaths and numeric
+evidence; dark by default (light and system remain); grouped navigation, a phone bottom bar and Ctrl+K search over what the
+audit actually read and found; the top bar states live or snapshot, "fetched N min ago" or "sha256 verified", with Retry live
+and Continue with the snapshot when the live source fails. The finding page opens with what is wrong (observed values), why
+(the broken constraint and factor) and "Root cause: unknown", then the evidence with its provenance (resource, rule, source,
+retrieval time), and a side drawer with the record exactly as served, the flagged fields highlighted from the finding's
+FHIRPaths. Audits report their real stages (connecting, each resource type with its count, the rules, the server's
+$validate, the analyses) from the backend; no percentages or timers. The claim guardrail adds an evidence ladder
+(Observation, Description, Comparison, Association, Causation) computed by the engine from the verdict
+(`claims/ladder.py`), not in the browser, and a checklist of what was understood and how each dimension held up. Comparison
+rows open to show what A and B published for that dimension; alternatives are marked supported, needing a transformation,
+or not valid. Trace nodes are buttons: selecting one highlights its path and lists what it depends on and what uses it.
+Not done, on purpose: no single "data health %" (there is no verified score; the real "260 of 385 official records usable as
+published" is shown instead); no "reviewed/unreviewed" filter (the system has no review state); only JSON for raw resources
+(the server is read as JSON; no Turtle or XML is fetched); no zoom or pan for the trace (it has a handful of nodes; it scrolls
+and is keyboard operable); PDF is the browser's print-to-PDF with a print stylesheet (no server-side PDF renderer).
+

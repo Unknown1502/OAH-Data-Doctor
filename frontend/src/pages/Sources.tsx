@@ -30,7 +30,7 @@ export default function Sources() {
         <div className="mt-3 rounded-xl border border-line bg-panel p-5">
           <div className="flex flex-wrap items-center gap-3">
             <SourceBadge source={src} />
-            <span className="text-ink-2">{src?.base_url}</span>
+            <span className="min-w-0 break-all text-ink-2">{src?.base_url}</span>
           </div>
           <p className="mt-3 max-w-[75ch] text-ink-2">
             Data Doctor only reads from the OneAquaHealth FHIR sandbox: every request is a GET, or the server's own $validate, which never

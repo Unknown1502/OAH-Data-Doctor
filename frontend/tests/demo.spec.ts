@@ -36,7 +36,7 @@ test("finding detail shows evidence, lineage and the impact trace", async ({ pag
   await expect(page.getByText("Observation.component[4].valueQuantity")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Where these values first appear" })).toBeVisible();
   await expect(page.getByText(/this record feeds 1 library, 1 profile, 2 series, \d+ comparisons?, \d+ claims/)).toBeVisible();
-  await expect(page.locator("p", { hasText: "Root cause:" })).toContainText("unknown");
+  await expect(page.getByRole("region", { name: "What is wrong and why" }).getByText(/Root cause:\s*unknown/i)).toBeVisible();
 });
 
 test("findings can be filtered by severity", async ({ page }) => {
@@ -52,7 +52,11 @@ test("compare returns NOT for non-overlapping age bands, with computed alternati
   await page.goto("/compare?id=cmp-obesity-benevento-vs-oslo-18-29");
   await expect(page.getByText("Not comparable").first()).toBeVisible();
   await expect(page.getByText(/Age bands do not overlap/)).toBeVisible();
-  await expect(page.getByRole("heading", { name: "What you can compare instead" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What you can do instead" })).toBeVisible();
+  await expect(page.getByText("A direct comparison of these two values.")).toBeVisible();
+  // Each dimension opens to show what A and B published for it.
+  await page.getByText("Population", { exact: true }).click();
+  await expect(page.locator("details[open]").getByText(/^A: Obesity prevalence/)).toBeVisible();
 });
 
 test("claim guardrail blocks a trend built on broken records", async ({ page }) => {
@@ -210,6 +214,53 @@ test("a user can bring their own model key; it stays in the tab and goes only to
   await dialog.getByRole("button", { name: "Close" }).click();
   await expect(page.getByRole("button", { name: "Language model: off" })).toBeVisible();
   expect(await page.evaluate(() => sessionStorage.getItem("dd-llm"))).toBeNull();
+});
+
+test("finding detail: what is wrong, why, root cause unknown, and the raw record with the flagged fields highlighted", async ({ page }) => {
+  const ov = await (await page.request.get("/api/overview")).json();
+  await page.goto(`/findings/${encodeURIComponent(ov.hero_finding.id)}`);
+  const hero = page.getByRole("region", { name: "What is wrong and why" });
+  await expect(hero.getByRole("heading", { name: "Observed" })).toBeVisible();
+  await expect(hero.getByRole("heading", { name: "Why it was flagged" })).toBeVisible();
+  await expect(hero.getByText(/Root cause:\s*unknown/i)).toBeVisible();
+  await page.getByRole("button", { name: "View raw resource" }).click();
+  const drawer = page.getByRole("dialog");
+  await expect(drawer).toBeVisible();
+  expect(await drawer.locator("[data-hit=true]").count()).toBeGreaterThan(0);
+  await expect(drawer.locator("[data-hit=true]").first()).toBeInViewport();
+  await page.keyboard.press("Escape");
+  await expect(drawer).toBeHidden();
+});
+
+test("the claim ladder shows how far the evidence reaches", async ({ page }) => {
+  await page.goto("/claims?id=clm-obesity-benevento-higher-than-oslo");
+  await expect(page.getByRole("heading", { name: "How far the evidence reaches" })).toBeVisible();
+  await expect(page.getByText("The evidence reaches Description; your claim needs Comparison.")).toBeVisible();
+  await expect(page.getByRole("list", { name: "Evidence ladder" }).getByText("your claim")).toBeVisible();
+  await page.goto("/claims?id=clm-benevento04-pm10-exceeds-who-2018");
+  await expect(page.getByText("The evidence reaches Comparison.")).toBeVisible();
+});
+
+test("Ctrl+K searches what the audit found and opens it", async ({ page }) => {
+  await page.goto("/");
+  await page.keyboard.press("Control+k");
+  const box = page.getByRole("combobox", { name: /Search findings/ });
+  await expect(box).toBeFocused();
+  await box.fill("SEM-STAT-001 Almyros 2013 temperature");
+  await expect(page.getByRole("listbox", { name: "Results" }).getByRole("option").first()).toContainText("SEM-STAT-001");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/findings\/F-SEM-STAT-001-/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Water temperature");
+});
+
+test("the impact trace: selecting a node shows what it depends on and what uses it", async ({ page }) => {
+  const ov = await (await page.request.get("/api/overview")).json();
+  await page.goto(`/findings/${encodeURIComponent(ov.hero_finding.id)}`);
+  const claim = page.getByRole("button", { name: /Claim .*median water temperature/ });
+  await claim.click();
+  await expect(claim).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByText("Depends on")).toBeVisible();
+  await expect(page.getByRole("link", { name: "See this claim and its evidence" })).toBeVisible();
 });
 
 test("keyboard users can skip to content", async ({ page }) => {

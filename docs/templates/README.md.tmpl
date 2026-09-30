@@ -84,6 +84,10 @@ to use as published. We report what was observed. We do not claim to know why an
   pipeline. Your records are checked with the published data as context (their places and series), a record with the id of a
   published one replaces it for that check only, and nothing is stored. `DD_FHIR_BASE` points Data Doctor at another FHIR server.
 - **Claims are read as you type**, by the keyword rules, showing which measure, place and years were understood before you check.
+  Every verdict comes with an evidence ladder (Observation, Description, Comparison, Association, Causation) showing how far the
+  data reaches, computed by the engine from the verdict.
+- **Find anything with Ctrl+K**: findings, records, places, rules and commands, from what the audit actually read. Audits show
+  their real stages as they run (each resource type fetched, the rules, the server's `$validate`).
 
 ## How it works
 

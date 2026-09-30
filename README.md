@@ -84,6 +84,10 @@ to use as published. We report what was observed. We do not claim to know why an
   pipeline. Your records are checked with the published data as context (their places and series), a record with the id of a
   published one replaces it for that check only, and nothing is stored. `DD_FHIR_BASE` points Data Doctor at another FHIR server.
 - **Claims are read as you type**, by the keyword rules, showing which measure, place and years were understood before you check.
+  Every verdict comes with an evidence ladder (Observation, Description, Comparison, Association, Causation) showing how far the
+  data reaches, computed by the engine from the verdict.
+- **Find anything with Ctrl+K**: findings, records, places, rules and commands, from what the audit actually read. Audits show
+  their real stages as they run (each resource type fetched, the rules, the server's `$validate`).
 
 ## How it works
 
@@ -128,9 +132,9 @@ More: [architecture](docs/03_ARCHITECTURE.md), [rules catalog](docs/04_RULES_CAT
 
 ## Evidence that it works
 
-- **244 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
+- **249 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
   tests; contract tests against the published JSON Schemas and the FHIR R4 schema; API and snapshot integration tests) and
-  **25 Playwright tests** (desktop, plus a phone viewport for the home page and a no-sideways-scroll check of every page). The Playwright tests cover the demo path with all external network blocked, plus
+  **29 Playwright tests** (desktop, plus a phone viewport for the home page and a no-sideways-scroll check of every page). The Playwright tests cover the demo path with all external network blocked, plus
   axe-core WCAG 2.1 AA scans of every main page in light and dark mode. CI runs ruff, mypy, pytest and Playwright.
 - **Property tests.** Summaries of randomly generated real samples, rounded at 0–4 decimals, never trigger a statistical-identity
   rule. This is the false-positive guarantee behind the precision tolerance.
