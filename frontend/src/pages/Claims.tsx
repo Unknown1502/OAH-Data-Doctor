@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import EvidenceLadder from "../components/EvidenceLadder";
 import { ModelBadge, describeModel, useLlm } from "../components/ModelSettings";
 import { useRun } from "../components/Shell";
-import { Button, ErrorNote, FindingLink, Verdict, useDocumentTitle } from "../components/ui";
+import { Button, ErrorNote, FindingLink, PageHeader, Verdict, useDocumentTitle } from "../components/ui";
 import { post, useApi } from "../lib/api";
 import { num, pretty, sentence, tone } from "../lib/format";
 import type { ClaimResult, Knowledge, ObservationItem, ParseResult, StructuredClaim } from "../lib/types";
@@ -178,7 +178,7 @@ function CheckList({ result, parsed }: { result: ClaimResult; parsed: ParseResul
   const dims = (result.comparison?.dimensions ?? []).filter((d) => d.status !== "N/A");
   if (!understood.length && !dims.length && !result.blocking_findings.length) return null;
   return (
-    <div className="mt-6 rounded-xl border border-line bg-panel p-5">
+    <div className="mt-6 rounded-lg border border-line bg-panel p-5">
       <h3 className="m-0 text-lg font-semibold">Why</h3>
       <ul className="m-0 mt-3 list-none space-y-1.5 p-0">
         {understood.map((u) => (
@@ -299,13 +299,12 @@ export default function Claims() {
 
   return (
     <article>
-      <h1 className="m-0 text-4xl font-bold tracking-tight">Check a research claim</h1>
-      <p className="mt-2 max-w-[70ch] text-lg text-ink-2">
-        Write what you want to say about the data. Data Doctor turns it into a structured claim, shows you exactly how it read it, and
-        decides with fixed rules whether the published data supports it, and what you can safely say instead.
-      </p>
+      <PageHeader
+        title="Check a research claim"
+        lead="A linter for scientific statements. Write what you want to say about the data; Data Doctor shows exactly how it read it, decides with fixed rules whether the published data supports it, and tells you what you can safely say instead."
+      />
 
-      <form className="mt-6 rounded-xl border border-line bg-panel p-4" onSubmit={(e) => { e.preventDefault(); if (text.trim()) check(text.trim()); }}>
+      <form className="rounded-lg border border-line bg-panel p-4" onSubmit={(e) => { e.preventDefault(); if (text.trim()) check(text.trim()); }}>
         <label htmlFor="claim-text" className="block font-semibold">Your claim</label>
         <textarea id="claim-text" rows={2} maxLength={500} value={text} onChange={(e) => setText(e.target.value)}
           placeholder="e.g. PM2.5 at Benevento site 01 exceeded the WHO guideline in 2019"
@@ -328,7 +327,7 @@ export default function Claims() {
           {busy && llm.activeName && <span role="status" className="text-sm text-ink-3">{describeModel(llm.activeName).label} is helping read the claim; a local model can take up to a minute.</span>}
           <span className="text-sm text-ink-3">Try:</span>
           {EXAMPLES.map((e) => (
-            <button key={e} type="button" onClick={() => { setText(e); check(e); }} className="rounded-full border border-line px-3 py-1 text-sm text-ink-2 hover:border-karst hover:text-karst">
+            <button key={e} type="button" onClick={() => { setText(e); check(e); }} className="rounded-md border border-line px-3 py-1 text-left text-sm text-ink-2 hover:border-karst hover:text-karst">
               {e}
             </button>
           ))}
@@ -341,7 +340,7 @@ export default function Claims() {
         )}
       </form>
 
-      <details className="mt-4 rounded-xl border border-line bg-panel">
+      <details className="mt-4 rounded-lg border border-line bg-panel">
         <summary className="px-4 py-3 font-semibold">Build a structured claim instead</summary>
         <div className="border-t border-line p-4"><Builder onRun={(c) => { setParsed(null); evaluate(c); }} /></div>
       </details>
@@ -349,7 +348,7 @@ export default function Claims() {
       {err && <div className="mt-4"><ErrorNote error={err} /></div>}
 
       {parsed && (
-        <section aria-labelledby="read-h" className="mt-8 rounded-xl border border-line bg-panel p-4">
+        <section aria-labelledby="read-h" className="mt-8 rounded-lg border border-line bg-panel p-4">
           <h2 id="read-h" className="m-0 text-lg font-bold">How Data Doctor read your claim</h2>
           <p className="m-0 mt-1 text-sm text-ink-3">
             {parsed.method.startsWith("llm") ? (
@@ -372,7 +371,7 @@ export default function Claims() {
 
       {result && (
         <section aria-labelledby="verdict-h" aria-live="polite" className="mt-8">
-          <div className={`rounded-xl border-2 bg-panel p-5 ${{ good: "border-algae/60", caveat: "border-sulfur/60", bad: "border-slate/60", blocked: "border-cinnabar/60", neutral: "border-line" }[tone(result.verdict)]}`}>
+          <div className={`rounded-lg border border-l-4 bg-panel p-5 ${{ good: "border-algae/50", caveat: "border-sulfur/50", bad: "border-slate/50", blocked: "border-cinnabar/50", neutral: "border-line" }[tone(result.verdict)]}`}>
             <h2 id="verdict-h" className="m-0"><Verdict value={result.verdict} size="lg" /></h2>
             <p className="mb-0 mt-3 text-lg">“{pretty(result.claim_rendered)}”</p>
             <ul className="mt-3 max-w-[75ch] pl-5">{result.reasons.map((r) => <li key={r} className="mb-1">{pretty(r)}</li>)}</ul>
@@ -382,7 +381,7 @@ export default function Claims() {
           <CheckList result={result} parsed={parsed} />
 
           {result.ladder?.length > 0 && (
-            <div className="mt-6 rounded-xl border border-line bg-panel p-5">
+            <div className="mt-6 rounded-lg border border-line bg-panel p-5">
               <h3 className="m-0 text-lg font-semibold">How far the evidence reaches</h3>
               <div className="mt-2">
                 <EvidenceLadder rungs={result.ladder} upTo={result.supported_up_to} />
@@ -391,13 +390,13 @@ export default function Claims() {
           )}
 
           {result.safe_alternatives.length > 0 && (
-            <div className="mt-6 rounded-xl border border-algae/40 bg-algae-soft p-4">
-              <h3 className="m-0 text-lg font-semibold text-algae">What you can safely say</h3>
+            <div className="mt-6 rounded-lg border border-l-4 border-algae/50 bg-panel p-4">
+              <h3 className="m-0 text-lg font-semibold">What you can safely say</h3>
               <ul className="m-0 mt-2 list-none space-y-3 p-0">
                 {result.safe_alternatives.map((s) => (
                   <li key={s} className="flex flex-wrap items-start justify-between gap-3">
                     <span className="max-w-[80ch]">{pretty(s)}</span>
-                    <button type="button" onClick={() => copy(s)} className="shrink-0 rounded-md border border-algae/50 px-2.5 py-1 text-sm text-algae hover:bg-panel">
+                    <button type="button" onClick={() => copy(s)} className="shrink-0 rounded-md border border-line-strong px-2.5 py-1 text-sm text-ink hover:bg-sunk">
                       {copied === s ? "Copied" : "Copy"}
                     </button>
                   </li>

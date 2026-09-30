@@ -116,7 +116,7 @@ export default function WhatIfLab({ observationId, record }: { observationId: st
   const fired = result?.checks.filter((c) => c.fired) ?? [];
 
   return (
-    <div className="rounded-xl border border-line bg-panel p-4 sm:p-5">
+    <div className="rounded-lg border border-line bg-panel p-4 sm:p-5">
       <div className="grid gap-6 lg:grid-cols-[minmax(0,17rem)_minmax(0,1fr)]">
         <fieldset className="m-0 min-w-0 border-0 p-0">
           <legend className="mb-2 font-semibold">The published numbers{u ? ` (${u})` : ""}</legend>

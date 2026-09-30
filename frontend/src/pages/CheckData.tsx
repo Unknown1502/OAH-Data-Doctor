@@ -24,7 +24,7 @@ export default function CheckData() {
 
   const starters: Starter[] = [
     {
-      label: "The 198,000 °C record, as published",
+      label: "The most important flagged record, as published",
       load: async () => {
         const ov = await api<Overview>("/overview");
         return JSON.stringify(await resourceJson(ov.hero_finding!.resource.resource_id), null, 2);
@@ -93,43 +93,19 @@ export default function CheckData() {
   const s = result?.summary;
   return (
     <article>
-      <h1 className="m-0 text-[clamp(1.9rem,3.6vw,2.7rem)] font-bold leading-tight tracking-tight">Check your own data</h1>
-      <p className="mt-3 max-w-[70ch] text-lg text-ink-2">
+      <h1 className="m-0 text-3xl font-bold leading-tight tracking-tight">Check your own data</h1>
+      <p className="mb-8 mt-2 max-w-[70ch] text-ink-2">
         Bring FHIR data from anywhere. Data Doctor runs the same rules on it, with the published OneAquaHealth data as context, so
         your records are also compared with their published series and places. Your data is checked in memory and not stored.
       </p>
 
-      <section aria-labelledby="ways-h" className="mt-8">
-        <h2 id="ways-h" className="sr-only">Ways to give Data Doctor your data</h2>
-        <ol className="m-0 grid list-none gap-3 p-0 md:grid-cols-3">
-          <li className="rounded-xl border border-line bg-panel p-4">
-            <p className="m-0 font-semibold">Here, in the browser</p>
-            <p className="m-0 mt-1 text-sm text-ink-2">Paste or drop one FHIR resource, a Bundle, a JSON array or NDJSON (one resource per line), up to 5 MB.</p>
-          </li>
-          <li className="rounded-xl border border-line bg-panel p-4">
-            <p className="m-0 font-semibold">From a terminal or a data pipeline</p>
-            <p className="m-0 mt-1 text-sm text-ink-2">
-              <code className="code">python tools/oah_audit.py check my-data.ndjson</code> exits with status 1 when it finds an error, so it can stop a
-              pipeline before bad data is published.
-            </p>
-          </li>
-          <li className="rounded-xl border border-line bg-panel p-4">
-            <p className="m-0 font-semibold">A whole FHIR server</p>
-            <p className="m-0 mt-1 text-sm text-ink-2">
-              <code className="code">DD_FHIR_BASE=https://your-server/fhir python tasks.py run</code> audits another server, read-only. Range checks
-              use the measures Data Doctor knows; statistical and structural checks apply to any data.
-            </p>
-          </li>
-        </ol>
-      </section>
-
-      <section aria-labelledby="in-h" className="mt-8 rounded-xl border border-line bg-panel p-4 sm:p-5">
+      <section aria-labelledby="in-h" className="rounded-lg border border-line bg-panel p-4 sm:p-6">
         <h2 id="in-h" className="m-0 text-xl font-bold">Your data</h2>
         <p className="mb-0 mt-1 text-sm text-ink-2">Start from a real published record and edit it, or bring your own:</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {starters.map((st) => (
             <button key={st.label} type="button" onClick={() => loadStarter(st)}
-              className="rounded-full border border-line px-3 py-1 text-sm text-ink-2 hover:border-karst hover:text-karst">
+              className="rounded-md border border-line px-3 py-1 text-sm text-ink-2 hover:border-karst hover:text-karst">
               {st.label}
             </button>
           ))}
@@ -219,7 +195,7 @@ export default function CheckData() {
             <ul className="m-0 mt-6 list-none space-y-3 p-0">
               {result.findings.map((f, i) => (
                 <li key={`${f.id}-${i}`} id={i === result.findings.findIndex((x) => x.resource.key === f.resource.key) ? `f-${f.resource.key}` : undefined}
-                  className="rounded-xl border border-line bg-panel p-4">
+                  className="rounded-lg border border-line bg-panel p-4">
                   <div className="flex flex-wrap items-center gap-2">
                     <SeverityTag severity={f.severity} />
                     <span className="readout text-sm text-ink-2">{f.rule_id}</span>
@@ -243,10 +219,33 @@ export default function CheckData() {
             </ul>
           )}
           <p className="mt-6 text-sm text-ink-3">
-            Findings use the same rules as the published audit; see <Link to="/sources" className="text-karst underline underline-offset-2">Sources and rules</Link>.
+            Findings use the same rules as the published audit; see <Link to="/sources" className="text-karst underline underline-offset-2">Sources &amp; rules</Link>.
           </p>
         </section>
       )}
+      <section aria-labelledby="ways-h" className="mt-10">
+        <h2 id="ways-h" className="m-0 mb-3 text-[0.78rem] font-bold uppercase tracking-[0.1em] text-ink-2">Other ways in</h2>
+        <ul className="m-0 grid list-none divide-line p-0 md:grid-cols-3 md:divide-x">
+          <li className="py-3 md:pr-5">
+            <p className="m-0 font-semibold">Here, in the browser</p>
+            <p className="m-0 mt-1 text-sm text-ink-2">Paste or drop one FHIR resource, a Bundle, a JSON array or NDJSON (one resource per line), up to 5 MB.</p>
+          </li>
+          <li className="border-t border-line py-3 md:border-t-0 md:px-5">
+            <p className="m-0 font-semibold">From a terminal or a data pipeline</p>
+            <p className="m-0 mt-1 text-sm text-ink-2">
+              <code className="code">python tools/oah_audit.py check my-data.ndjson</code> exits with status 1 when it finds an error, so it can stop a
+              pipeline before bad data is published.
+            </p>
+          </li>
+          <li className="border-t border-line py-3 md:border-t-0 md:pl-5">
+            <p className="m-0 font-semibold">A whole FHIR server</p>
+            <p className="m-0 mt-1 text-sm text-ink-2">
+              <code className="code">DD_FHIR_BASE=https://your-server/fhir python tasks.py run</code> audits another server, read-only. Range checks
+              use the measures Data Doctor knows; statistical and structural checks apply to any data.
+            </p>
+          </li>
+        </ul>
+      </section>
     </article>
   );
 }

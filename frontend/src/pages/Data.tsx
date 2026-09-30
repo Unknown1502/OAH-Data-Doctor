@@ -96,13 +96,13 @@ export default function Data() {
 
   return (
     <article>
-      <h1 className="m-0 text-[clamp(1.9rem,3.6vw,2.7rem)] font-bold leading-tight tracking-tight">The published data</h1>
-      <p className="mt-3 max-w-[70ch] text-lg text-ink-2">
+      <h1 className="m-0 text-3xl font-bold leading-tight tracking-tight">The published data</h1>
+      <p className="mb-0 mt-2 max-w-[70ch] text-ink-2">
         Every official OneAquaHealth record Data Doctor reads, shown exactly as published: no rounding, no unit conversion, no
         corrections. Open any record on the FHIR server to compare it with the source.
       </p>
 
-      <section aria-labelledby="prov-h" className="mt-6 rounded-xl border border-line bg-panel p-4 sm:p-5">
+      <section aria-labelledby="prov-h" className="mt-6 rounded-lg border border-line bg-panel p-4 sm:p-5">
         <h2 id="prov-h" className="m-0 text-lg font-bold">Where it comes from</h2>
         <dl className="mb-0 mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-[12rem_1fr]">
           <dt className="text-ink-2">Server</dt>
@@ -131,7 +131,7 @@ export default function Data() {
 
       <section aria-labelledby="sites-h" className="mt-10">
         <h2 id="sites-h" className="m-0 text-2xl font-bold tracking-tight">Monitoring places</h2>
-        <div className="mt-3 overflow-x-auto rounded-xl border border-line bg-panel" tabIndex={0} role="region" aria-label="Table of monitoring places">
+        <div className="mt-3 overflow-x-auto rounded-lg border border-line bg-panel" tabIndex={0} role="region" aria-label="Table of monitoring places">
           <table className="data m-0">
             <thead>
               <tr>
@@ -159,7 +159,7 @@ export default function Data() {
                     <div className="flex items-center gap-2">
                       <span className="readout w-10 text-right">{num(l.with_problems)}</span>
                       <span className="h-2 flex-1 rounded-full bg-sunk" aria-hidden="true">
-                        <span className="block h-2 rounded-full bg-cinnabar" style={{ width: `${l.observations ? (100 * l.with_problems) / l.observations : 0}%` }} />
+                        <span className="block h-2 rounded-full bg-ink-3" style={{ width: `${l.observations ? (100 * l.with_problems) / l.observations : 0}%` }} />
                       </span>
                     </div>
                   </td>
@@ -193,7 +193,7 @@ export default function Data() {
               </select>
             </label>
           </div>
-          <div className="mt-4 rounded-xl border border-line bg-panel p-4">
+          <div className="mt-4 rounded-lg border border-line bg-panel p-4">
             {points.length > 0 ? (
               <SeriesChart points={points} unit={seriesUnit} band={band} title={`${STAT_LABEL[stat] ?? stat} of ${current.label}`}
                 bandNote={band && hard ? `Physically possible for ${ind?.label.toLowerCase() ?? "this measure"}: ${hard.min !== undefined ? exact(hard.min) : "no lower limit"} to ${hard.max !== undefined ? exact(hard.max) : "no upper limit"} ${unitText(seriesUnit)}. ${hard.rationale}` : null} />
@@ -271,7 +271,7 @@ export default function Data() {
         <p className="mt-3 text-sm text-ink-2" aria-live="polite">
           Showing {num(Math.min(shown, rows.length))} of {num(rows.length)} records{rows.length !== items.length ? ` (filtered from ${num(items.length)})` : ""}.
         </p>
-        <div className="mt-2 max-h-[75vh] overflow-auto rounded-xl border border-line bg-panel" tabIndex={0} role="region" aria-label="Table of records">
+        <div className="mt-2 max-h-[75vh] overflow-auto rounded-lg border border-line bg-panel" tabIndex={0} role="region" aria-label="Table of records">
           <table className="data m-0">
             <caption className="sr-only">Official records, values exactly as published</caption>
             <thead className="sticky top-0 z-10 bg-panel">

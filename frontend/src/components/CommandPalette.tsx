@@ -108,7 +108,7 @@ export default function CommandPalette({ open, onClose, commands, pages }: {
   let lastGroup = "";
   return (
     <dialog ref={ref} onClose={onClose} aria-label="Search and commands"
-      className="mx-auto mt-[12vh] w-[min(40rem,calc(100vw-2rem))] rounded-xl border border-line bg-panel p-0 text-ink">
+      className="mx-auto mt-[12vh] w-[min(40rem,calc(100vw-2rem))] rounded-lg border border-line bg-panel p-0 text-ink">
       <div className="flex items-center gap-2 border-b border-line px-4">
         <svg viewBox="0 0 16 16" className="h-4 w-4 shrink-0 text-ink-3" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6">
           <circle cx="7" cy="7" r="4.5" />

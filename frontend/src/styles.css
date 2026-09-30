@@ -5,87 +5,146 @@
 @import "@fontsource/ibm-plex-mono/600.css";
 
 /* ---------------------------------------------------------------------------------------------
-   Tokens. Light is the default; dark follows the system unless the user pins a scheme
-   (html[data-theme]). Palette: chalk, deep water, karst blue, cinnabar (impossible),
-   ochre (error), sulfur (warning), algae (pass). All text pairs meet WCAG AA.
+   Design tokens: the only place colours, radii, spacing, shadows, motion and layers are defined.
+   Dark (graphite / blue-green) is the primary identity; light uses neutral whites and a muted
+   blue-green. Meaning, not decoration: accent = interaction and selection; success = verified;
+   warning = uncertainty; error; critical (coral) = contradiction, impossible evidence, blocked.
+   Every text/background pair meets WCAG AA (muted text lightened from #6F898F to #7A9298 for AA
+   on elevated surfaces).
    --------------------------------------------------------------------------------------------- */
 :root {
   color-scheme: light dark;
-  --chalk: #f1f4f2;
-  --panel: #fbfcfb;
-  --sunk: #e6ebe8;
-  --ink: #0e2a31;
-  --ink-2: #3c5a61;
-  --ink-3: #4c6369;
-  --line: #cfd9d6;
-  --line-strong: #9fb2ad;
-  --karst: #17657e;
-  --karst-soft: #d8eaf0;
-  --cinnabar: #b42c1c;
-  --cinnabar-soft: #f7ded9;
-  --ochre: #9a5b00;
-  --ochre-soft: #f7e9d2;
-  --sulfur: #7a6400;
-  --sulfur-soft: #f3edc9;
-  --algae: #2b7355;
-  --algae-soft: #dcefe5;
-  --slate: #56636b;
-  --slate-soft: #e3e8ea;
-  --band: rgba(43, 115, 85, 0.14);
+  --color-bg: #f1f4f2;
+  --color-sidebar: #e8eeeb;
+  --color-surface: #fbfcfb;
+  --color-surface-elevated: #ffffff;
+  --color-sunk: #e6ebe8;
+  --color-border: #cfd9d6;
+  --color-border-strong: #9fb2ad;
+  --color-border-subtle: rgba(14, 42, 49, 0.08);
+  --color-text-primary: #0e2a31;
+  --color-text-secondary: #3c5a61;
+  --color-text-muted: #4c6369;
+  --color-accent: #17657e;
+  --color-accent-muted: #d8eaf0;
+  --color-success: #2b7355;
+  --color-success-surface: #dcefe5;
+  --color-warning: #7a6400;
+  --color-warning-surface: #f3edc9;
+  --color-error: #9a5b00;
+  --color-error-surface: #f7e9d2;
+  --color-critical: #b42c1c;
+  --color-critical-surface: #f7ded9;
+  --color-info: #2f6b82;
+  --color-neutral: #56636b;
+  --color-neutral-surface: #e3e8ea;
+  --color-band: rgba(43, 115, 85, 0.14);
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --shadow-overlay: 0 16px 48px rgba(0, 0, 0, 0.28);
+  --transition-fast: 120ms ease-out;
+  --transition-drawer: 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  --z-sticky: 10;
+  --z-nav: 20;
+  --z-overlay: 50;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --chalk: #0b1c21;
-    --panel: #10262c;
-    --sunk: #0d2126;
-    --ink: #e3ece9;
-    --ink-2: #b4c6c2;
-    --ink-3: #8ea5a1;
-    --line: #23414a;
-    --line-strong: #3d626b;
-    --karst: #6cc3dc;
-    --karst-soft: #143944;
-    --cinnabar: #ff8a73;
-    --cinnabar-soft: #3d1d18;
-    --ochre: #f0b25a;
-    --ochre-soft: #3a2a10;
-    --sulfur: #e3cf5e;
-    --sulfur-soft: #353010;
-    --algae: #6fd3a6;
-    --algae-soft: #123428;
-    --slate: #a9b8bf;
-    --slate-soft: #1f3138;
-    --band: rgba(111, 211, 166, 0.14);
+    --color-bg: #071417;
+    --color-sidebar: #0b1c20;
+    --color-surface: #0e2328;
+    --color-surface-elevated: #10292f;
+    --color-sunk: #0c1f24;
+    --color-border: #1b3a40;
+    --color-border-strong: #2b5058;
+    --color-border-subtle: rgba(130, 180, 190, 0.12);
+    --color-text-primary: #e8f0f1;
+    --color-text-secondary: #9bb4b9;
+    --color-text-muted: #7a9298;
+    --color-accent: #67c7d9;
+    --color-accent-muted: rgba(103, 199, 217, 0.14);
+    --color-success: #58d3a5;
+    --color-success-surface: rgba(88, 211, 165, 0.12);
+    --color-warning: #e5b968;
+    --color-warning-surface: rgba(229, 185, 104, 0.12);
+    --color-error: #efa35c;
+    --color-error-surface: rgba(239, 163, 92, 0.12);
+    --color-critical: #ff766a;
+    --color-critical-surface: #351d1a;
+    --color-info: #79b8d1;
+    --color-neutral: #a9b8bf;
+    --color-neutral-surface: rgba(169, 184, 191, 0.12);
+    --color-band: rgba(88, 211, 165, 0.14);
+    --shadow-overlay: 0 16px 48px rgba(0, 0, 0, 0.55);
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --chalk: #0b1c21;
-  --panel: #10262c;
-  --sunk: #0d2126;
-  --ink: #e3ece9;
-  --ink-2: #b4c6c2;
-  --ink-3: #8ea5a1;
-  --line: #23414a;
-  --line-strong: #3d626b;
-  --karst: #6cc3dc;
-  --karst-soft: #143944;
-  --cinnabar: #ff8a73;
-  --cinnabar-soft: #3d1d18;
-  --ochre: #f0b25a;
-  --ochre-soft: #3a2a10;
-  --sulfur: #e3cf5e;
-  --sulfur-soft: #353010;
-  --algae: #6fd3a6;
-  --algae-soft: #123428;
-  --slate: #a9b8bf;
-  --slate-soft: #1f3138;
-  --band: rgba(111, 211, 166, 0.14);
+  --color-bg: #071417;
+  --color-sidebar: #0b1c20;
+  --color-surface: #0e2328;
+  --color-surface-elevated: #10292f;
+  --color-sunk: #0c1f24;
+  --color-border: #1b3a40;
+  --color-border-strong: #2b5058;
+  --color-border-subtle: rgba(130, 180, 190, 0.12);
+  --color-text-primary: #e8f0f1;
+  --color-text-secondary: #9bb4b9;
+  --color-text-muted: #7a9298;
+  --color-accent: #67c7d9;
+  --color-accent-muted: rgba(103, 199, 217, 0.14);
+  --color-success: #58d3a5;
+  --color-success-surface: rgba(88, 211, 165, 0.12);
+  --color-warning: #e5b968;
+  --color-warning-surface: rgba(229, 185, 104, 0.12);
+  --color-error: #efa35c;
+  --color-error-surface: rgba(239, 163, 92, 0.12);
+  --color-critical: #ff766a;
+  --color-critical-surface: #351d1a;
+  --color-info: #79b8d1;
+  --color-neutral: #a9b8bf;
+  --color-neutral-surface: rgba(169, 184, 191, 0.12);
+  --color-band: rgba(88, 211, 165, 0.14);
+  --shadow-overlay: 0 16px 48px rgba(0, 0, 0, 0.55);
 }
 :root[data-theme="light"] {
   color-scheme: light;
+}
+
+/* Component vocabulary (used as Tailwind utilities: bg-chalk, text-ink, border-line, text-cinnabar, ...),
+   each an alias of a semantic token above. Change a colour there, never here. */
+:root {
+  --chalk: var(--color-bg);
+  --panel: var(--color-surface);
+  --sunk: var(--color-sunk);
+  --ink: var(--color-text-primary);
+  --ink-2: var(--color-text-secondary);
+  --ink-3: var(--color-text-muted);
+  --line: var(--color-border);
+  --line-strong: var(--color-border-strong);
+  --karst: var(--color-accent);
+  --karst-soft: var(--color-accent-muted);
+  --cinnabar: var(--color-critical);
+  --cinnabar-soft: var(--color-critical-surface);
+  --ochre: var(--color-error);
+  --ochre-soft: var(--color-error-surface);
+  --sulfur: var(--color-warning);
+  --sulfur-soft: var(--color-warning-surface);
+  --algae: var(--color-success);
+  --algae-soft: var(--color-success-surface);
+  --slate: var(--color-neutral);
+  --slate-soft: var(--color-neutral-surface);
+  --band: var(--color-band);
 }
 
 @theme {
@@ -111,6 +170,10 @@
   --color-algae-soft: var(--algae-soft);
   --color-slate: var(--slate);
   --color-slate-soft: var(--slate-soft);
+  --color-sidebar: var(--color-sidebar);
+  --color-elevated: var(--color-surface-elevated);
+  --color-subtle: var(--color-border-subtle);
+  --color-info: var(--color-info);
 }
 
 @layer base {
@@ -229,7 +292,10 @@ table.data {
 }
 table.data th {
   text-align: left;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--ink-2);
   background: var(--sunk);
   position: sticky;
@@ -241,6 +307,13 @@ table.data td {
   padding: 9px 12px;
   border-bottom: 1px solid var(--line);
   vertical-align: top;
+}
+table.data.dense th,
+table.data.dense td {
+  padding: 7px 10px;
+}
+table.data tbody tr:last-child td {
+  border-bottom: 0;
 }
 table.data tbody tr:hover td {
   background: color-mix(in srgb, var(--karst-soft) 45%, transparent);
@@ -307,26 +380,28 @@ dialog.drawer[open] {
 @media print {
   :root,
   :root[data-theme="dark"] {
-    --chalk: #ffffff;
-    --panel: #ffffff;
-    --sunk: #f2f4f3;
-    --ink: #0e2a31;
-    --ink-2: #3c5a61;
-    --ink-3: #4c6369;
-    --line: #cfd9d6;
-    --line-strong: #9fb2ad;
-    --karst: #17657e;
-    --karst-soft: #d8eaf0;
-    --cinnabar: #b42c1c;
-    --cinnabar-soft: #f7ded9;
-    --ochre: #9a5b00;
-    --ochre-soft: #f7e9d2;
-    --sulfur: #7a6400;
-    --sulfur-soft: #f3edc9;
-    --algae: #2b7355;
-    --algae-soft: #dcefe5;
-    --slate: #56636b;
-    --slate-soft: #e3e8ea;
+    --color-bg: #ffffff;
+    --color-sidebar: #ffffff;
+    --color-surface: #ffffff;
+    --color-surface-elevated: #ffffff;
+    --color-sunk: #f2f4f3;
+    --color-border: #cfd9d6;
+    --color-border-strong: #9fb2ad;
+    --color-text-primary: #0e2a31;
+    --color-text-secondary: #3c5a61;
+    --color-text-muted: #4c6369;
+    --color-accent: #17657e;
+    --color-accent-muted: #d8eaf0;
+    --color-success: #2b7355;
+    --color-success-surface: #dcefe5;
+    --color-warning: #7a6400;
+    --color-warning-surface: #f3edc9;
+    --color-error: #9a5b00;
+    --color-error-surface: #f7e9d2;
+    --color-critical: #b42c1c;
+    --color-critical-surface: #f7ded9;
+    --color-neutral: #56636b;
+    --color-neutral-surface: #e3e8ea;
   }
   .no-print,
   .skip-link {
@@ -345,5 +420,36 @@ dialog.drawer[open] {
   section {
     break-inside: avoid-page;
   }
+  .report-doc {
+    border: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+  }
+  .report-part {
+    break-inside: auto;
+  }
+  .report-part h2 {
+    break-after: avoid-page;
+  }
 }
 
+
+/* Mobile menu drawer, from the left. */
+dialog.drawer-left[open] {
+  animation: drawer-left-in var(--transition-drawer) both;
+}
+@keyframes drawer-left-in {
+  from {
+    transform: translateX(-24px);
+    opacity: 0.4;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  dialog.drawer-left[open] {
+    animation: none;
+  }
+}

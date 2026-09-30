@@ -79,18 +79,74 @@ export function SourceBadge({ source, compact = false }: { source: SourceInfo | 
   );
 }
 
-export function Readout({ label, value, note, tone: t }: { label: string; value: ReactNode; note?: ReactNode; tone?: "bad" | "good" }) {
+const SEV_BADGE: Record<Severity, string> = {
+  CRITICAL: "text-cinnabar bg-cinnabar-soft border-cinnabar/40",
+  ERROR: "text-ochre bg-ochre-soft border-ochre/40",
+  WARNING: "text-sulfur bg-sulfur-soft border-sulfur/40",
+  INFO: "text-slate bg-slate-soft border-slate/40",
+};
+
+/** "STATISTICAL · CRITICAL": what kind of problem and how serious, with a shape so it never relies on colour. */
+export function SeverityBadge({ severity, category }: { severity: Severity; category?: string }) {
   return (
-    <div className="min-w-0">
-      <dt className="text-sm text-ink-2">{label}</dt>
-      <dd className={`m-0 readout text-2xl font-semibold ${t === "bad" ? "text-cinnabar" : t === "good" ? "text-algae" : "text-ink"}`}>{value}</dd>
-      {note && <dd className="m-0 text-sm text-ink-3">{note}</dd>}
+    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border px-2 py-0.5 text-xs font-bold uppercase tracking-[0.08em] ${SEV_BADGE[severity]}`}>
+      <SeverityShape severity={severity} size={10} />
+      {category && (
+        <>
+          {category.toLowerCase()}
+          <span aria-hidden="true">·</span>
+        </>
+      )}
+      {SEVERITY_TEXT[severity]}
+    </span>
+  );
+}
+
+/** A small uppercase label that names a block of content; never used as decoration. */
+export function SectionLabel({ children, id, as: Tag = "h2" }: { children: ReactNode; id?: string; as?: "h2" | "h3" | "p" }) {
+  return (
+    <Tag id={id} className="m-0 mb-3 text-[0.78rem] font-bold uppercase tracking-[0.1em] text-ink-2">
+      {children}
+    </Tag>
+  );
+}
+
+/** A supporting number: value first, label under it, restrained. Only evidence of a contradiction is coloured. */
+export function Metric({ label, value, note, critical = false }: { label: string; value: ReactNode; note?: ReactNode; critical?: boolean }) {
+  return (
+    <div className={`flex min-w-0 flex-col border-l-2 pl-3 ${critical ? "border-cinnabar" : "border-line"}`}>
+      <dt className="order-2 mt-1 text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-ink-2">{label}</dt>
+      <dd className={`order-1 m-0 readout text-xl font-semibold ${critical ? "text-cinnabar" : "text-ink"}`}>{value}</dd>
+      {note && <dd className="order-3 m-0 mt-0.5 text-sm text-ink-3">{note}</dd>}
+    </div>
+  );
+}
+
+/** Page title, one line of purpose, and optional actions on the right. */
+export function PageHeader({ title, lead, actions, id }: { title: ReactNode; lead?: ReactNode; actions?: ReactNode; id?: string }) {
+  return (
+    <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
+      <div className="min-w-0">
+        <h1 id={id} className="m-0 text-3xl font-bold tracking-tight">{title}</h1>
+        {lead && <p className="mb-0 mt-2 max-w-[70ch] text-ink-2">{lead}</p>}
+      </div>
+      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+    </header>
+  );
+}
+
+/** Nothing to show: say why, and what to do next. */
+export function EmptyState({ title, children }: { title: string; children?: ReactNode }) {
+  return (
+    <div className="rounded-lg border border-dashed border-line-strong px-5 py-8 text-center">
+      <p className="m-0 font-semibold text-ink">{title}</p>
+      {children && <div className="mx-auto mt-2 max-w-[60ch] text-sm text-ink-2">{children}</div>}
     </div>
   );
 }
 
 export function Panel({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div className={`rounded-xl border border-line bg-panel ${className}`}>{children}</div>;
+  return <div className={`rounded-lg border border-line bg-panel ${className}`}>{children}</div>;
 }
 
 export function Loading({ what }: { what: string }) {
@@ -103,7 +159,7 @@ export function Loading({ what }: { what: string }) {
 
 export function ErrorNote({ error, action }: { error: string; action?: ReactNode }) {
   return (
-    <div role="alert" className="rounded-lg border border-cinnabar/40 bg-cinnabar-soft px-4 py-3 text-cinnabar">
+    <div role="alert" className="rounded-md border border-cinnabar/40 bg-cinnabar-soft px-4 py-3 text-cinnabar">
       <p className="m-0 font-semibold">{error}</p>
       {action && <div className="mt-2">{action}</div>}
     </div>
@@ -144,7 +200,7 @@ export function Button({
       onClick={onClick}
       disabled={disabled}
       aria-describedby={ariaDescribedBy}
-      className={`inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-[0.95rem] font-semibold transition-[filter,background] disabled:cursor-not-allowed disabled:opacity-50 ${styles}`}
+      className={`inline-flex items-center gap-2 rounded-md border px-3.5 py-2 text-[0.95rem] font-semibold transition-[filter,background] disabled:cursor-not-allowed disabled:opacity-50 ${styles}`}
     >
       {children}
     </button>

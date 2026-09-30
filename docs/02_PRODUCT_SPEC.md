@@ -42,7 +42,7 @@
 | Compare | Can two numbers be compared? | Catalog examples; two record pickers (filter + native listbox + statistic); verdict panel; dimension table; transformations; blocking findings; alternatives |
 | Check a claim | Guard a sentence | Free-text claim with examples; structured builder; "how Data Doctor read your claim"; verdict panel; safe wording with copy; blocking findings; ordered rule trace |
 | Report | Export | Four exports; support table |
-| Sources and rules | Transparency | Current source; scan live, use snapshot, clear the analyses I ran; verified snapshots with hashes; full rule catalog; AI policy |
+| Sources & rules | Transparency | Current source; scan live, use snapshot, clear the analyses I ran; verified snapshots with hashes; full rule catalog; AI policy |
 
 Global: source badge (Live + fetch time, or Snapshot + date, with the manifest hash on hover); fallback banner when live failed;
 "Scan live sandbox" action; theme choice (system, light, dark).

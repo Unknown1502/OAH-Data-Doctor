@@ -143,17 +143,17 @@ export function ModelButton({ status }: { status: Status | null }) {
       type="button"
       onClick={open}
       aria-haspopup="dialog"
-      className="inline-flex max-w-[24rem] items-center gap-1.5 overflow-hidden rounded-lg border border-line-strong bg-panel px-3 py-1.5 text-sm text-ink-2 hover:bg-sunk hover:text-ink"
+      className="flex w-full min-w-0 items-center gap-1.5 overflow-hidden rounded-md border border-line px-2 py-1 text-left text-xs text-ink-2 hover:border-line-strong hover:text-ink"
       title={d ? `${d.label} ${d.model}: ${config ? "your key" : "this server's setting"}. Select to change.` : "No language model: fixed templates only. Select to add one."}
     >
       {d ? (
         <>
-          <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-algae" />
+          <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-algae" />
           <span className="sr-only">Language model: </span>
-          <ProviderIcon id={d.provider} className="h-4 w-4 text-ink" />
+          <ProviderIcon id={d.provider} className="h-3.5 w-3.5 text-ink" />
           <span className="font-semibold text-ink">{d.label}</span>{" "}
           <span className="min-w-0 truncate">{d.model}</span>{" "}
-          <span className="shrink-0 rounded-full bg-sunk px-1.5 text-xs text-ink-2">{config ? "your key" : "server"}</span>
+          {config ? <span className="ml-auto shrink-0 text-ink-3">your key</span> : <span className="sr-only">, set on the server</span>}
         </>
       ) : (
         <>
@@ -302,7 +302,7 @@ function ModelDialog({ serverDefault, onClose }: { serverDefault: string | null;
       ref={ref}
       onClose={onClose}
       aria-labelledby={`${uid}-h`}
-      className="m-auto w-[min(32rem,calc(100vw-2rem))] max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-xl border border-line bg-panel p-0 text-ink"
+      className="m-auto w-[min(32rem,calc(100vw-2rem))] max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-lg border border-line bg-panel p-0 text-ink"
     >
       <form
         method="dialog"

@@ -28,7 +28,7 @@ export default function TwoVerdicts({
 
   return (
     <div className="grid gap-3 sm:grid-cols-2" aria-label={`Two verdicts for ${record}`} role="group">
-      <div className="rounded-xl border border-line bg-panel p-4">
+      <div className="rounded-lg border border-line bg-panel p-4">
         <p className="m-0 text-sm text-ink-2">FHIR server's own validator</p>
         <p className="m-0 mt-1 text-sm text-ink-3">HAPI FHIR <code className="code">$validate</code>, base R4</p>
         <p className={`m-0 mt-3 flex items-center gap-2 text-lg font-semibold ${serverOutcome && !serverErrors.length ? "text-algae" : "text-ink-2"}`}>
@@ -36,7 +36,7 @@ export default function TwoVerdicts({
           {serverText}
         </p>
       </div>
-      <div className="rounded-xl border-2 border-cinnabar/60 bg-cinnabar-soft p-4">
+      <div className="rounded-lg border border-cinnabar/50 bg-cinnabar-soft p-4">
         <p className="m-0 text-sm text-ink-2">OAH Data Doctor</p>
         <p className="m-0 mt-1 text-sm text-ink-3">Scientific consistency{ruleCount ? `, ${ruleCount} deterministic rules` : ", deterministic rules"}</p>
         <p className="m-0 mt-3 flex items-center gap-2 text-lg font-semibold text-cinnabar">

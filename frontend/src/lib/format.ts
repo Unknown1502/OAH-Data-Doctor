@@ -55,7 +55,8 @@ export const CLAIM_TEXT: Record<ClaimVerdict, string> = {
   BLOCKED: "Blocked",
 };
 
-export const DIM_TEXT: Record<DimStatus, string> = { PASS: "Pass", CONDITIONAL: "Caveat", FAIL: "Fail", "N/A": "Not applicable" };
+/** One comparability dimension, in the words of the matrix: direct, conditional, not comparable, or not applicable. */
+export const DIM_TEXT: Record<DimStatus, string> = { PASS: "Direct", CONDITIONAL: "Conditional", FAIL: "Not comparable", "N/A": "Not applicable" };
 
 export function tone(v: string): "good" | "caveat" | "bad" | "blocked" | "neutral" {
   if (["DIRECT", "SUPPORTED", "PASS", "USABLE"].includes(v)) return "good";

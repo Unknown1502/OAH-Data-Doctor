@@ -164,7 +164,7 @@ export default function TraceGraph({ impact, recordLabel }: { impact: Impact; re
       </div>
 
       {selected && (
-        <div className="mt-4 rounded-xl border border-karst/50 bg-panel p-4" aria-live="polite">
+        <div className="mt-4 rounded-lg border border-karst/50 bg-panel p-4" aria-live="polite">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <p className="m-0">
               <span className="text-sm text-ink-3">{sel ? TYPE_TEXT[sel.type] : "This record"}</span>

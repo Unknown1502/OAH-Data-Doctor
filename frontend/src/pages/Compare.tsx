@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useRun } from "../components/Shell";
-import { Button, Chip, ErrorNote, FindingLink, Loading, Verdict, useDocumentTitle } from "../components/ui";
+import { Button, Chip, ErrorNote, FindingLink, Loading, PageHeader, Verdict, useDocumentTitle } from "../components/ui";
 import { post, useApi } from "../lib/api";
 import { aggregationText, DIM_TEXT, num, pretty, tone, unit } from "../lib/format";
 import type { Comparison, Descriptor, ObservationItem } from "../lib/types";
@@ -30,8 +30,8 @@ function Picker({ label, items, value, onChange, stat, onStat }: {
   }, [shown]);
   const selected = items.find((o) => o.id === value);
   return (
-    <fieldset className="m-0 min-w-0 rounded-xl border border-line bg-panel p-4">
-      <legend className="px-1 text-lg font-bold">{label}</legend>
+    <fieldset className="m-0 min-w-0 rounded-lg border border-line bg-panel p-4">
+      <legend className="px-1 text-base font-bold">{label}</legend>
       <label htmlFor={`${id}-f`} className="block text-sm text-ink-2">
         Filter records
       </label>
@@ -155,20 +155,19 @@ export default function Compare() {
 
   return (
     <article>
-      <h1 className="m-0 text-4xl font-bold tracking-tight">Can these two numbers be compared?</h1>
-      <p className="mt-2 max-w-[70ch] text-lg text-ink-2">
-        Pick two published values. Data Doctor checks eight dimensions: measure, unit, medium, population, period, aggregation, method and
-        record integrity. It then tells you whether the comparison is direct, needs caveats, is not valid, or is blocked by broken records.
-      </p>
+      <PageHeader
+        title="Can these two numbers be compared?"
+        lead="Pick two published values. Data Doctor checks eight dimensions: measure, unit, medium, population, period, aggregation, method and record integrity. It then tells you whether the comparison is direct, needs caveats, is not valid, or is blocked by broken records."
+      />
 
       {analyses.data && (
-        <div className="mt-6">
-          <p className="m-0 mb-2 text-ink-2">Start from a comparison we already ran:</p>
+        <div>
+          <p className="m-0 mb-2 text-sm text-ink-2">Start from a comparison we already ran:</p>
           <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
             {analyses.data.comparisons.slice(0, 9).map((c) => (
               <li key={c.id}>
                 <button type="button" onClick={() => load(c)}
-                  className="rounded-full border border-line bg-panel px-3 py-1 text-left text-sm hover:border-karst hover:text-karst">
+                  className="rounded-md border border-line px-3 py-1 text-left text-sm text-ink hover:border-karst hover:text-karst">
                   {c.a.measure_label}: {sideText(c.a)} vs {sideText(c.b)}
                 </button>
               </li>
@@ -200,7 +199,7 @@ export default function Compare() {
           <h2 id="res-h" className="sr-only">
             Result
           </h2>
-          <div className={`rounded-xl border-2 p-5 ${tone(result.verdict) === "good" ? "border-algae/60" : tone(result.verdict) === "blocked" ? "border-cinnabar/60" : tone(result.verdict) === "bad" ? "border-slate/60" : "border-sulfur/60"} bg-panel`}>
+          <div className={`rounded-lg border border-l-4 p-5 ${tone(result.verdict) === "good" ? "border-algae/50" : tone(result.verdict) === "blocked" ? "border-cinnabar/50" : tone(result.verdict) === "bad" ? "border-slate/50" : "border-sulfur/50"} bg-panel`}>
             <Verdict value={result.verdict} size="lg" />
             <p className="mb-0 mt-3 max-w-[75ch] text-lg">{pretty(result.summary)}</p>
             <div className="mt-5 grid gap-6 border-t border-line pt-4 sm:grid-cols-2">
@@ -209,17 +208,22 @@ export default function Compare() {
             </div>
           </div>
 
-          <div className="mt-6 rounded-xl border border-line bg-panel">
-            <h3 className="m-0 px-4 pt-3 text-lg font-semibold">Dimension by dimension</h3>
-            <p className="m-0 px-4 pb-2 text-sm text-ink-3">Open a dimension to see what A and B published for it.</p>
+          <div className="mt-6 rounded-lg border border-line bg-panel">
+            <h3 className="m-0 px-4 pt-3 text-lg font-semibold">Comparability matrix</h3>
+            <p className="m-0 px-4 pb-3 text-sm text-ink-3">Each dimension is direct, conditional, not comparable, or not applicable. Open one to see what A and B published for it.</p>
+            <div aria-hidden="true" className="hidden grid-cols-[11rem_9.5rem_minmax(0,1fr)] gap-x-4 border-t border-line bg-sunk px-4 py-1.5 text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-ink-2 sm:grid">
+              <span>Dimension</span>
+              <span>State</span>
+              <span>Why</span>
+            </div>
             <ul className="m-0 list-none p-0">
               {result.dimensions.map((d) => (
                 <li key={d.rule_id} className="border-t border-line">
                   <details className="group">
-                    <summary className="grid cursor-pointer gap-x-4 gap-y-1 px-4 py-2.5 hover:bg-sunk sm:grid-cols-[11rem_8rem_minmax(0,1fr)] sm:items-baseline">
+                    <summary className="grid cursor-pointer gap-x-4 gap-y-1 px-4 py-2.5 hover:bg-sunk sm:grid-cols-[11rem_9.5rem_minmax(0,1fr)] sm:items-baseline">
                       <span className="font-semibold">{d.dimension}</span>
                       <span>
-                        <Chip text={DIM_TEXT[d.status]} toneOf={d.status === "FAIL" ? (d.rule_id === "CMP-INTEGRITY" ? "BLOCKED" : "NOT") : d.status} />
+                        <Chip text={d.status === "FAIL" && d.rule_id === "CMP-INTEGRITY" ? "Blocked" : DIM_TEXT[d.status]} toneOf={d.status === "FAIL" ? (d.rule_id === "CMP-INTEGRITY" ? "BLOCKED" : "NOT") : d.status} />
                       </span>
                       <span className="text-ink-2">{pretty(d.reason)}</span>
                     </summary>
@@ -267,8 +271,8 @@ export default function Compare() {
             </div>
           )}
           {(result.supported_alternatives.length > 0 || result.verdict !== "DIRECT") && (
-            <div className="mt-6 rounded-xl border border-algae/40 bg-algae-soft p-4">
-              <h3 className="m-0 text-lg font-semibold text-algae">What you can do instead</h3>
+            <div className="mt-6 rounded-lg border border-line bg-panel p-4">
+              <h3 className="m-0 text-lg font-semibold">What you can do instead</h3>
               <ul className="m-0 mt-2 list-none space-y-1.5 p-0">
                 {result.supported_alternatives.map((t) => (
                   <li key={t} className="flex gap-2">

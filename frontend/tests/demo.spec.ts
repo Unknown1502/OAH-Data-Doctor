@@ -279,3 +279,59 @@ test("no page scrolls sideways on a phone @mobile", async ({ page }) => {
     expect(overflow, `horizontal overflow on ${path}`).toBeLessThanOrEqual(1);
   }
 });
+
+test("the theme is an icon-only control with Dark, Light and System, remembered across visits", async ({ page }) => {
+  await page.goto("/");
+  const html = page.locator("html");
+  await expect(html).toHaveAttribute("data-theme", "dark"); // dark by default
+  const button = page.getByRole("button", { name: "Change theme" });
+  await expect(button).toHaveAttribute("title", "Change theme");
+  await button.click();
+  const menu = page.getByRole("menu", { name: "Theme" });
+  await expect(menu.getByRole("menuitemradio")).toHaveText(["Dark", "Light", "System"]);
+  await expect(menu.getByRole("menuitemradio", { name: "Dark" })).toHaveAttribute("aria-checked", "true");
+  await menu.getByRole("menuitemradio", { name: "Light" }).click();
+  await expect(html).toHaveAttribute("data-theme", "light");
+  await page.reload();
+  await expect(html).toHaveAttribute("data-theme", "light");
+  await button.click();
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  await expect(button).toBeFocused();
+});
+
+test("the sidebar groups pages under strong section labels", async ({ page }) => {
+  await page.goto("/");
+  const nav = page.getByRole("navigation", { name: "Main" });
+  await expect(nav.getByRole("list", { name: "Investigate" }).getByRole("link")).toHaveText(["Data health", "Findings", "Compare", "Check a claim", "Report"]);
+  await expect(nav.getByRole("list", { name: "Data" }).getByRole("link")).toHaveText(["The data", "Check your data", "Sources & rules"]);
+  const size = (sel: string) => page.locator(sel).first().evaluate((e) => parseFloat(getComputedStyle(e).fontSize));
+  const weight = (sel: string) => page.locator(sel).first().evaluate((e) => Number(getComputedStyle(e).fontWeight));
+  expect(await size("#nav-Investigate")).toBeGreaterThanOrEqual(12);
+  expect(await weight("#nav-Investigate")).toBeGreaterThanOrEqual(650);
+  expect(await weight("#nav-Investigate")).toBeGreaterThan(await weight('nav[aria-label="Main"] a:not([aria-current])'));
+});
+
+test("findings filter by category and by place, from what the audit read", async ({ page }) => {
+  const all = await (await page.request.get("/api/findings?limit=1")).json();
+  await page.goto("/findings");
+  await page.getByLabel("Category", { exact: true }).selectOption("SEMANTIC");
+  await expect(page.getByText(`${all.facets.category.SEMANTIC} findings of ${all.total}`)).toBeVisible();
+  await page.getByLabel("Category", { exact: true }).selectOption("");
+  await page.getByLabel("Place", { exact: true }).selectOption("Almyros monitoring reach");
+  const rows = page.locator("tbody tr");
+  await expect(rows.first()).toBeVisible();
+  for (const place of await page.locator("tbody tr td:nth-child(4)").allTextContents()) expect(place).toBe("Almyros monitoring reach");
+});
+
+test("on a phone the navigation opens as a drawer @mobile", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "the drawer is the phone layout");
+  await page.goto("/");
+  await page.getByRole("button", { name: "Open the menu" }).click();
+  const drawer = page.getByRole("dialog", { name: "Menu" });
+  await expect(drawer.getByRole("button", { name: "Change theme" })).toBeVisible();
+  await drawer.getByRole("link", { name: "Sources & rules" }).click();
+  await expect(page).toHaveURL(/\/sources$/);
+  await expect(drawer).toBeHidden();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Sources & rules");
+});

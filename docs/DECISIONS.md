@@ -143,3 +143,28 @@ published" is shown instead); no "reviewed/unreviewed" filter (the system has no
 (the server is read as JSON; no Turtle or XML is fetched); no zoom or pan for the trace (it has a handful of nodes; it scrolls
 and is keyboard operable); PDF is the browser's print-to-PDF with a print stylesheet (no server-side PDF renderer).
 
+**D-028 One visual system, defined once.** The frontend refinement brief asked for a calmer, more coherent console, not a
+new concept. Every colour, radius, spacing step, shadow, transition and layer is now a token in `frontend/src/styles.css`
+(`--color-bg`, `--color-sidebar`, `--color-surface`, `--color-surface-elevated`, `--color-border`, `--color-border-subtle`,
+`--color-text-primary|secondary|muted`, `--color-accent`, `--color-accent-muted`, `--color-success`, `--color-warning`,
+`--color-error`, `--color-critical`, `--color-critical-surface`, `--color-info`, `--radius-sm|md|lg`, `--space-1..8`,
+`--shadow-overlay`, `--transition-fast|drawer`, `--z-sticky|nav|overlay`), each with dark and light values; the older
+utility names (`bg-chalk`, `text-ink`, `text-cinnabar`, ...) are aliases of them, so no component holds a colour. Dark uses the
+brief's palette exactly, with one change: muted text is #7A9298 instead of #6F898F, because #6F898F measures 4.38:1 on the
+surface colour and 4.09:1 on the elevated surface, below WCAG AA; #7A9298 is at least 4.63:1 on every dark surface. Meaning, not decoration: cyan marks
+interaction and selection only; coral marks contradiction and impossible evidence only (on Data health, only the impossible
+value in the headline and the "flagged, yet server-valid" metric are coral). The sidebar has strong uppercase group labels
+(12.5 px, weight 700, 0.1em tracking, secondary text) over 14.7 px items with 17 px Lucide icons, a restrained active state,
+and a utility footer: source status, the independence note, the language-model control (moved out of the top bar, which now
+holds only the live/snapshot status, Search and Scan) and an icon-only theme control (Dark, Light, System; remembered). On a
+phone the sidebar is a drawer and the bottom bar stays. New primitives in `components/ui.tsx`: SeverityBadge ("STATISTICAL ·
+CRITICAL", with a shape so it never relies on colour), SectionLabel, Metric, PageHeader, EmptyState. Findings is an
+investigation queue with category, rule, place, indicator and record filters (place and indicator come from the observations
+the audit read). The finding page reads What is wrong, Evidence, Why it matters, Safe conclusion (derived from severity, the
+same rule the support table uses), Suggested action, What this affects. The report is an "Evidence integrity report" in nine
+numbered sections, with provenance and every rule applied. Not done, on purpose: comparability has no "Unknown" state, because
+the engine has none (an undocumented method is Conditional, with the reason given; a dimension that does not apply, such as
+population for water data, is "Not applicable"); Findings has no live/snapshot filter, because one audit is one or the other
+and the page states which; rows carry no per-finding timestamp or review status, because the system records neither (the
+audit time is shown once).
+

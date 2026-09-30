@@ -8,7 +8,7 @@ import TwoVerdicts from "../components/TwoVerdicts";
 import WhatIfLab from "../components/WhatIfLab";
 import { ModelBadge, ProviderIcon, describeModel, useLlm } from "../components/ModelSettings";
 import { useRun } from "../components/Shell";
-import { Button, ErrorNote, FindingLink, Loading, SeverityTag, SourceBadge, useDocumentTitle } from "../components/ui";
+import { Button, ErrorNote, FindingLink, Loading, SeverityBadge, SourceBadge, useDocumentTitle } from "../components/ui";
 import { download, post, useApi } from "../lib/api";
 import { num, pretty, sentence, unit, when } from "../lib/format";
 import { rulerFor } from "../lib/ruler";
@@ -23,6 +23,15 @@ function Section({ id, title, children }: { id: string; title: string; children:
       {children}
     </section>
   );
+}
+
+/** What may safely be concluded from a finding, from its severity alone: the same rule the support table uses. */
+function safeConclusion(severity: string, record: string): string {
+  if (severity === "CRITICAL" || severity === "ERROR")
+    return `Do not use “${record}” as published in an analysis, comparison or claim until the publisher has reviewed it. What caused the problem is unknown.`;
+  if (severity === "WARNING")
+    return `“${record}” can be used, with the caveat above stated wherever it is used.`;
+  return `Nothing changes in how “${record}” can be used; this is noted for completeness.`;
 }
 
 function measureRows(m: Record<string, unknown>) {
@@ -110,20 +119,19 @@ export default function FindingDetail() {
 
       <header>
         <div className="flex flex-wrap items-center gap-2.5">
-          <SeverityTag severity={f.severity} />
-          <span className="rounded-full border border-line px-2.5 py-0.5 text-sm text-ink-2">{f.category.charAt(0) + f.category.slice(1).toLowerCase()}</span>
+          <SeverityBadge severity={f.severity} category={f.category} />
           <span className="readout text-sm text-ink-2">{f.rule_id}</span>
           {src && <SourceBadge source={src} />}
         </div>
-        <h1 className="m-0 mt-3 max-w-[30ch] text-[clamp(1.8rem,3.6vw,2.7rem)] font-bold leading-tight tracking-tight">
+        <h1 className="m-0 mt-3 max-w-[34ch] text-[clamp(1.7rem,3vw,2.3rem)] font-bold leading-tight tracking-tight">
           {f.resource.display ?? key}
         </h1>
         <p className="mt-3 max-w-[70ch] text-lg leading-relaxed">{sentence(pretty(f.summary.replace(`${f.resource.display ?? ""}: `, "")))}</p>
       </header>
 
-      <section aria-label="What is wrong and why" className="grid overflow-hidden rounded-xl border border-line bg-panel lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+      <section aria-label="What is wrong and why" className="grid overflow-hidden rounded-lg border border-line bg-panel lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
         <div className="border-b border-line p-5 lg:border-b-0 lg:border-r">
-          <h2 className="m-0 text-sm font-semibold text-ink-2">Observed</h2>
+          <h2 className="m-0 text-[0.78rem] font-bold uppercase tracking-[0.1em] text-ink-2">Observed</h2>
           <dl className="m-0 mt-3 space-y-2.5">
             {f.evidence.observed.map((o, i) => (
               <div key={i} className="flex items-baseline justify-between gap-4 border-b border-line pb-2 last:border-b-0">
@@ -136,13 +144,13 @@ export default function FindingDetail() {
           </dl>
         </div>
         <div className="p-5">
-          <h2 className="m-0 text-sm font-semibold text-ink-2">Why it was flagged</h2>
+          <h2 className="m-0 text-[0.78rem] font-bold uppercase tracking-[0.1em] text-ink-2">Why it was flagged</h2>
           <p className="mb-0 mt-3 text-lg leading-snug">{f.evidence.expected}</p>
           <p className="mb-0 mt-2 text-ink-2">
             It does not hold here: <code className="code text-ink">{f.evidence.constraint}</code>.
             {factor !== null && factor > 1 && <> The values differ by a factor of <strong className="readout text-ink">{num(factor)}</strong>.</>}
           </p>
-          <div className="mt-4 rounded-lg border border-sulfur/50 bg-sulfur-soft px-4 py-3">
+          <div className="mt-4 rounded-md border border-sulfur/50 bg-sulfur-soft px-4 py-3">
             <p className="m-0 font-semibold">
               Root cause: <span className="uppercase tracking-wide">unknown</span>
             </p>
@@ -178,7 +186,7 @@ export default function FindingDetail() {
       <div className="grid gap-8 lg:grid-cols-[1.35fr_1fr]">
         <Section id="ev-h" title="Evidence">
           {ruler && ruler.values.length > 1 && (
-            <div className="mb-4 rounded-xl border border-line bg-panel p-4">
+            <div className="mb-4 rounded-lg border border-line bg-panel p-4">
               <MagnitudeRuler {...ruler} caption={f.resource.display ?? undefined} animate={false} />
             </div>
           )}
@@ -243,39 +251,39 @@ export default function FindingDetail() {
             <dt className="text-ink-2">Finding id</dt>
             <dd className="code m-0 break-all">{f.id}</dd>
           </dl>
-          {data.raw && (
-            <p className="mb-0 mt-4">
-              <Button onClick={() => setRawOpen(true)}>View the raw resource</Button>
-            </p>
-          )}
         </Section>
 
-        <Section id="mean-h" title="What this means">
-          <p className="m-0">{pretty(f.interpretation)}</p>
-          {f.hypotheses.length > 0 && (
-            <div className="mt-3 rounded-lg border border-dashed border-line-strong p-3">
-              <p className="m-0 text-sm font-semibold text-ink-2">Possible explanations, not verified</p>
-              <ul className="mb-0 mt-1 pl-5 text-[0.95rem] text-ink-2">
-                {f.hypotheses.map((h) => (
-                  <li key={h}>{h}</li>
-                ))}
-              </ul>
+        <div className="min-w-0 space-y-8">
+          <Section id="mean-h" title="Why it matters">
+            <p className="m-0">{pretty(f.interpretation)}</p>
+            {f.hypotheses.length > 0 && (
+              <div className="mt-3 rounded-md border border-dashed border-line-strong p-3">
+                <p className="m-0 text-sm font-semibold text-ink-2">Possible explanations, not verified</p>
+                <ul className="mb-0 mt-1 pl-5 text-[0.95rem] text-ink-2">
+                  {f.hypotheses.map((h) => (
+                    <li key={h}>{h}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </Section>
+          <Section id="safe-h" title="Safe conclusion">
+            <p className="m-0">{safeConclusion(f.severity, f.resource.display ?? key)}</p>
+          </Section>
+          <Section id="act-h" title="Suggested action">
+            <p className="m-0">{f.remediation}</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <a href="#tr-h" className="inline-flex items-center rounded-md border border-line-strong bg-panel px-3.5 py-2 text-[0.95rem] font-semibold text-ink no-underline hover:bg-sunk">
+                View impact
+              </a>
+              {data.raw && <Button onClick={() => setRawOpen(true)}>View raw resource</Button>}
+              <Button onClick={exportFinding}>Export finding</Button>
             </div>
-          )}
-          <p className="mt-3">
-            <strong>What to do:</strong> {f.remediation}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <a href="#tr-h" className="inline-flex items-center rounded-lg border border-line-strong bg-panel px-3.5 py-2 text-[0.95rem] font-semibold text-ink no-underline hover:bg-sunk">
-              View impact
-            </a>
-            {data.raw && <Button onClick={() => setRawOpen(true)}>View raw resource</Button>}
-            <Button onClick={exportFinding}>Export finding</Button>
-          </div>
-          <p className="mt-3 text-sm text-ink-3">
-            Rule {data.rule.id} v{data.rule.version}: {data.rule.rationale}
-          </p>
-        </Section>
+            <p className="mb-0 mt-3 text-sm text-ink-3">
+              Rule {data.rule.id} v{data.rule.version}: {data.rule.rationale}
+            </p>
+          </Section>
+        </div>
       </div>
 
       {f.lineage && (
@@ -284,19 +292,19 @@ export default function FindingDetail() {
         </Section>
       )}
 
-      <Section id="tr-h" title="What this record would contaminate">
+      <Section id="tr-h" title="What this affects">
         <TraceGraph impact={data.impact} recordLabel={f.resource.display ?? key} />
       </Section>
 
-      <Section id="ex-h" title="In plain words">
+      <Section id="ex-h" title={explanation.method === "template" ? "In plain words" : "AI explanation"}>
         <div className="max-w-[72ch] whitespace-pre-line leading-relaxed">{explanation.text}</div>
         <p className="mt-2 text-sm text-ink-3">
           {explanation.method === "template" ? (
             "Written from the finding by a fixed template."
           ) : (
             <>
-              Rephrased by <ModelBadge name={explanation.method.replace(/^llm:/, "")} /> from the finding's facts only; its numbers and any
-              stated cause were checked against the finding.
+              Generated from the deterministic finding evidence. Rephrased by <ModelBadge name={explanation.method.replace(/^llm:/, "")} /> from
+              the finding's facts only; its numbers and any stated cause were checked against the finding. It decides nothing.
             </>
           )}
           {explanation.fallback_reason && ` (${explanation.fallback_reason}; template used.)`}{" "}
@@ -308,7 +316,7 @@ export default function FindingDetail() {
         </p>
         {llm.activeName && explanation.method === "template" && !explanation.fallback_reason && (
           <button type="button" disabled={rephrasing}
-            className="mt-3 inline-flex max-w-full items-center gap-1.5 rounded-lg border border-line-strong bg-panel px-3.5 py-2 text-[0.95rem] text-ink hover:bg-sunk disabled:cursor-wait disabled:opacity-70"
+            className="mt-3 inline-flex max-w-full items-center gap-1.5 rounded-md border border-line-strong bg-panel px-3.5 py-2 text-[0.95rem] text-ink hover:bg-sunk disabled:cursor-wait disabled:opacity-70"
             onClick={async () => {
               setRephrasing(true);
               setRephraseErr(null);
@@ -330,7 +338,7 @@ export default function FindingDetail() {
       </Section>
 
       {data.record && f.resource.resource_type === "Observation" && (data.record.stats.length > 0 || data.record.value) && (
-        <details className="mt-10 rounded-xl border border-line bg-panel">
+        <details className="mt-10 rounded-lg border border-line bg-panel">
           <summary className="cursor-pointer px-4 py-3 text-lg font-bold">What if? Change the numbers of this record</summary>
           <div className="border-t border-line p-3 sm:p-4">
             <WhatIfLab observationId={f.resource.resource_id} record={data.record} />

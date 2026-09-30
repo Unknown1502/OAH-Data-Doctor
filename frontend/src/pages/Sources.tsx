@@ -13,7 +13,7 @@ const CATEGORY_TEXT: Record<string, string> = {
 };
 
 export default function Sources() {
-  useDocumentTitle("Sources and rules");
+  useDocumentTitle("Sources & rules");
   const { status, runId, scan, scanning } = useRun();
   const llm = useLlm();
   const rules = useApi<RuleSpec[]>("/rules", [runId]);
@@ -23,11 +23,19 @@ export default function Sources() {
 
   return (
     <article>
-      <h1 className="m-0 text-4xl font-bold tracking-tight">Sources and rules</h1>
+      <h1 className="m-0 text-3xl font-bold tracking-tight">Sources &amp; rules</h1>
+      <p className="mb-0 mt-2 max-w-[70ch] text-ink-2">
+        Reference: where the data comes from, every rule Data Doctor applies, and where AI is and is not used.
+      </p>
+      <nav aria-label="On this page" className="mt-5 flex flex-wrap gap-x-5 gap-y-1 border-b border-line pb-4 text-sm">
+        <a href="#src-h" className="text-ink underline decoration-line-strong underline-offset-2 hover:text-karst">Where the data comes from</a>
+        <a href="#rules-h" className="text-ink underline decoration-line-strong underline-offset-2 hover:text-karst">The rules</a>
+        <a href="#ai-h" className="text-ink underline decoration-line-strong underline-offset-2 hover:text-karst">Where AI is and is not used</a>
+      </nav>
 
       <section aria-labelledby="src-h" className="mt-8">
         <h2 id="src-h" className="m-0 text-2xl font-bold tracking-tight">Where the data comes from</h2>
-        <div className="mt-3 rounded-xl border border-line bg-panel p-5">
+        <div className="mt-3 rounded-lg border border-line bg-panel p-5">
           <div className="flex flex-wrap items-center gap-3">
             <SourceBadge source={src} />
             <span className="min-w-0 break-all text-ink-2">{src?.base_url}</span>
@@ -48,7 +56,7 @@ export default function Sources() {
 
         <h3 className="mb-2 mt-6 text-lg font-semibold">Verified snapshots</h3>
         {status?.snapshots.length ? (
-          <div className="overflow-x-auto rounded-xl border border-line bg-panel">
+          <div className="overflow-x-auto rounded-lg border border-line bg-panel">
             <table className="data">
               <caption className="sr-only">Snapshots available offline</caption>
               <thead>
@@ -86,7 +94,7 @@ export default function Sources() {
         {cats.map((cat) => (
           <div key={cat} className="mt-6">
             <h3 className="m-0 text-lg font-semibold">{CATEGORY_TEXT[cat] ?? cat}</h3>
-            <dl className="m-0 mt-2 divide-y divide-line rounded-xl border border-line bg-panel">
+            <dl className="m-0 mt-2 divide-y divide-line rounded-lg border border-line bg-panel">
               {(rules.data ?? []).filter((r) => r.category === cat).map((r) => (
                 <div key={r.id} className="grid gap-1 p-4 md:grid-cols-[13rem_1fr]">
                   <dt>
