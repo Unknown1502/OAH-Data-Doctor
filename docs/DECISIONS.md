@@ -69,3 +69,14 @@ exceeded the 260-character path limit in deep folders. Choice: one NDJSON file p
 one canonical resource per line. The existing snapshot was repacked with `repack_snapshot`, which verifies the old snapshot,
 writes the new one, and aborts unless every resource's canonical sha256 and every validation outcome is unchanged. The manifest
 records the previous manifest hash under `repacked`.
+
+**D-020 Live runs fetch the server's own verdict for flagged records.** Verification with live data showed that server
+`$validate` outcomes existed only in snapshots, so on live data the UI could not show "the server calls this valid". Choice: after a
+live audit, ask `$validate` (GET, read-only) about every flagged official observation, 4 in flight at most, spaced by the polite
+delay, cached for 15 minutes (about 40 s for a full live audit, a few seconds when cached). Failure never breaks the audit.
+
+**D-021 Support table keeps consolidated collections unless they are fully duplicated.** Verification of the rendered report
+showed the "can / cannot support" table had no "do not use" row: skipping every `*-All` / `*FullResults` library had dropped the
+Almyros lab chemistry (only in `Library-Almyros-FullResults`) and all of Oslo (only in `Library-Oslo-All`). A (library, indicator)
+row is now dropped only when smaller collections already contain all of its records.
+

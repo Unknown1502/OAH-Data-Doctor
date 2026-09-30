@@ -95,6 +95,9 @@ flowchart LR
   (the default).
 - **Read-only by construction.** The HTTP client refuses every method except GET and POST to `$validate`, and it refuses to
   follow paging links to another host (tested).
+- **The server's own verdict, live too.** Snapshots store the sandbox's `$validate` outcome for every official observation;
+  live runs ask `$validate` (read-only GET, rate-limited, cached) about every record Data Doctor flags, so the two verdicts
+  can be compared on live data as well.
 - **Live vs snapshot, always labelled.** Live runs show their fetch time. Snapshots are dated, carry a sha256 for every file,
   and are verified before use. If the sandbox is down, the app falls back to the latest verified snapshot and says so on screen.
   This matters: the sandbox's DNS record was missing for about a week during the hackathon (hl7-eu/oah#8).
@@ -108,7 +111,7 @@ More: [architecture](docs/03_ARCHITECTURE.md), [rules catalog](docs/04_RULES_CAT
 
 - **{{N_BACKEND_TESTS}} backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
   tests; contract tests against the published JSON Schemas and the FHIR R4 schema; API and snapshot integration tests) and
-  **{{N_E2E_TESTS}} Playwright tests** (run on desktop, with the home page also run on a mobile viewport). The Playwright tests cover the demo path with all external network blocked, plus
+  **{{N_E2E_TESTS}} Playwright tests** (desktop, plus a phone viewport for the home page and a no-sideways-scroll check of every page). The Playwright tests cover the demo path with all external network blocked, plus
   axe-core WCAG 2.1 AA scans of every main page in light and dark mode. CI runs ruff, mypy, pytest and Playwright.
 - **Property tests.** Summaries of randomly generated real samples, rounded at 0–4 decimals, never trigger a statistical-identity
   rule. This is the false-positive guarantee behind the precision tolerance.

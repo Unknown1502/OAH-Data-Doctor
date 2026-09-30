@@ -38,7 +38,7 @@ def count_backend_tests() -> int:
 
 def count_e2e_tests() -> int:
     spec = (ROOT / "frontend" / "tests" / "demo.spec.ts").read_text(encoding="utf-8")
-    loops = re.findall(r"for \(const path of \[(.*?)\]\)", spec, re.S)
+    loops = re.findall(r"for \(const path of \[(.*?)\]\) \{\s*test\(", spec, re.S)  # only loops that generate tests
     looped = sum(len(re.findall(r'"[^"]+"', x)) for x in loops)
     return len(re.findall(r"^\s*test\(", spec, re.M)) - len(loops) + looped
 

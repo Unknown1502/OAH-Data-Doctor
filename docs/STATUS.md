@@ -7,9 +7,9 @@ Updated 2026-09-30. Numbers are in docs/numbers.json (rendered from the snapshot
 | Phase | State | Evidence |
 |---|---|---|
 | Discovery D1–D8 | Done | docs/DISCOVERY.md (requests, timestamps, excerpts) |
-| P0 Repo, tooling, Gate 0 | Done, **human sign-off pending** | docs/GATE0_REPORT.md: 123 distinct official resources with ERROR/CRITICAL findings (threshold 10); 20/20 samples independently re-derived. Needs a human verdict per sample (≥ 80 % true positives) |
+| P0 Repo, tooling, Gate 0 | Done, **human sign-off pending** | docs/GATE0_REPORT.md: the gate criterion (≥ 10 distinct official resources with ERROR/CRITICAL findings) and the independent re-derivation of the 20 samples are printed there. Needs a human verdict per sample (≥ 80 % true positives) |
 | P1 Ingestion and normalisation | Done | Read-only async client, paging, retry, SQLite cache, verified snapshots, live/snapshot/auto; tests |
-| P2 Rules engine | Done | 19 rules, tests first, positive/negative/edge per rule, property tests; anchor fires SEM-STAT-001, SEM-STAT-003, SEM-SCALE-001, SEM-RANGE-001 |
+| P2 Rules engine | Done | Every rule in docs/04_RULES_CATALOG.md, tests first, positive/negative/edge per rule, property tests; anchor fires SEM-STAT-001, SEM-STAT-003, SEM-SCALE-001, SEM-RANGE-001 |
 | P3 Dependency graph and trace | Done | Exact trace for the anchor; counts change when data change (tested) |
 | P4 Comparability | Done | Eight dimensions; golden cases pass |
 | P5 Claim guardrail | Done | Five claim types; every verdict path tested; reasons, trace, blocking findings, safe wording |
@@ -41,4 +41,4 @@ TypeScript strict mode clean.
 
 ## Decisions
 
-See docs/DECISIONS.md (D-001 … D-019).
+See docs/DECISIONS.md (D-001 … D-021).

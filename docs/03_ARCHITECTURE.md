@@ -86,7 +86,8 @@ infrastructure → external systems. Forbidden: domain or rules → FastAPI, htt
 
 **Audit.** `load_data(mode)` → raw resources by type (live: paged search per type; snapshot: verified files) →
 `build_dataset` (normalise, keep raw, sha256 per resource, IG scope, upstream files) → `run_all` (deterministic rules, ids
-de-duplicated) → lineage attached → `AuditResult` (summary, findings, versions) → `run_catalog` (catalog + user comparisons and
+de-duplicated) → lineage attached → `AuditResult` (summary, findings, versions) → for live runs, the server's own `$validate`
+for every flagged official observation (read-only, rate-limited, cached) → `run_catalog` (catalog + user comparisons and
 claims) → `build_graph`.
 
 **Comparability.** Two observation ids → descriptors (measure, unit, medium, cohort, period, aggregation, method, value) → eight

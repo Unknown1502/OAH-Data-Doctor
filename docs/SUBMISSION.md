@@ -67,7 +67,7 @@ at a glance. Claude is used optionally and only to rephrase computed findings: a
 
 - 251 of 251 injected faults detected (95 % CI 98.5–100.0 %), and 0 new findings on
   100 records after benign transformations. We say plainly that this measures rule sensitivity, not real-world accuracy.
-- 163 backend tests and 15 end-to-end tests, including offline runs and WCAG 2.1 AA accessibility checks.
+- 171 backend tests and 16 end-to-end tests, including offline runs and WCAG 2.1 AA accessibility checks.
 - Our FHIR output validates against R4 (0 schema errors; HAPI: no issues).
 - Honesty by construction: no hand-typed numbers (these documents are rendered from a run), root cause always "unknown",
   read-only access, and live and snapshot data always labelled.
