@@ -189,7 +189,17 @@ def finding_detail(fid: str) -> dict[str, Any]:
     f = _finding(fid)
     raw = s.ds.raw.get(f.resource.resource_type, {}).get(f.resource.resource_id)
     same = [_compact(x) for x in s.result.findings if x.id != f.id and x.resource.key == f.resource.key]
-    return {"finding": f.model_dump(), "raw": raw,
+    record: dict[str, Any] | None = None
+    obs = s.ds.observations.get(f.resource.resource_id) if f.resource.resource_type == "Observation" else None
+    if obs is not None:
+        ind = s.kn.indicators.get(obs.indicator_key or "")
+        record = {"indicator_key": obs.indicator_key, "indicator": ind.label if ind else (obs.code_text or obs.code),
+                  "canonical_unit": ind.canonical_unit if ind else None,
+                  "hard": s.kn.hard_bounds(ind) if ind else None, "typical": s.kn.typical_bounds(ind) if ind else None,
+                  "year": obs.year, "location": loc.name if (loc := s.ds.locations.get((obs.subject_ref or "").split("/")[-1])) else None,
+                  "stats": [{"stat": x.stat, "value": x.quantity.value, "unit": x.quantity.code} for x in obs.stats],
+                  "value": obs.value.model_dump() if obs.value else None}
+    return {"finding": f.model_dump(), "raw": raw, "record": record,
             "server_validation": s.ds.server_validation.get(f.resource.key),
             "impact": impact(s.graph, f).model_dump(),
             "explanation": get_explainer("none", s.settings.llm_model).explain(f).model_dump(),
@@ -201,6 +211,24 @@ def explain(fid: str) -> dict[str, Any]:
     s = state()
     f = _finding(fid)
     return get_explainer(s.settings.llm_provider, s.settings.llm_model).explain(f).model_dump()
+
+
+@app.post("/api/validate/{rtype}/{rid}")
+async def validate_live(rtype: str, rid: str) -> dict[str, Any]:
+    """Ask the FHIR server's own validator about one record now (GET $validate: read-only)."""
+    from datadoctor.ingestion.fhir_client import FhirClient
+
+    s = state()
+    if rtype not in s.settings.ingest_types:
+        raise HTTPException(400, "unsupported resource type")
+    try:
+        async with FhirClient(s.settings.fhir_base, None, delay_s=0, timeout_s=30, retries=1) as client:
+            oo = await client.validate_instance(rtype, rid)
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(502, f"The FHIR server could not be reached: {exc}") from exc
+    import datetime as _dt
+
+    return {"outcome": oo, "checked_at": _dt.datetime.now(_dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ"), "server": s.settings.fhir_base}
 
 
 @app.get("/api/resources/{rtype}/{rid}")

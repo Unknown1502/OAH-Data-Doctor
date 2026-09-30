@@ -38,8 +38,8 @@ def render_markdown(m: dict[str, Any]) -> str:
     an: AnalysesResult = m["an"]
     L = [
         "# OAH Data Doctor — researcher report", "",
-        f"*Run `{res.run_id}` · generated {res.created_at} · Data Doctor {res.tool_version} · rules `{res.rules_version}` · "
-        f"knowledge `{res.knowledge_version}` · IG source `hl7-eu/oah@{res.ig_commit[:12]}`*", "",
+        f"*Run `{res.run_id}`, generated {res.created_at} by Data Doctor {res.tool_version}; rules `{res.rules_version}`, "
+        f"knowledge `{res.knowledge_version}`, IG source `hl7-eu/oah@{res.ig_commit[:12]}`.*", "",
         f"**Data source:** {_src(res)}", "",
         "## Headline", "",
         f"- {s.observations_checked} observations checked ({s.oah_observations} official OAH IG examples).",
@@ -128,7 +128,7 @@ def render_html(m: dict[str, Any]) -> str:
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>OAH Data Doctor report</title><style>{_CSS}</style></head><body><main>
 <h1>OAH Data Doctor — researcher report</h1>
-<div class="meta">Run <code>{e(res.run_id)}</code> · {e(res.created_at)} · rules <code>{e(res.rules_version)}</code> · knowledge <code>{e(res.knowledge_version)}</code> · IG source hl7-eu/oah@{e(res.ig_commit[:12])}</div>
+<div class="meta">Run <code>{e(res.run_id)}</code>, generated {e(res.created_at)}; rules <code>{e(res.rules_version)}</code>, knowledge <code>{e(res.knowledge_version)}</code>, IG source hl7-eu/oah@{e(res.ig_commit[:12])}.</div>
 <div class="src"><b>Data source:</b> {e(_src(res))}</div>
 <h2>Headline</h2><ul>
 <li>{s.observations_checked} observations checked ({s.oah_observations} official OAH IG examples).</li>

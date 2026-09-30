@@ -77,7 +77,7 @@ def describe(ds: Dataset, kn: Knowledge, observation_id: str, statistic: str | N
     if statistic:
         label_parts.append(f"annual {statistic}" if period and period.is_annual else statistic)
     return IndicatorDescriptor(
-        observation_id=obs.id, statistic=statistic, label=" · ".join(p for p in label_parts if p),
+        observation_id=obs.id, statistic=statistic, label=", ".join(p for p in label_parts if p),
         indicator_key=obs.indicator_key, measure_label=ind.label if ind else None, medium=obs.medium,
         unit=unit, value=value, location_id=loc_id, location_name=loc.name if loc else None, cohort=cohort,
         period=period, aggregation=_aggregation(obs, statistic), method=method,
@@ -320,9 +320,10 @@ def compare(ds: Dataset, kn: Knowledge, findings: list[Finding], a_id: str, b_id
     failed = [d.dimension for d in core if d.status == FAIL]
     conds = [d.dimension for d in dims if d.status == COND]
     summary = {
-        ComparabilityVerdict.NOT: f"Not comparable: {', '.join(failed)} differ in ways no transformation can fix.",
+        ComparabilityVerdict.NOT: (f"Not comparable: the {' and '.join(d.lower() for d in failed)} "
+                                   f"{'differs' if len(failed) == 1 else 'differ'} in a way no transformation can fix."),
         ComparabilityVerdict.BLOCKED_BY_INTEGRITY: "Comparable in principle, but blocked: the input records fail integrity checks.",
-        ComparabilityVerdict.CONDITIONAL: f"Comparable only with caveats on: {', '.join(conds)}.",
+        ComparabilityVerdict.CONDITIONAL: f"Comparable only with caveats on {', '.join(d.lower() for d in conds)}.",
         ComparabilityVerdict.DIRECT: "Directly comparable: same measure, unit, population, period, aggregation and method; no integrity findings.",
     }[verdict]
     cid = comparison_id or "cmp-" + hashlib.sha256(f"{a_id}|{a.statistic}|{b_id}|{b.statistic}".encode()).hexdigest()[:10]

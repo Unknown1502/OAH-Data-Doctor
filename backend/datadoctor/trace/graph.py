@@ -110,7 +110,7 @@ def build_graph(ds: Dataset, kn: Knowledge, comparisons: list[Comparison], claim
             obs = ds.observations.get(m.split("/")[-1]) if m.startswith("Observation/") else None
             if obs and obs.indicator_key:
                 pid = f"profile:{lib.id}:{obs.indicator_key}"
-                g.add(pid, "profile", f"{lib.title or lib.id} · {kn.indicators[obs.indicator_key].label} profile",
+                g.add(pid, "profile", f"{kn.indicators[obs.indicator_key].label} profile of {lib.title or lib.id}",
                       library=lib.id, indicator=obs.indicator_key)
                 g.link(m, pid, "summarised-in")
 
@@ -126,7 +126,7 @@ def build_graph(ds: Dataset, kn: Knowledge, comparisons: list[Comparison], claim
             continue
         sid = f"series:{loc.split('/')[-1]}:{ind}:{st}"
         locname = ds.locations.get(loc.split("/")[-1])
-        g.add(sid, "series", f"{kn.indicators[ind].label} at {locname.name if locname else loc} · annual {st} series",
+        g.add(sid, "series", f"Annual {st} series of {kn.indicators[ind].label.lower()} at {locname.name if locname else loc}",
               location=loc, indicator=ind, statistic=st, points=len(members))
         g.link(loc, sid, "context-of")
         for m in members:

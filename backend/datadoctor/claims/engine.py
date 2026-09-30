@@ -57,7 +57,9 @@ def render(claim: StructuredClaim, ds: Dataset, kn: Knowledge) -> str:
     loc = ds.locations.get(claim.location_id or "")
     where = loc.name if loc and loc.name else (claim.location_id or "")
     if t == ClaimType.TREND_INCREASE:
-        return f"{claim.statistic or 'average'} {_label(kn, claim.indicator_key)} at {where} increased from {claim.year_from} to {claim.year_to}"
+        stat = {"average": "mean", None: "mean"}.get(claim.statistic, claim.statistic)
+        span = f" from {claim.year_from} to {claim.year_to}" if claim.year_from and claim.year_to else ""
+        return f"The annual {stat} {_label(kn, claim.indicator_key).lower()} at {where} increased{span}"
     if t == ClaimType.EXCEEDS_THRESHOLD:
         th = kn.thresholds.get(claim.threshold_id or "", {})
         try:
@@ -66,7 +68,7 @@ def render(claim: StructuredClaim, ds: Dataset, kn: Knowledge) -> str:
         except ComparisonError:
             return f"{claim.subject} exceeds {claim.threshold_id}"
     rel = "causes" if t == ClaimType.CAUSAL else "is associated with"
-    return f"{_label(kn, claim.indicator_key)} {rel} {_label(kn, claim.outcome_indicator_key)}"
+    return f"{_label(kn, claim.indicator_key)} {rel} {_label(kn, claim.outcome_indicator_key).lower()}"
 
 
 def _result(claim: StructuredClaim, ds: Dataset, kn: Knowledge, verdict: ClaimVerdict, reasons: list[str],

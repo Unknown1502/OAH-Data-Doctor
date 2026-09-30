@@ -168,7 +168,7 @@ class RuleContext:
                 parts.append(g.label)
         if obs.year:
             parts.append(str(obs.year) if (obs.effective_period and obs.effective_period.is_annual) else (obs.effective_datetime or str(obs.year)))
-        return " — ".join(p for p in parts if p)
+        return ", ".join(p for p in parts if p)
 
     def make(
         self,
