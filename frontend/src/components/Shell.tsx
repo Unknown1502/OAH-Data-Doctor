@@ -3,6 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { api, post } from "../lib/api";
 import { when } from "../lib/format";
 import type { Status } from "../lib/types";
+import { LlmProvider, ModelButton } from "./ModelSettings";
 import { SourceBadge } from "./ui";
 
 interface RunCtx {
@@ -120,6 +121,7 @@ export function Shell({ children }: { children: ReactNode }) {
 
   return (
     <Ctx.Provider value={{ status, runId: status?.run_id ?? null, scan, scanning, scanError }}>
+      <LlmProvider status={status}>
       <a href="#content" className="skip-link">
         Skip to content
       </a>
@@ -178,6 +180,7 @@ export function Shell({ children }: { children: ReactNode }) {
               >
                 Scan live sandbox
               </button>
+              <ModelButton status={status} />
               <ThemeSelect />
             </div>
           </div>
@@ -203,6 +206,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </footer>
         </div>
       </div>
+      </LlmProvider>
     </Ctx.Provider>
   );
 }

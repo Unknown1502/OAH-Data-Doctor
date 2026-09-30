@@ -57,6 +57,7 @@ def test() -> None:
 
 
 def e2e() -> None:
+    sh(node_bin("vite/bin/vite.js") + ["build"], cwd=FRONT)  # the tests run against the served build: never a stale one
     sh(node_bin("@playwright/test/cli.js") + ["install", "chromium"], cwd=FRONT)
     sh(node_bin("@playwright/test/cli.js") + ["test"], cwd=FRONT, env={"CI": os.environ.get("CI", "")})
 

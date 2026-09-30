@@ -168,6 +168,7 @@ export interface Status {
   fhir_base: string | null;
   llm: string;
   llm_name: string | null;
+  llm_user_keys: boolean;
   rule_count: number;
   snapshots: { snapshot_id: string; fetched_at: string; manifest_sha256: string; resource_counts: Record<string, number>; server_validations: number }[];
 }
@@ -293,4 +294,40 @@ export interface Knowledge {
   indicators: Record<string, { label: string; medium: string; kind: string; unit: string }>;
   thresholds: Record<string, { id: string; indicator: string; value: number; unit: string; source: string; matrix: string; averaging: string }>;
   plausibility: { indicators: Record<string, { hard?: { min?: number; max?: number; rationale: string }; typical?: { min?: number; max?: number; rationale: string } }> };
+}
+
+/** A user's own model settings. Kept in their browser only and sent with their own requests. */
+export interface LlmConfig {
+  provider: string;
+  model: string;
+  api_key?: string;
+  base_url?: string;
+}
+
+export interface LlmPreset {
+  id: string;
+  label: string;
+  kind: "ollama" | "openai-compatible" | "anthropic";
+  base_url: string | null;
+  default_model: string;
+  needs_key: boolean;
+  free_tier: boolean;
+  key_url: string | null;
+  note: string;
+}
+
+export interface LlmProviders {
+  allow_user_keys: boolean;
+  allow_custom_url: boolean;
+  server_default: string | null;
+  providers: LlmPreset[];
+}
+
+export interface LlmTest {
+  ok: boolean;
+  name: string | null;
+  error?: string;
+  latency_ms?: number;
+  reply?: string;
+  models: string[];
 }

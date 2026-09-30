@@ -110,9 +110,9 @@ More: [architecture](docs/03_ARCHITECTURE.md), [rules catalog](docs/04_RULES_CAT
 
 ## Evidence that it works
 
-- **196 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
+- **213 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
   tests; contract tests against the published JSON Schemas and the FHIR R4 schema; API and snapshot integration tests) and
-  **18 Playwright tests** (desktop, plus a phone viewport for the home page and a no-sideways-scroll check of every page). The Playwright tests cover the demo path with all external network blocked, plus
+  **19 Playwright tests** (desktop, plus a phone viewport for the home page and a no-sideways-scroll check of every page). The Playwright tests cover the demo path with all external network blocked, plus
   axe-core WCAG 2.1 AA scans of every main page in light and dark mode. CI runs ruff, mypy, pytest and Playwright.
 - **Property tests.** Summaries of randomly generated real samples, rounded at 0–4 decimals, never trigger a statistical-identity
   rule. This is the false-positive guarantee behind the precision tolerance.
@@ -146,6 +146,9 @@ python tasks.py run        # http://127.0.0.1:8321  (live sandbox, falls back to
 - Optional free language model: install [Ollama](https://ollama.com), run `ollama pull qwen2.5:3b`, and set
   `DD_LLM_PROVIDER=ollama` in `.env`. A "Rephrase" button then appears on each finding. Free hosted endpoints work with
   `DD_LLM_PROVIDER=openai-compatible` (see `.env.example`); Claude with `DD_LLM_PROVIDER=anthropic`.
+- Bring your own key: anyone using the console can choose **Language model** at the top of any page, pick a provider (Groq,
+  Google Gemini, OpenRouter and Mistral have free tiers) and paste their own key. The key stays in their browser and is sent
+  only with their own requests; the server never stores or logs it.
 
 API highlights: `GET /api/overview`, `GET /api/findings`, `GET /api/findings/{id}`, `POST /api/compare`, `POST /api/claims`,
 `POST /api/claims/parse`, `GET /api/reports/operation-outcome.json`. OpenAPI docs are at `/docs`.

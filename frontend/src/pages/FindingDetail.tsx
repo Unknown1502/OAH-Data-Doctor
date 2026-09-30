@@ -4,6 +4,7 @@ import Lineage from "../components/Lineage";
 import MagnitudeRuler from "../components/MagnitudeRuler";
 import TraceGraph from "../components/TraceGraph";
 import TwoVerdicts from "../components/TwoVerdicts";
+import { useLlm } from "../components/ModelSettings";
 import { useRun } from "../components/Shell";
 import { Button, ErrorNote, FindingLink, Loading, SeverityTag, useDocumentTitle } from "../components/ui";
 import { download, post, useApi } from "../lib/api";
@@ -50,9 +51,10 @@ function measureRows(m: Record<string, unknown>) {
 
 export default function FindingDetail() {
   const { id = "" } = useParams();
-  const { runId, status } = useRun();
+  const { runId } = useRun();
   const { data, error } = useApi<Detail>(`/findings/${encodeURIComponent(id)}`, [runId]);
   const [explained, setExplained] = useState<Detail["explanation"] | null>(null);
+  const llm = useLlm();
   const [rephrasing, setRephrasing] = useState(false);
   const [rephraseErr, setRephraseErr] = useState<string | null>(null);
   const [liveCheck, setLiveCheck] = useState<{ outcome: OperationOutcome; checked_at: string } | null>(null);
@@ -231,20 +233,20 @@ export default function FindingDetail() {
               Show the full template version
             </button>
           )}
-          {status?.llm_name && explanation.method === "template" && !explanation.fallback_reason && (
+          {llm.activeName && explanation.method === "template" && !explanation.fallback_reason && (
             <button type="button" className="text-karst underline underline-offset-2 disabled:no-underline disabled:text-ink-3" disabled={rephrasing}
               onClick={async () => {
                 setRephrasing(true);
                 setRephraseErr(null);
                 try {
-                  setExplained(await post(`/findings/${encodeURIComponent(f.id)}/explain`, {}));
+                  setExplained(await post(`/findings/${encodeURIComponent(f.id)}/explain`, llm.body));
                 } catch (e) {
                   setRephraseErr(String(e instanceof Error ? e.message : e));
                 } finally {
                   setRephrasing(false);
                 }
               }}>
-              {rephrasing ? `Rephrasing with ${status.llm_name}…` : `Rephrase with ${status.llm_name}`}
+              {rephrasing ? `Rephrasing with ${llm.activeName}…` : `Rephrase with ${llm.activeName}`}
             </button>
           )}
         </p>

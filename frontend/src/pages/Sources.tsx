@@ -1,3 +1,4 @@
+import { useLlm } from "../components/ModelSettings";
 import { useRun } from "../components/Shell";
 import { Button, Loading, SourceBadge, useDocumentTitle } from "../components/ui";
 import { useState } from "react";
@@ -14,6 +15,7 @@ const CATEGORY_TEXT: Record<string, string> = {
 export default function Sources() {
   useDocumentTitle("Sources and rules");
   const { status, runId, scan, scanning } = useRun();
+  const llm = useLlm();
   const rules = useApi<RuleSpec[]>("/rules", [runId]);
   const [cleared, setCleared] = useState(false);
   const src = status?.source;
@@ -111,7 +113,14 @@ export default function Sources() {
           computed finding, and fill gaps when the keyword rules read a typed claim. Any model works: a free local one through Ollama, a free
           hosted endpoint, or Claude. A rephrasing is thrown away and the fixed template is used instead if it contains a number that is not in
           the evidence, or if it states a cause or a correction the finding does not. The language model is currently{" "}
-          {status?.llm_name ? `enabled (${status.llm_name})` : "switched off"}.
+          {llm.activeName ? `enabled (${llm.activeName}${llm.config ? ", your own settings" : ""})` : "switched off"}.
+          {status?.llm_user_keys && (
+            <>
+              {" "}You can use your own provider and key, including free tiers: choose{" "}
+              <button type="button" onClick={llm.open} className="text-karst underline underline-offset-2">Language model</button> at the top of
+              any page. Your key stays in your browser and is sent only with your own requests; the server never stores or logs it.
+            </>
+          )}
         </p>
       </section>
     </article>

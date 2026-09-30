@@ -89,3 +89,11 @@ rules gained the comparative-trend, "makes ... sick" and "fine particles" patter
 absent from the finding are discarded, like ungrounded numbers; a hedged cause ("could be due to") is tolerated only when the finding lists unverified hypotheses, because rejecting it made the rephrasing unusable on exactly the findings that have one. The model is kept loaded for 30 minutes between calls
 (`keep_alive`) because a cold start took about 45 s. The verdict path is unchanged: no model output reaches it without passing
 the resolver.
+
+**D-023 Users can bring their own model key, kept in their browser.** Setting a key in the server's `.env` excludes
+everyone who uses a hosted instance, such as judges. A "Language model" dialog now lets any user pick a provider preset and
+paste their own key, with a connection test that lists the models the key can use. The key is kept in the browser (tab
+only unless the user chooses to remember it) and travels in the body of that user's own requests; the server uses it for
+the one call, never stores or logs it, and redacts it from provider errors. FastAPI's default 422 body echoes submitted
+values, so validation errors now report only location and reason. Users choose providers, not URLs, to rule out
+server-side request forgery on a hosted instance; free-form endpoints need `DD_LLM_ALLOW_CUSTOM_URL=true`.

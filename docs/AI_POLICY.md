@@ -14,6 +14,18 @@
 
   All calls use temperature 0. Small free models are less reliable, so correctness never depends on model quality: every
   output passes the deterministic guards below, or it is discarded.
+- **Bring your own key.** Anyone using the console can pick a provider and paste their own key under "Language model" at
+  the top of every page (Groq, Google Gemini, OpenRouter, Mistral, OpenAI, Claude, or the local Ollama). The key:
+  - stays in that browser (this tab only by default; "Remember on this device" keeps it in local storage) and can be
+    forgotten with one click;
+  - is sent only with that user's own requests to this Data Doctor server, which uses it for that one call and drops it;
+    it is never stored on the server and never logged, and it is redacted from provider error messages;
+  - is never echoed back: request-validation errors (422) report where and why, never the submitted values.
+
+  Users pick a provider, never a URL: endpoints are fixed presets, so a hosted instance cannot be made to call arbitrary
+  addresses. A free-form endpoint is offered only when the operator sets `DD_LLM_ALLOW_CUSTOM_URL=true`, and the whole
+  feature can be switched off with `DD_LLM_ALLOW_USER_KEYS=false`. "Test connection" makes one tiny request and lists the
+  models the key can use.
 - **Allowed uses:**
   1. Rephrasing an already computed finding for a non-specialist (`ai/explainer.py`). The model receives only the finding's facts
      (JSON), never raw data. Output is **rejected** if it contains any number not present in those facts, or if it states a cause

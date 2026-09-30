@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useLlm } from "../components/ModelSettings";
 import { useRun } from "../components/Shell";
 import { Button, ErrorNote, FindingLink, Verdict, useDocumentTitle } from "../components/ui";
 import { post, useApi } from "../lib/api";
@@ -166,7 +167,8 @@ function Builder({ onRun }: { onRun: (c: StructuredClaim) => void }) {
 
 export default function Claims() {
   useDocumentTitle("Check a claim");
-  const { runId, status } = useRun();
+  const { runId } = useRun();
+  const llm = useLlm();
   const [params] = useSearchParams();
   const analyses = useApi<{ claims: ClaimResult[] }>("/analyses", [runId]);
   const [text, setText] = useState("");
@@ -203,7 +205,7 @@ export default function Claims() {
     setResult(null);
     setBusy(true);
     try {
-      const p = await post<ParseResult>("/claims/parse", { text: t });
+      const p = await post<ParseResult>("/claims/parse", { text: t, ...llm.body });
       setParsed(p);
       if (p.claim) await evaluate(p.claim);
     } catch (e) {
@@ -238,7 +240,7 @@ export default function Claims() {
           className="mt-2 w-full rounded-md border border-line bg-chalk px-3 py-2 text-lg" />
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <Button kind="primary" type="submit" disabled={!text.trim() || busy}>{busy ? "Checking…" : "Check this claim"}</Button>
-          {busy && status?.llm && status.llm !== "none" && <span role="status" className="text-sm text-ink-3">A language model is reading the claim; a local model can take up to a minute.</span>}
+          {busy && llm.activeName && <span role="status" className="text-sm text-ink-3">{llm.activeName} is helping read the claim; a local model can take up to a minute.</span>}
           <span className="text-sm text-ink-3">Try:</span>
           {EXAMPLES.map((e) => (
             <button key={e} type="button" onClick={() => { setText(e); check(e); }} className="rounded-full border border-line px-3 py-1 text-sm text-ink-2 hover:border-karst hover:text-karst">

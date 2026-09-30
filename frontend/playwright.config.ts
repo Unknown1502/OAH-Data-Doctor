@@ -19,6 +19,7 @@ export default defineConfig({
     url: `http://127.0.0.1:${PORT}/api/health`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
-    env: { DD_SOURCE: "snapshot", DD_STARTUP_LIVE: "0", DD_DATA_DIR: "../data" },
+    // DD_LLM_PROVIDER pinned: a developer's .env must not change what the tests see.
+    env: { DD_SOURCE: "snapshot", DD_STARTUP_LIVE: "0", DD_DATA_DIR: "../data", DD_LLM_PROVIDER: "none" },
   },
 });
