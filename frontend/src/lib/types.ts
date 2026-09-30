@@ -167,6 +167,7 @@ export interface Status {
   mode: string | null;
   fhir_base: string | null;
   llm: string;
+  rule_count: number;
   snapshots: { snapshot_id: string; fetched_at: string; manifest_sha256: string; resource_counts: Record<string, number>; server_validations: number }[];
 }
 

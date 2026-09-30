@@ -111,7 +111,7 @@ export default function Home() {
       </section>
 
       <div className="grid gap-12 lg:grid-cols-[1.1fr_1fr]">
-        <section aria-labelledby="sites-h">
+        <section aria-labelledby="sites-h" className="min-w-0">
           <h2 id="sites-h" className="m-0 mb-1 text-2xl font-bold tracking-tight">
             Where the blocking findings are
           </h2>
@@ -164,7 +164,7 @@ export default function Home() {
           )}
         </section>
 
-        <section aria-labelledby="sup-h">
+        <section aria-labelledby="sup-h" className="min-w-0">
           <h2 id="sup-h" className="m-0 mb-1 text-2xl font-bold tracking-tight">
             What the data can support
           </h2>

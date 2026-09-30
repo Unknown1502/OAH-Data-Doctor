@@ -3,6 +3,14 @@ import { expect, test } from "@playwright/test";
 
 // The demo path (docs/DEMO_SCRIPT.md), end to end against the committed snapshot.
 
+// Comparisons and claims run by these tests are persisted by the app (they feed the impact trace). Remove them afterwards
+// so a demo started after the tests shows only the catalog analyses.
+test.afterAll(async ({ playwright }, testInfo) => {
+  const ctx = await playwright.request.newContext({ baseURL: testInfo.project.use.baseURL });
+  await ctx.post("/api/analyses/reset");
+  await ctx.dispose();
+});
+
 test.beforeEach(async ({ page }) => {
   // No request may leave the machine: the demo must work offline.
   await page.route(/^https?:\/\/(?!127\.0\.0\.1|localhost)/, (route) => route.abort());
@@ -11,7 +19,9 @@ test.beforeEach(async ({ page }) => {
 test("home opens with the anchor case and computed numbers @mobile", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("198,000");
-  await expect(page.getByText("Snapshot", { exact: true })).toBeVisible();
+  // The badge must state the true source of the current run: live (with fetch time) or snapshot.
+  const status = await (await page.request.get("/api/status")).json();
+  await expect(page.getByText(status.source.kind === "live" ? "Live" : "Snapshot", { exact: true })).toBeVisible();
   await expect(page.getByText("No issues detected during validation")).toBeVisible();
   await expect(page.getByRole("img", { name: /Order-of-magnitude ruler/ })).toBeVisible();
   const findings = await (await page.request.get("/api/overview")).json();
@@ -93,4 +103,15 @@ test("keyboard users can skip to content", async ({ page }) => {
   await page.goto("/");
   await page.keyboard.press("Tab");
   await expect(page.getByRole("link", { name: "Skip to content" })).toBeFocused();
+});
+
+test("no page scrolls sideways on a phone @mobile", async ({ page }) => {
+  const ov = await (await page.request.get("/api/overview")).json();
+  for (const path of ["/", "/findings", `/findings/${encodeURIComponent(ov.hero_finding.id)}`, "/compare?id=cmp-obesity-benevento-vs-oslo-female",
+    "/claims?id=clm-benevento-pm25-exceeds-who", "/report", "/sources"]) {
+    await page.goto(path);
+    await page.waitForLoadState("networkidle");
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow, `horizontal overflow on ${path}`).toBeLessThanOrEqual(1);
+  }
 });

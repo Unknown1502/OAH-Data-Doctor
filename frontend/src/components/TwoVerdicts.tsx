@@ -1,5 +1,6 @@
 import type { FindingCompact, OperationOutcome, Severity } from "../lib/types";
 import { SEVERITY_ORDER } from "../lib/format";
+import { useRun } from "./Shell";
 import { SeverityShape } from "./ui";
 
 /**
@@ -21,6 +22,7 @@ export default function TwoVerdicts({
       ? `${serverErrors.length} error(s)`
       : serverOutcome.issue[0]?.diagnostics ?? "No errors"
     : "Not checked in this run";
+  const ruleCount = useRun().status?.rule_count;
   const worst = SEVERITY_ORDER.find((s) => findings.some((f) => f.severity === s)) as Severity | undefined;
   const rules = Array.from(new Set(findings.map((f) => f.rule_id)));
 
@@ -36,7 +38,7 @@ export default function TwoVerdicts({
       </div>
       <div className="rounded-xl border-2 border-cinnabar/60 bg-cinnabar-soft p-4">
         <p className="m-0 text-sm text-ink-2">OAH Data Doctor</p>
-        <p className="m-0 mt-1 text-sm text-ink-3">Scientific consistency, 19 deterministic rules</p>
+        <p className="m-0 mt-1 text-sm text-ink-3">Scientific consistency{ruleCount ? `, ${ruleCount} deterministic rules` : ", deterministic rules"}</p>
         <p className="m-0 mt-3 flex items-center gap-2 text-lg font-semibold text-cinnabar">
           {worst && <SeverityShape severity={worst} size={14} />}
           {findings.length ? `${findings.length} finding${findings.length > 1 ? "s" : ""}: ${rules.join(", ")}` : "No findings"}

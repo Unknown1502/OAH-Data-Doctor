@@ -13,7 +13,7 @@ import type { FindingDetail as Detail, OperationOutcome } from "../lib/types";
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
-    <section aria-labelledby={id} className="border-t border-line pt-6">
+    <section aria-labelledby={id} className="min-w-0 border-t border-line pt-6">
       <h2 id={id} className="m-0 mb-3 text-xl font-bold tracking-tight">
         {title}
       </h2>
@@ -128,7 +128,9 @@ export default function FindingDetail() {
             {liveCheck
               ? `Server asked live at ${when(liveCheck.checked_at)}.`
               : data.server_validation
-                ? "Server verdict recorded when the snapshot was taken."
+                ? f.provenance?.source.kind === "live"
+                  ? `Server asked during this live scan (${when(f.provenance.source.fetched_at)}).`
+                  : "Server verdict recorded when the snapshot was taken."
                 : "No server verdict stored for this run."}{" "}
             <button type="button" onClick={askServer} className="text-karst underline underline-offset-2">
               Ask the server now

@@ -97,6 +97,7 @@ def status() -> dict[str, Any]:
             "scan": s.scan if s else None, "mode": s.settings.source_mode if s else None,
             "fhir_base": s.settings.fhir_base if s else None,
             "llm": s.settings.llm_provider if s else "none",
+            "rule_count": len(load_rules()),
             "snapshots": list_snapshots(s.settings.snapshots_dir) if s else []}
 
 

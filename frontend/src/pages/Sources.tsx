@@ -77,7 +77,7 @@ export default function Sources() {
       <section aria-labelledby="rules-h" className="mt-12">
         <h2 id="rules-h" className="m-0 text-2xl font-bold tracking-tight">The rules</h2>
         <p className="mt-1 max-w-[75ch] text-ink-2">
-          Nineteen deterministic checks, each with tests that prove it fires on broken data and stays silent on clean data. Values are compared
+          {rules.data ? `${rules.data.length} deterministic checks` : "Deterministic checks"}, each with tests that prove it fires on broken data and stays silent on clean data. Values are compared
           within half a unit of their last published decimal, so rounding alone never raises a finding.
         </p>
         {!rules.data && <Loading what="rules" />}
