@@ -1,0 +1,245 @@
+@import "tailwindcss";
+@import "@fontsource-variable/bricolage-grotesque/standard.css";
+@import "@fontsource/azeret-mono/400.css";
+@import "@fontsource/azeret-mono/600.css";
+
+/* ---------------------------------------------------------------------------------------------
+   Tokens. Light is the default; dark follows the system unless the user pins a scheme
+   (html[data-theme]). Palette: chalk, deep water, karst blue, cinnabar (impossible),
+   ochre (error), sulfur (warning), algae (pass). All text pairs meet WCAG AA.
+   --------------------------------------------------------------------------------------------- */
+:root {
+  color-scheme: light dark;
+  --chalk: #f1f4f2;
+  --panel: #fbfcfb;
+  --sunk: #e6ebe8;
+  --ink: #0e2a31;
+  --ink-2: #3c5a61;
+  --ink-3: #5d767c;
+  --line: #cfd9d6;
+  --line-strong: #9fb2ad;
+  --karst: #17657e;
+  --karst-soft: #d8eaf0;
+  --cinnabar: #b42c1c;
+  --cinnabar-soft: #f7ded9;
+  --ochre: #9a5b00;
+  --ochre-soft: #f7e9d2;
+  --sulfur: #7a6400;
+  --sulfur-soft: #f3edc9;
+  --algae: #2b7355;
+  --algae-soft: #dcefe5;
+  --slate: #56636b;
+  --slate-soft: #e3e8ea;
+  --band: rgba(43, 115, 85, 0.14);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --chalk: #0b1c21;
+    --panel: #10262c;
+    --sunk: #0d2126;
+    --ink: #e3ece9;
+    --ink-2: #b4c6c2;
+    --ink-3: #8ea5a1;
+    --line: #23414a;
+    --line-strong: #3d626b;
+    --karst: #6cc3dc;
+    --karst-soft: #143944;
+    --cinnabar: #ff8a73;
+    --cinnabar-soft: #3d1d18;
+    --ochre: #f0b25a;
+    --ochre-soft: #3a2a10;
+    --sulfur: #e3cf5e;
+    --sulfur-soft: #353010;
+    --algae: #6fd3a6;
+    --algae-soft: #123428;
+    --slate: #a9b8bf;
+    --slate-soft: #1f3138;
+    --band: rgba(111, 211, 166, 0.14);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --chalk: #0b1c21;
+  --panel: #10262c;
+  --sunk: #0d2126;
+  --ink: #e3ece9;
+  --ink-2: #b4c6c2;
+  --ink-3: #8ea5a1;
+  --line: #23414a;
+  --line-strong: #3d626b;
+  --karst: #6cc3dc;
+  --karst-soft: #143944;
+  --cinnabar: #ff8a73;
+  --cinnabar-soft: #3d1d18;
+  --ochre: #f0b25a;
+  --ochre-soft: #3a2a10;
+  --sulfur: #e3cf5e;
+  --sulfur-soft: #353010;
+  --algae: #6fd3a6;
+  --algae-soft: #123428;
+  --slate: #a9b8bf;
+  --slate-soft: #1f3138;
+  --band: rgba(111, 211, 166, 0.14);
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+@theme {
+  --font-sans: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-read: "Azeret Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --color-chalk: var(--chalk);
+  --color-panel: var(--panel);
+  --color-sunk: var(--sunk);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-karst: var(--karst);
+  --color-karst-soft: var(--karst-soft);
+  --color-cinnabar: var(--cinnabar);
+  --color-cinnabar-soft: var(--cinnabar-soft);
+  --color-ochre: var(--ochre);
+  --color-ochre-soft: var(--ochre-soft);
+  --color-sulfur: var(--sulfur);
+  --color-sulfur-soft: var(--sulfur-soft);
+  --color-algae: var(--algae);
+  --color-algae-soft: var(--algae-soft);
+  --color-slate: var(--slate);
+  --color-slate-soft: var(--slate-soft);
+}
+
+@layer base {
+  html {
+    background: var(--chalk);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-optical-sizing: auto;
+    -webkit-text-size-adjust: 100%;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+  body {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.55;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  ::selection {
+    background: var(--karst-soft);
+    color: var(--ink);
+  }
+  
+  :focus-visible {
+    outline: 3px solid var(--karst);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ul.pl-5 {
+    list-style: disc;
+  }
+  ol.pl-5 {
+    list-style: decimal;
+  }
+}
+
+/* Readouts: measured values, set in the condensed width of the UI face with tabular figures so columns align. */
+.readout {
+  font-stretch: 82%;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: 0.005em;
+}
+/* Identifiers that are code (FHIRPath, resource ids, hashes, rule ids) use the monospace face. */
+.code {
+  font-family: var(--font-read);
+  font-size: 0.92em;
+  letter-spacing: -0.01em;
+}
+
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 50;
+  background: var(--ink);
+  color: var(--chalk);
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+.skip-link:focus {
+  top: 12px;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Raw FHIR viewer */
+pre.json {
+  font-family: var(--font-read);
+  font-size: 12.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+details > summary {
+  cursor: pointer;
+}
+
+/* The one orchestrated moment: the magnitude ruler draws its decades on first view. */
+@keyframes ruler-in {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.ruler-animate {
+  animation: ruler-in 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ruler-animate {
+    animation: none;
+  }
+  * {
+    scroll-behavior: auto !important;
+  }
+}
+
+table.data {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.9rem;
+}
+table.data th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--ink-2);
+  background: var(--sunk);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+table.data th,
+table.data td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+table.data tbody tr:hover td {
+  background: color-mix(in srgb, var(--karst-soft) 45%, transparent);
+}
