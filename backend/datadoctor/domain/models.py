@@ -347,3 +347,5 @@ class ClaimResult(BaseModel):
     statistics: dict[str, Any] = Field(default_factory=dict)
     safe_alternatives: list[str] = Field(default_factory=list)
     inputs: list[str] = Field(default_factory=list)  # observation keys consumed
+    ladder: list[dict[str, Any]] = Field(default_factory=list)  # evidence ladder, restated from the verdict (claims/ladder.py)
+    supported_up_to: str | None = None  # highest rung the evidence supports, e.g. "Description"

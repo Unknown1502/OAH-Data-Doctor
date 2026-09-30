@@ -299,3 +299,14 @@ def test_locations_add_up_to_the_observations(client):
     alm = next(loc for loc in locs if loc["id"] == "Loc-Almyros")
     assert alm["with_problems"] == sum(1 for o in obs if o["location_id"] == "Loc-Almyros" and o["blocking"])
     assert alm["latitude"] is not None and alm["years"][0] <= 2013
+
+
+def test_scan_reports_its_real_stages(client):
+    scan = client.get("/api/status").json()["scan"]
+    stages = {s["id"]: s for s in scan["stages"]}
+    assert scan["running"] is False
+    assert stages["snapshot"]["state"] == "done" and "sha256" in stages["snapshot"]["detail"]
+    total = client.get("/api/overview").json()["summary"]["findings_total"]
+    assert stages["rules"]["state"] == "done" and f"{total} findings" in stages["rules"]["detail"]
+    assert stages["analyses"]["state"] == "done"
+    assert "connect" not in stages  # a snapshot run never claims to have contacted the server

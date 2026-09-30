@@ -9,6 +9,7 @@ Modes:
 from __future__ import annotations
 
 import datetime as dt
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +21,12 @@ from datadoctor.ingestion.fhir_client import FhirClient, SandboxUnavailable
 from datadoctor.ingestion.snapshot import SnapshotError, list_snapshots, load_snapshot
 
 RawResources = dict[str, dict[str, dict[str, Any]]]
+# progress(stage_id, label, state, detail): reports real work as it happens (state: running | done | failed).
+Progress = Callable[[str, str, str, str | None], None]
+
+
+def _noop(stage: str, label: str, state: str, detail: str | None = None) -> None:
+    return None
 
 
 class NoDataAvailable(RuntimeError):
@@ -48,35 +55,48 @@ def load_from_snapshot(settings: Settings, snapshot_id: str | None = None, fallb
     return raw, info, validation
 
 
-async def load_live(settings: Settings, *, use_cache: bool = False) -> tuple[RawResources, SourceInfo, dict[str, Any]]:
+async def load_live(settings: Settings, *, use_cache: bool = False, progress: Progress = _noop
+                    ) -> tuple[RawResources, SourceInfo, dict[str, Any]]:
     cache = HttpCache(settings.db_path, settings.cache_ttl_s)
     fetched_at = dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     try:
         async with FhirClient(settings.fhir_base, cache, delay_s=settings.http_delay_s,
                               timeout_s=settings.http_timeout_s, retries=settings.http_retries) as client:
-            await client.capability_statement()
+            progress("connect", "Connecting to the FHIR server", "running", settings.fhir_base)
+            meta = await client.capability_statement()
+            progress("connect", "Connecting to the FHIR server", "done", f"FHIR {meta.get('fhirVersion', '?')}")
             raw: RawResources = {}
             for rtype in settings.ingest_types:
+                progress(f"fetch:{rtype}", f"Fetching {rtype}", "running", None)
                 raw[rtype] = {r["id"]: r for r in await client.search_all(rtype, settings.page_size, use_cache=use_cache)}
+                progress(f"fetch:{rtype}", f"Fetching {rtype}", "done", f"{len(raw[rtype])} resources")
     finally:
         cache.close()
     info = SourceInfo(kind=SourceKind.LIVE, base_url=settings.fhir_base, fetched_at=fetched_at)
     return raw, info, {}
 
 
-async def load_data(settings: Settings, mode: str | None = None, snapshot_id: str | None = None
-                    ) -> tuple[RawResources, SourceInfo, dict[str, Any]]:
+async def load_data(settings: Settings, mode: str | None = None, snapshot_id: str | None = None, *,
+                    progress: Progress = _noop) -> tuple[RawResources, SourceInfo, dict[str, Any]]:
     mode = mode or settings.source_mode
     if mode == "snapshot":
-        return load_from_snapshot(settings, snapshot_id or settings.snapshot_id)
+        progress("snapshot", "Reading the verified snapshot", "running", None)
+        out = load_from_snapshot(settings, snapshot_id or settings.snapshot_id)
+        progress("snapshot", "Reading the verified snapshot", "done",
+                 f"{out[1].snapshot_id}, {sum(len(v) for v in out[0].values())} resources, every file matches its sha256")
+        return out
     try:
-        return await load_live(settings)
+        return await load_live(settings, progress=progress)
     except (SandboxUnavailable, OSError, Exception) as exc:  # noqa: BLE001 - any live failure triggers fallback
+        progress("connect", "Connecting to the FHIR server", "failed", f"{type(exc).__name__}: {str(exc)[:160]}")
         if mode == "live":
             raise NoDataAvailable(f"live sandbox unavailable: {exc}") from exc
         try:
-            return load_from_snapshot(settings, snapshot_id or settings.snapshot_id,
-                                      fallback_reason=f"Live sandbox unavailable ({type(exc).__name__}: {str(exc)[:160]}). "
-                                                      "Showing the latest verified snapshot instead.")
+            progress("snapshot", "Falling back to the verified snapshot", "running", None)
+            out = load_from_snapshot(settings, snapshot_id or settings.snapshot_id,
+                                     fallback_reason=f"Live sandbox unavailable ({type(exc).__name__}: {str(exc)[:160]}). "
+                                                     "Showing the latest verified snapshot instead.")
+            progress("snapshot", "Falling back to the verified snapshot", "done", f"{out[1].snapshot_id}, sha256 verified")
+            return out
         except SnapshotError as snap_exc:
             raise NoDataAvailable(f"live failed ({exc}) and no snapshot available ({snap_exc})") from snap_exc

@@ -12,10 +12,12 @@ from typing import Any
 from datadoctor.audit.analyses import AnalysesResult, run_catalog
 from datadoctor.audit.service import AuditResult, audit_dataset, complete_live_validation
 from datadoctor.config import Settings
+from datadoctor.domain.enums import SourceKind
 from datadoctor.domain.models import Dataset
 from datadoctor.ingestion.source import load_data
 from datadoctor.knowledge.loader import Knowledge, load_knowledge
 from datadoctor.normalization.normalizer import build_dataset
+from datadoctor.rules.registry import load_rules
 from datadoctor.trace.graph import DependencyGraph, build_graph
 
 log = logging.getLogger(__name__)
@@ -63,14 +65,28 @@ class AppState:
     async def run(self, mode: str | None = None, snapshot_id: str | None = None) -> AuditResult:
         async with self.lock:
             self.scan = {"running": True, "mode": mode or self.settings.source_mode,
-                         "started_at": dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ"), "error": None}
+                         "started_at": dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ"), "error": None, "stages": []}
+            stage = self._stage
             try:
-                raw, source, validation = await load_data(self.settings, mode, snapshot_id)
+                raw, source, validation = await load_data(self.settings, mode, snapshot_id, progress=stage)
                 ds = build_dataset(raw, source, self.kn, validation)
+                stage("rules", "Running the rules", "running", None)
                 res = await asyncio.to_thread(audit_dataset, ds, self.kn)
+                stage("rules", "Running the rules", "done",
+                      f"{len(load_rules())} rules, {res.summary.findings_total} findings")
+                if source.kind is SourceKind.LIVE and not validation:
+                    stage("server", "Asking the server's own $validate about flagged records", "running", None)
                 res = await complete_live_validation(self.settings, ds, res, self.kn)
+                if source.kind is SourceKind.LIVE and not validation:
+                    sv = res.summary.server_validation or {}
+                    stage("server", "Asking the server's own $validate about flagged records", "done",
+                          f"{sv.get('validated_total', 0)} records, {sv.get('validated_with_errors', 0)} with errors")
                 self.ds, self.result = ds, res
+                stage("analyses", "Recomputing comparisons, claims and the impact graph", "running", None)
                 await asyncio.to_thread(self.recompute_analyses)
+                assert self.analyses is not None
+                stage("analyses", "Recomputing comparisons, claims and the impact graph", "done",
+                      f"{len(self.analyses.comparisons)} comparisons, {len(self.analyses.claims)} claims")
                 self.db.execute("INSERT OR REPLACE INTO runs VALUES (?, ?, ?, ?)",
                                 (res.run_id, res.created_at, res.source.model_dump_json(), res.summary.model_dump_json()))
                 self.db.commit()
@@ -79,6 +95,16 @@ class AppState:
             except Exception as exc:
                 self.scan.update(running=False, error=f"{type(exc).__name__}: {exc}")
                 raise
+
+    def _stage(self, stage_id: str, label: str, state: str, detail: str | None = None) -> None:
+        """Record a real stage of the current scan for the UI (no percentages, no timers: only what happened)."""
+        stages = self.scan.setdefault("stages", [])
+        now = dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+        for s in stages:
+            if s["id"] == stage_id:
+                s.update(label=label, state=state, detail=detail, at=now)
+                return
+        stages.append({"id": stage_id, "label": label, "state": state, "detail": detail, "at": now})
 
     def past_runs(self, limit: int = 20) -> list[dict[str, Any]]:
         rows = self.db.execute("SELECT run_id, created_at, source FROM runs ORDER BY created_at DESC LIMIT ?", (limit,)).fetchall()

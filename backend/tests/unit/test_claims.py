@@ -200,3 +200,35 @@ def test_theil_sen_and_spearman():
     assert theil_sen([0, 1, 2, 3, 4], [0, 2, 4, 6, 100]) == 2.0  # robust to the outlier
     s = spearman([1, 2, 3, 4], [4, 3, 2, 1])
     assert s["rho"] == -1.0 and s["p_two_sided"] == pytest.approx(2 / 24, abs=1e-6)
+
+
+# --- The evidence ladder: the verdict restated per rung ------------------------------------------------------------------
+
+def _rungs(r):
+    return {x["level"]: x["status"] for x in r.ladder}
+
+
+def test_ladder_for_a_supported_threshold_claim():
+    r = _eval(_pm10(27.97), type=T.EXCEEDS_THRESHOLD, subject="P", statistic="average", threshold_id="who-2021-pm10-annual")
+    assert _rungs(r) == {"observation": "supported", "description": "supported", "comparison": "supported",
+                         "association": "not_claimed", "causation": "not_claimed"}
+    assert r.supported_up_to == "Comparison" and [x["claimed"] for x in r.ladder] == [False, False, True, False, False]
+
+
+def test_ladder_when_integrity_blocks_even_describing_the_values():
+    r = _trend(_series([1, 2, 3, 4, 5], broken_year=2015))
+    assert r.verdict == V.BLOCKED
+    assert _rungs(r)["observation"] == "blocked" and _rungs(r)["comparison"] == "blocked" and r.supported_up_to is None
+
+
+def test_ladder_for_an_association_with_too_few_sites_stops_at_description():
+    r = _eval(_paired(3), type=T.ASSOCIATION, indicator_key="pm2-5", outcome_indicator_key="cvd")
+    assert _rungs(r)["association"] == "unsupported" and _rungs(r)["comparison"] == "not_claimed"
+    assert r.supported_up_to == "Description"
+
+
+def test_ladder_for_a_causal_claim_never_reaches_causation():
+    r = _eval(_paired(8), type=T.CAUSAL, indicator_key="pm2-5", outcome_indicator_key="cvd")
+    assert _rungs(r)["causation"] == "unsupported" and r.ladder[-1]["claimed"]
+    assert _rungs(r)["association"] == "conditional"  # the weaker claim, with caveats (ecological design)
+    assert r.supported_up_to == "Association"

@@ -545,6 +545,14 @@
    "title": "Inputs",
    "type": "array"
   },
+  "ladder": {
+   "items": {
+    "additionalProperties": true,
+    "type": "object"
+   },
+   "title": "Ladder",
+   "type": "array"
+  },
   "reasons": {
    "items": {
     "type": "string"
@@ -571,6 +579,18 @@
    "additionalProperties": true,
    "title": "Statistics",
    "type": "object"
+  },
+  "supported_up_to": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Supported Up To"
   },
   "verdict": {
    "$ref": "#/$defs/ClaimVerdict"

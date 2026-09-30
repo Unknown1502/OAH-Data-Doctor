@@ -18,6 +18,7 @@ from __future__ import annotations
 import hashlib
 from typing import Any
 
+from datadoctor.claims.ladder import highest_supported, ladder
 from datadoctor.claims.stats import mann_kendall, spearman, theil_sen
 from datadoctor.comparability.engine import ComparisonError, compare, describe, findings_touching
 from datadoctor.domain.enums import ClaimType, ClaimVerdict, ComparabilityVerdict, Severity
@@ -326,6 +327,8 @@ def evaluate_claim(claim: StructuredClaim, ds: Dataset, kn: Knowledge, findings:
     handlers = {ClaimType.COMPARE_HIGHER: _compare_higher, ClaimType.TREND_INCREASE: _trend,
                 ClaimType.EXCEEDS_THRESHOLD: _threshold, ClaimType.ASSOCIATION: _association, ClaimType.CAUSAL: _causal}
     try:
-        return handlers[claim.type](claim, ds, kn, findings, claim_id)
+        r = handlers[claim.type](claim, ds, kn, findings, claim_id)
     except ComparisonError as exc:
         raise ClaimError(str(exc)) from exc
+    rungs = ladder(r)
+    return r.model_copy(update={"ladder": rungs, "supported_up_to": highest_supported(rungs)})
