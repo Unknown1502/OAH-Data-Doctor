@@ -166,7 +166,7 @@ function Builder({ onRun }: { onRun: (c: StructuredClaim) => void }) {
 
 export default function Claims() {
   useDocumentTitle("Check a claim");
-  const { runId } = useRun();
+  const { runId, status } = useRun();
   const [params] = useSearchParams();
   const analyses = useApi<{ claims: ClaimResult[] }>("/analyses", [runId]);
   const [text, setText] = useState("");
@@ -238,6 +238,7 @@ export default function Claims() {
           className="mt-2 w-full rounded-md border border-line bg-chalk px-3 py-2 text-lg" />
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <Button kind="primary" type="submit" disabled={!text.trim() || busy}>{busy ? "Checking…" : "Check this claim"}</Button>
+          {busy && status?.llm && status.llm !== "none" && <span role="status" className="text-sm text-ink-3">A language model is reading the claim; a local model can take up to a minute.</span>}
           <span className="text-sm text-ink-3">Try:</span>
           {EXAMPLES.map((e) => (
             <button key={e} type="button" onClick={() => { setText(e); check(e); }} className="rounded-full border border-line px-3 py-1 text-sm text-ink-2 hover:border-karst hover:text-karst">
@@ -258,7 +259,11 @@ export default function Claims() {
         <section aria-labelledby="read-h" className="mt-8 rounded-xl border border-line bg-panel p-4">
           <h2 id="read-h" className="m-0 text-lg font-bold">How Data Doctor read your claim</h2>
           <p className="m-0 mt-1 text-sm text-ink-3">
-            Read by {parsed.method.startsWith("llm") ? `${parsed.method.replace("llm:", "")} (the verdict below is still computed by rules)` : "fixed keyword rules"}.
+            {parsed.method.startsWith("llm")
+              ? `Read by fixed keyword rules, with gaps filled by the language model ${parsed.method.replace("llm:", "")}. The verdict below is still computed by rules.`
+              : parsed.method.startsWith("deterministic (")
+                ? `Read by fixed keyword rules${parsed.method.slice("deterministic".length)}.`
+                : "Read by fixed keyword rules."}
           </p>
           {parsed.understood.length > 0 && <p className="mt-2 text-ink-2">Understood: {parsed.understood.join("; ")}.</p>}
           {parsed.claim ? <ClaimFields claim={parsed.claim} /> : (

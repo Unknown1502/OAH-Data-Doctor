@@ -49,7 +49,8 @@ Knowledge is derived reproducibly from the OAH IG source at a pinned commit: exa
 constraints. Rules are pure functions in a registry, with precision-aware tolerances. The comparability engine and claim guardrail
 use exact small-sample statistics (Mann–Kendall permutation test, Theil–Sen slope, Spearman). A dependency graph drives the
 impact trace. The React and TypeScript console (Vite, Tailwind) has a log-scale "magnitude ruler" that makes scale errors visible
-at a glance. Claude is used optionally and only to rephrase computed findings: any number it adds is detected and discarded.
+at a glance. An optional language model, free and local through Ollama by default (or any OpenAI-compatible endpoint, or Claude), only
+rephrases computed findings: any number, cause or correction it adds is detected and the text is discarded.
 
 ## Challenges we ran into
 
@@ -67,7 +68,7 @@ at a glance. Claude is used optionally and only to rephrase computed findings: a
 
 - 251 of 251 injected faults detected (95 % CI 98.5–100.0 %), and 0 new findings on
   100 records after benign transformations. We say plainly that this measures rule sensitivity, not real-world accuracy.
-- 171 backend tests and 16 end-to-end tests, including offline runs and WCAG 2.1 AA accessibility checks.
+- 196 backend tests and 18 end-to-end tests, including offline runs and WCAG 2.1 AA accessibility checks.
 - Our FHIR output validates against R4 (0 schema errors; HAPI: no issues).
 - Honesty by construction: no hand-typed numbers (these documents are rendered from a run), root cause always "unknown",
   read-only access, and live and snapshot data always labelled.
@@ -88,7 +89,7 @@ first appears (lineage) is far more useful to a data owner than guessing *why* i
 ## Built with
 
 python, fastapi, pydantic, httpx, sqlite, hl7-fhir-r4, fhirpath, hypothesis, pytest, react, typescript, vite, tailwindcss,
-playwright, axe-core, claude (optional)
+playwright, axe-core, ollama (optional), claude (optional)
 
 ## AI disclosure
 

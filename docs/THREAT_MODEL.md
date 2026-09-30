@@ -9,8 +9,8 @@
 | Trust in results | Live data changing between runs | Every run records its fetch time, resource versions and hashes; snapshots are labelled and never presented as live |
 | Server-side request forgery / redirect | A paging `next` link pointing elsewhere | The client refuses links to another host and does not follow redirects |
 | Denial of service to the sandbox | Aggressive crawling | 0.25 s polite delay, capped retries with backoff, `Retry-After` honoured, response cache |
-| LLM hallucination | Invented numbers or causes in explanations | Grounding check on numbers, template fallback, never used for verdicts |
-| Prompt injection via data | Resource text steering an LLM | The LLM sees only finding facts (our generated JSON), not raw resources; its output never changes a verdict |
+| LLM hallucination | Invented numbers, causes or corrections in explanations; misread claims | Numbers must occur in the evidence and causes or corrections must occur in the facts, else template fallback; claim reading is rules-first and model keys or ids that do not exist are dropped; never used for verdicts |
+| Prompt injection via data | Resource text steering an LLM | The LLM sees only finding facts (our generated JSON) or the claim the user typed, not raw resources; its output never changes a verdict. With the default free provider (Ollama) nothing leaves the machine |
 | API abuse | Oversized input | Pydantic validation, claim text ≤ 500 characters, findings limit ≤ 2000, CORS limited to the dev origin |
 | UI injection | Malicious strings in resources | React escapes text; the raw JSON is rendered as text; the HTML report escapes every field |
 | Misinterpretation | Over-claiming root causes | Root cause is always "unknown"; hypotheses are labelled as unverified; remediation is "review by the data owner" |

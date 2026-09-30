@@ -1,7 +1,7 @@
 # Claim safety specification
 
-The guardrail judges a **structured claim**. Natural-language input is only a convenience: a deterministic keyword parser (or,
-if enabled, Claude) proposes a `ClaimIntent`; a deterministic resolver maps it onto records that exist; the resulting
+The guardrail judges a **structured claim**. Natural-language input is only a convenience: a deterministic keyword parser proposes a `ClaimIntent`
+(an optional language model may only fill fields the rules left empty); a deterministic resolver maps it onto records that exist; the resulting
 `StructuredClaim` is shown to the user; the verdict is computed from that structure alone.
 
 ## Verdicts

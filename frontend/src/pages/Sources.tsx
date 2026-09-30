@@ -107,9 +107,11 @@ export default function Sources() {
       <section aria-labelledby="ai-h" className="mt-12">
         <h2 id="ai-h" className="m-0 text-2xl font-bold tracking-tight">Where AI is and is not used</h2>
         <p className="mt-2 max-w-[75ch] text-ink-2">
-          No language model detects a finding, decides comparability or judges a claim. Optionally, Claude can rephrase an already computed
-          finding or read a typed claim into the structured form shown to you. Any rephrasing that contains a number not present in the
-          evidence is thrown away and the fixed template is used instead. The language model is currently {status?.llm === "anthropic" ? "enabled" : "switched off"}.
+          No language model detects a finding, decides comparability or judges a claim. Optionally, a language model can rephrase an already
+          computed finding, and fill gaps when the keyword rules read a typed claim. Any model works: a free local one through Ollama, a free
+          hosted endpoint, or Claude. A rephrasing is thrown away and the fixed template is used instead if it contains a number that is not in
+          the evidence, or if it states a cause or a correction the finding does not. The language model is currently{" "}
+          {status?.llm_name ? `enabled (${status.llm_name})` : "switched off"}.
         </p>
       </section>
     </article>

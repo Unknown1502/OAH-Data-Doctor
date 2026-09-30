@@ -53,6 +53,8 @@ export default function FindingDetail() {
   const { runId, status } = useRun();
   const { data, error } = useApi<Detail>(`/findings/${encodeURIComponent(id)}`, [runId]);
   const [explained, setExplained] = useState<Detail["explanation"] | null>(null);
+  const [rephrasing, setRephrasing] = useState(false);
+  const [rephraseErr, setRephraseErr] = useState<string | null>(null);
   const [liveCheck, setLiveCheck] = useState<{ outcome: OperationOutcome; checked_at: string } | null>(null);
   const [liveErr, setLiveErr] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -222,14 +224,32 @@ export default function FindingDetail() {
         <p className="mt-2 text-sm text-ink-3">
           {explanation.method === "template"
             ? "Written from the finding by a fixed template."
-            : `Rephrased by ${explanation.method.replace("llm:", "")} from the finding's facts only; numbers are checked against the evidence.`}
+            : `Rephrased by ${explanation.method.replace("llm:", "")} from the finding's facts only; its numbers and any stated cause were checked against the finding.`}
           {explanation.fallback_reason && ` (${explanation.fallback_reason}; template used.)`}{" "}
-          {status?.llm === "anthropic" && explanation.method === "template" && (
-            <button type="button" className="text-karst underline underline-offset-2" onClick={async () => setExplained(await post(`/findings/${encodeURIComponent(f.id)}/explain`, {}))}>
-              Rephrase with Claude
+          {explanation.method !== "template" && (
+            <button type="button" className="text-karst underline underline-offset-2" onClick={() => setExplained(null)}>
+              Show the full template version
+            </button>
+          )}
+          {status?.llm_name && explanation.method === "template" && !explanation.fallback_reason && (
+            <button type="button" className="text-karst underline underline-offset-2 disabled:no-underline disabled:text-ink-3" disabled={rephrasing}
+              onClick={async () => {
+                setRephrasing(true);
+                setRephraseErr(null);
+                try {
+                  setExplained(await post(`/findings/${encodeURIComponent(f.id)}/explain`, {}));
+                } catch (e) {
+                  setRephraseErr(String(e instanceof Error ? e.message : e));
+                } finally {
+                  setRephrasing(false);
+                }
+              }}>
+              {rephrasing ? `Rephrasing with ${status.llm_name}…` : `Rephrase with ${status.llm_name}`}
             </button>
           )}
         </p>
+        {rephrasing && <p role="status" className="m-0 mt-1 text-sm text-ink-3">A local model can take up to a minute on the first request.</p>}
+        {rephraseErr && <p role="alert" className="m-0 mt-1 text-sm text-ink-3">Rephrasing failed ({rephraseErr}); the template above stands.</p>}
       </Section>
 
       {(data.same_resource.length > 0 || f.related_resources.length > 0) && (

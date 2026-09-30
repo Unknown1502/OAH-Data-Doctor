@@ -54,7 +54,7 @@ cannot be converted are never compared.
 **D-015 No HL7 Java validator.** Java is not available in the build environment. Base R4 validity of our output is checked with the
 official R4 JSON schema (CI) and the sandbox's HAPI `$validate`; OAH profile checks run locally (STR-PROF-001).
 
-**D-016 LLM default off; model `claude-opus-5` when on.** The product must work without an LLM. When enabled, the current default
+**D-016 LLM default off; model `claude-opus-5` when on (superseded in part by D-022).** The product must work without an LLM. When enabled, the current default
 model is used with low effort; grounding checks make model quality non-critical for correctness. Server-side refusal fallbacks
 are not configured because any refusal already falls back to the deterministic template.
 
@@ -80,3 +80,12 @@ showed the "can / cannot support" table had no "do not use" row: skipping every 
 Almyros lab chemistry (only in `Library-Almyros-FullResults`) and all of Oslo (only in `Library-Oslo-All`). A (library, indicator)
 row is now dropped only when smaller collections already contain all of its records.
 
+**D-022 Free language models first; rules before the model.** A paid API should not be needed to try the optional features.
+`ai/llm.py` now supports a free local model through Ollama (default `qwen2.5:3b`), any OpenAI-compatible endpoint (free hosted
+tiers) and Claude, behind one interface. Tried on 2026-09-30 with `qwen2.5:3b` on the snapshot, the small model misread
+"Almyros water got warmer between 2013 and 2020" as a two-place comparison and added "correction needed" to one rephrasing.
+Three changes follow. The claim reader is now rules-first (the model only fills fields the keyword rules left empty), and the
+rules gained the comparative-trend, "makes ... sick" and "fine particles" patterns. Rephrasings that state a cause or correction
+absent from the finding are discarded, like ungrounded numbers; a hedged cause ("could be due to") is tolerated only when the finding lists unverified hypotheses, because rejecting it made the rephrasing unusable on exactly the findings that have one. The model is kept loaded for 30 minutes between calls
+(`keep_alive`) because a cold start took about 45 s. The verdict path is unchanged: no model output reaches it without passing
+the resolver.

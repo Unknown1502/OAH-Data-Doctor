@@ -86,13 +86,14 @@ flowchart LR
   F --> OUT[Reports<br/>JSON, FHIR OperationOutcome,<br/>Markdown, HTML]
   API[FastAPI] --- F
   UI[React console] --> API
-  LLM[Optional Claude<br/>rephrasing only] -.-> API
+  LLM[Optional language model<br/>free local Ollama or any API<br/>rephrasing only] -.-> API
 ```
 
-- **Deterministic core.** Detection, comparability and claim verdicts use no language model. Optionally, Claude can rephrase an
-  already computed finding or read a typed claim into the structured form shown to the user. Any rephrasing that contains a
-  number not present in the evidence is discarded, and a fixed template is used instead. The product works fully with the LLM off
-  (the default).
+- **Deterministic core.** Detection, comparability and claim verdicts use no language model. Optionally, a language model (free and
+  local through Ollama, any OpenAI-compatible endpoint, or Claude) can rephrase an already computed finding, and fill gaps when
+  the keyword rules read a typed claim. Any rephrasing that contains a number not present in the evidence, or states a cause or
+  correction the finding does not, is discarded, and a fixed template is used instead. The product works fully with the model
+  off (the default).
 - **Read-only by construction.** The HTTP client refuses every method except GET and POST to `$validate`, and it refuses to
   follow paging links to another host (tested).
 - **The server's own verdict, live too.** Snapshots store the sandbox's `$validate` outcome for every official observation;
@@ -141,7 +142,10 @@ python tasks.py run        # http://127.0.0.1:8321  (live sandbox, falls back to
   deeply nested files, and pip stops with a long-path error inside very deep folders unless Windows long paths are enabled.
 - Command line: `python tools/oah_audit.py audit --source live`, plus `snapshot`, `gate0` and `verify-snapshot`.
 - Evaluation: `python tasks.py evaluate`. End-to-end: `python tasks.py e2e`.
-- Configuration: `.env.example`. No secrets are needed. `ANTHROPIC_API_KEY` is only used if you set `DD_LLM_PROVIDER=anthropic`.
+- Configuration: `.env.example`. No secrets are needed.
+- Optional free language model: install [Ollama](https://ollama.com), run `ollama pull qwen2.5:3b`, and set
+  `DD_LLM_PROVIDER=ollama` in `.env`. A "Rephrase" button then appears on each finding. Free hosted endpoints work with
+  `DD_LLM_PROVIDER=openai-compatible` (see `.env.example`); Claude with `DD_LLM_PROVIDER=anthropic`.
 
 API highlights: `GET /api/overview`, `GET /api/findings`, `GET /api/findings/{id}`, `POST /api/compare`, `POST /api/claims`,
 `POST /api/claims/parse`, `GET /api/reports/operation-outcome.json`. OpenAPI docs are at `/docs`.
@@ -174,8 +178,8 @@ tools/oah_audit.py    standalone CLI
 
 This project was built with substantial help from an AI coding assistant (Claude, by Anthropic), which drafted code, tests and
 documentation under human direction. The product itself uses no AI to detect problems or decide verdicts. An optional,
-switched-off-by-default Claude integration can only rephrase already computed findings or propose a structured reading of a
-typed claim.
+switched-off-by-default language model (free local Ollama, any OpenAI-compatible endpoint, or Claude) can only rephrase already
+computed findings or fill gaps in the keyword reading of a typed claim.
 
 ## Attribution and licence
 
