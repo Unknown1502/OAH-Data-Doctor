@@ -1,0 +1,147 @@
+{
+ "$defs": {
+  "ClaimType": {
+   "enum": [
+    "COMPARE_HIGHER",
+    "TREND_INCREASE",
+    "EXCEEDS_THRESHOLD",
+    "ASSOCIATION",
+    "CAUSAL"
+   ],
+   "title": "ClaimType",
+   "type": "string"
+  }
+ },
+ "$id": "https://github.com/oah-data-doctor/oah-data-doctor/schemas/claim.schema.json",
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "properties": {
+  "indicator_key": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Indicator Key"
+  },
+  "location_id": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Location Id"
+  },
+  "object": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Object"
+  },
+  "outcome_indicator_key": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Outcome Indicator Key"
+  },
+  "statistic": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Statistic"
+  },
+  "subject": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Subject"
+  },
+  "text": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Text"
+  },
+  "threshold_id": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Threshold Id"
+  },
+  "type": {
+   "$ref": "#/$defs/ClaimType"
+  },
+  "year_from": {
+   "anyOf": [
+    {
+     "type": "integer"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Year From"
+  },
+  "year_to": {
+   "anyOf": [
+    {
+     "type": "integer"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Year To"
+  }
+ },
+ "required": [
+  "type"
+ ],
+ "title": "StructuredClaim",
+ "type": "object"
+}

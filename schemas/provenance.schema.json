@@ -1,0 +1,135 @@
+{
+ "$defs": {
+  "SourceInfo": {
+   "description": "Where a dataset came from. Always shown to the user; snapshot data is never presented as live.",
+   "properties": {
+    "base_url": {
+     "title": "Base Url",
+     "type": "string"
+    },
+    "fallback_reason": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Fallback Reason"
+    },
+    "fetched_at": {
+     "title": "Fetched At",
+     "type": "string"
+    },
+    "kind": {
+     "$ref": "#/$defs/SourceKind"
+    },
+    "manifest_sha256": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Manifest Sha256"
+    },
+    "snapshot_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Snapshot Id"
+    }
+   },
+   "required": [
+    "kind",
+    "base_url",
+    "fetched_at"
+   ],
+   "title": "SourceInfo",
+   "type": "object"
+  },
+  "SourceKind": {
+   "enum": [
+    "live",
+    "snapshot",
+    "fixture"
+   ],
+   "title": "SourceKind",
+   "type": "string"
+  }
+ },
+ "$id": "https://github.com/oah-data-doctor/oah-data-doctor/schemas/provenance.schema.json",
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "properties": {
+  "ig_source": {
+   "title": "Ig Source",
+   "type": "string"
+  },
+  "knowledge_version": {
+   "title": "Knowledge Version",
+   "type": "string"
+  },
+  "resource_last_updated": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Resource Last Updated"
+  },
+  "resource_sha256": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Resource Sha256"
+  },
+  "resource_version_id": {
+   "anyOf": [
+    {
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Resource Version Id"
+  },
+  "rules_version": {
+   "title": "Rules Version",
+   "type": "string"
+  },
+  "source": {
+   "$ref": "#/$defs/SourceInfo"
+  }
+ },
+ "required": [
+  "source",
+  "rules_version",
+  "knowledge_version",
+  "ig_source"
+ ],
+ "title": "Provenance",
+ "type": "object"
+}

@@ -1,0 +1,356 @@
+{
+ "$defs": {
+  "Cohort": {
+   "properties": {
+    "age_high": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Age High"
+    },
+    "age_low": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Age Low"
+    },
+    "group_id": {
+     "title": "Group Id",
+     "type": "string"
+    },
+    "label": {
+     "title": "Label",
+     "type": "string"
+    },
+    "sex": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Sex"
+    }
+   },
+   "required": [
+    "group_id",
+    "label"
+   ],
+   "title": "Cohort",
+   "type": "object"
+  },
+  "ComparabilityVerdict": {
+   "enum": [
+    "DIRECT",
+    "CONDITIONAL",
+    "NOT",
+    "BLOCKED_BY_INTEGRITY"
+   ],
+   "title": "ComparabilityVerdict",
+   "type": "string"
+  },
+  "DimensionResult": {
+   "properties": {
+    "details": {
+     "additionalProperties": true,
+     "title": "Details",
+     "type": "object"
+    },
+    "dimension": {
+     "title": "Dimension",
+     "type": "string"
+    },
+    "reason": {
+     "title": "Reason",
+     "type": "string"
+    },
+    "rule_id": {
+     "title": "Rule Id",
+     "type": "string"
+    },
+    "status": {
+     "$ref": "#/$defs/DimensionStatus"
+    }
+   },
+   "required": [
+    "dimension",
+    "rule_id",
+    "status",
+    "reason"
+   ],
+   "title": "DimensionResult",
+   "type": "object"
+  },
+  "DimensionStatus": {
+   "enum": [
+    "PASS",
+    "CONDITIONAL",
+    "FAIL",
+    "N/A"
+   ],
+   "title": "DimensionStatus",
+   "type": "string"
+  },
+  "IndicatorDescriptor": {
+   "description": "A comparable unit: one observation (optionally one statistic of it), described in researcher terms.",
+   "properties": {
+    "aggregation": {
+     "title": "Aggregation",
+     "type": "string"
+    },
+    "cohort": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Cohort"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "indicator_key": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Indicator Key"
+    },
+    "label": {
+     "title": "Label",
+     "type": "string"
+    },
+    "location_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Location Id"
+    },
+    "location_name": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Location Name"
+    },
+    "measure_label": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Measure Label"
+    },
+    "medium": {
+     "$ref": "#/$defs/Medium"
+    },
+    "method": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Method"
+    },
+    "observation_id": {
+     "title": "Observation Id",
+     "type": "string"
+    },
+    "period": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/Period"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "statistic": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Statistic"
+    },
+    "unit": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Unit"
+    },
+    "value": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Value"
+    }
+   },
+   "required": [
+    "observation_id",
+    "label",
+    "indicator_key",
+    "measure_label",
+    "medium",
+    "unit",
+    "value",
+    "location_id",
+    "location_name",
+    "cohort",
+    "period",
+    "aggregation",
+    "method"
+   ],
+   "title": "IndicatorDescriptor",
+   "type": "object"
+  },
+  "Medium": {
+   "enum": [
+    "water",
+    "air",
+    "population-health",
+    "field-assessment",
+    "unknown"
+   ],
+   "title": "Medium",
+   "type": "string"
+  },
+  "Period": {
+   "properties": {
+    "end": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "End"
+    },
+    "start": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Start"
+    }
+   },
+   "title": "Period",
+   "type": "object"
+  }
+ },
+ "$id": "https://github.com/oah-data-doctor/oah-data-doctor/schemas/comparison.schema.json",
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "properties": {
+  "a": {
+   "$ref": "#/$defs/IndicatorDescriptor"
+  },
+  "b": {
+   "$ref": "#/$defs/IndicatorDescriptor"
+  },
+  "blocking_findings": {
+   "items": {
+    "type": "string"
+   },
+   "title": "Blocking Findings",
+   "type": "array"
+  },
+  "dimensions": {
+   "items": {
+    "$ref": "#/$defs/DimensionResult"
+   },
+   "title": "Dimensions",
+   "type": "array"
+  },
+  "id": {
+   "title": "Id",
+   "type": "string"
+  },
+  "summary": {
+   "title": "Summary",
+   "type": "string"
+  },
+  "supported_alternatives": {
+   "items": {
+    "type": "string"
+   },
+   "title": "Supported Alternatives",
+   "type": "array"
+  },
+  "transformations": {
+   "items": {
+    "type": "string"
+   },
+   "title": "Transformations",
+   "type": "array"
+  },
+  "verdict": {
+   "$ref": "#/$defs/ComparabilityVerdict"
+  }
+ },
+ "required": [
+  "id",
+  "a",
+  "b",
+  "verdict",
+  "dimensions",
+  "summary"
+ ],
+ "title": "Comparison",
+ "type": "object"
+}

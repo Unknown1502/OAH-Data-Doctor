@@ -1,0 +1,462 @@
+{
+ "$defs": {
+  "Category": {
+   "enum": [
+    "STRUCTURAL",
+    "SEMANTIC",
+    "STATISTICAL",
+    "COMPARABILITY",
+    "CLAIM"
+   ],
+   "title": "Category",
+   "type": "string"
+  },
+  "Evidence": {
+   "properties": {
+    "constraint": {
+     "title": "Constraint",
+     "type": "string"
+    },
+    "expected": {
+     "title": "Expected",
+     "type": "string"
+    },
+    "measures": {
+     "additionalProperties": true,
+     "title": "Measures",
+     "type": "object"
+    },
+    "observed": {
+     "items": {
+      "$ref": "#/$defs/ObservedValue"
+     },
+     "title": "Observed",
+     "type": "array"
+    },
+    "raw_excerpt": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "items": {},
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Raw Excerpt"
+    }
+   },
+   "required": [
+    "constraint",
+    "expected"
+   ],
+   "title": "Evidence",
+   "type": "object"
+  },
+  "LineageRecord": {
+   "description": "Upstream evidence: where the same values appear before FHIR conversion. Never a root-cause claim.",
+   "properties": {
+    "locator": {
+     "title": "Locator",
+     "type": "string"
+    },
+    "matches": {
+     "additionalProperties": {
+      "type": "boolean"
+     },
+     "title": "Matches",
+     "type": "object"
+    },
+    "raw_row": {
+     "title": "Raw Row",
+     "type": "string"
+    },
+    "source": {
+     "title": "Source",
+     "type": "string"
+    },
+    "statement": {
+     "title": "Statement",
+     "type": "string"
+    }
+   },
+   "required": [
+    "source",
+    "locator",
+    "raw_row",
+    "matches",
+    "statement"
+   ],
+   "title": "LineageRecord",
+   "type": "object"
+  },
+  "ObservedValue": {
+   "properties": {
+    "fhir_path": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Fhir Path"
+    },
+    "label": {
+     "title": "Label",
+     "type": "string"
+    },
+    "unit": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Unit"
+    },
+    "value": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Value"
+    }
+   },
+   "required": [
+    "label",
+    "value"
+   ],
+   "title": "ObservedValue",
+   "type": "object"
+  },
+  "Provenance": {
+   "properties": {
+    "ig_source": {
+     "title": "Ig Source",
+     "type": "string"
+    },
+    "knowledge_version": {
+     "title": "Knowledge Version",
+     "type": "string"
+    },
+    "resource_last_updated": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Resource Last Updated"
+    },
+    "resource_sha256": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Resource Sha256"
+    },
+    "resource_version_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Resource Version Id"
+    },
+    "rules_version": {
+     "title": "Rules Version",
+     "type": "string"
+    },
+    "source": {
+     "$ref": "#/$defs/SourceInfo"
+    }
+   },
+   "required": [
+    "source",
+    "rules_version",
+    "knowledge_version",
+    "ig_source"
+   ],
+   "title": "Provenance",
+   "type": "object"
+  },
+  "ResourceRef": {
+   "properties": {
+    "display": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Display"
+    },
+    "fhir_path": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Fhir Path"
+    },
+    "resource_id": {
+     "title": "Resource Id",
+     "type": "string"
+    },
+    "resource_type": {
+     "title": "Resource Type",
+     "type": "string"
+    }
+   },
+   "required": [
+    "resource_type",
+    "resource_id"
+   ],
+   "title": "ResourceRef",
+   "type": "object"
+  },
+  "Scope": {
+   "description": "Whether a resource is an official OAH IG example or was written to the shared sandbox by a third party.",
+   "enum": [
+    "oah-ig",
+    "third-party"
+   ],
+   "title": "Scope",
+   "type": "string"
+  },
+  "Severity": {
+   "enum": [
+    "INFO",
+    "WARNING",
+    "ERROR",
+    "CRITICAL"
+   ],
+   "title": "Severity",
+   "type": "string"
+  },
+  "SourceInfo": {
+   "description": "Where a dataset came from. Always shown to the user; snapshot data is never presented as live.",
+   "properties": {
+    "base_url": {
+     "title": "Base Url",
+     "type": "string"
+    },
+    "fallback_reason": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Fallback Reason"
+    },
+    "fetched_at": {
+     "title": "Fetched At",
+     "type": "string"
+    },
+    "kind": {
+     "$ref": "#/$defs/SourceKind"
+    },
+    "manifest_sha256": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Manifest Sha256"
+    },
+    "snapshot_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Snapshot Id"
+    }
+   },
+   "required": [
+    "kind",
+    "base_url",
+    "fetched_at"
+   ],
+   "title": "SourceInfo",
+   "type": "object"
+  },
+  "SourceKind": {
+   "enum": [
+    "live",
+    "snapshot",
+    "fixture"
+   ],
+   "title": "SourceKind",
+   "type": "string"
+  }
+ },
+ "$id": "https://github.com/oah-data-doctor/oah-data-doctor/schemas/finding.schema.json",
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "properties": {
+  "category": {
+   "$ref": "#/$defs/Category"
+  },
+  "confidence": {
+   "maximum": 1.0,
+   "minimum": 0.0,
+   "title": "Confidence",
+   "type": "number"
+  },
+  "confidence_label": {
+   "title": "Confidence Label",
+   "type": "string"
+  },
+  "evidence": {
+   "$ref": "#/$defs/Evidence"
+  },
+  "hypotheses": {
+   "items": {
+    "type": "string"
+   },
+   "title": "Hypotheses",
+   "type": "array"
+  },
+  "id": {
+   "title": "Id",
+   "type": "string"
+  },
+  "interpretation": {
+   "title": "Interpretation",
+   "type": "string"
+  },
+  "lineage": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/LineageRecord"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null
+  },
+  "provenance": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/Provenance"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null
+  },
+  "related_resources": {
+   "items": {
+    "$ref": "#/$defs/ResourceRef"
+   },
+   "title": "Related Resources",
+   "type": "array"
+  },
+  "remediation": {
+   "title": "Remediation",
+   "type": "string"
+  },
+  "resource": {
+   "$ref": "#/$defs/ResourceRef"
+  },
+  "root_cause": {
+   "default": "unknown",
+   "title": "Root Cause",
+   "type": "string"
+  },
+  "rule_id": {
+   "title": "Rule Id",
+   "type": "string"
+  },
+  "rule_version": {
+   "title": "Rule Version",
+   "type": "string"
+  },
+  "scope": {
+   "$ref": "#/$defs/Scope"
+  },
+  "severity": {
+   "$ref": "#/$defs/Severity"
+  },
+  "summary": {
+   "title": "Summary",
+   "type": "string"
+  },
+  "title": {
+   "title": "Title",
+   "type": "string"
+  }
+ },
+ "required": [
+  "id",
+  "rule_id",
+  "rule_version",
+  "title",
+  "category",
+  "severity",
+  "confidence",
+  "confidence_label",
+  "scope",
+  "resource",
+  "summary",
+  "evidence",
+  "interpretation",
+  "remediation"
+ ],
+ "title": "Finding",
+ "type": "object"
+}
