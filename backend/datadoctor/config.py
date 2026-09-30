@@ -41,6 +41,8 @@ class Settings:
     llm_base_url: str | None = None  # ollama: http://localhost:11434; openai-compatible: e.g. https://api.groq.com/openai/v1
     llm_api_key: str | None = None  # only for hosted openai-compatible endpoints; never logged
     llm_timeout_s: float = 120.0
+    llm_allow_user_keys: bool = True  # users may bring their own provider and key from the UI (per request, never stored)
+    llm_allow_custom_url: bool = False  # ...and a free-form endpoint URL; keep off on a publicly hosted instance
     ingest_types: tuple[str, ...] = field(default=INGEST_TYPES)
 
     @property
@@ -72,4 +74,12 @@ def get_settings() -> Settings:
         llm_base_url=env.get("DD_LLM_BASE_URL") or None,
         llm_api_key=env.get("DD_LLM_API_KEY") or None,
         llm_timeout_s=float(env.get("DD_LLM_TIMEOUT_S", "120")),
+        llm_allow_user_keys=_flag(env.get("DD_LLM_ALLOW_USER_KEYS"), True),
+        llm_allow_custom_url=_flag(env.get("DD_LLM_ALLOW_CUSTOM_URL"), False),
     )
+
+
+def _flag(value: str | None, default: bool) -> bool:
+    if value is None or not value.strip():
+        return default
+    return value.strip().lower() in ("1", "true", "yes", "on")

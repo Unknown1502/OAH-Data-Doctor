@@ -102,3 +102,71 @@ def test_report_contains_only_computed_numbers(client):
 def test_rules_catalog(client):
     rules = client.get("/api/rules").json()
     assert len(rules) == 19 and all(r["constraint"] and r["rationale"] for r in rules)
+
+
+# --- Bring your own model key ----------------------------------------------------------------------------------------
+
+SECRET = "gsk_test_Secret123456"
+
+
+class _FakeModel:
+    name = "fake:model"
+
+    def complete(self, system, user, *, max_tokens=1024):
+        return "The published median lies below the published minimum, so these values cannot all be right."
+
+    def complete_json(self, system, user, model_cls):
+        return model_cls.model_validate({})
+
+    def list_models(self):
+        return ["model-a", "model-b"]
+
+
+def test_provider_list_has_no_secrets_and_no_free_form_url(client):
+    p = client.get("/api/llm/providers").json()
+    ids = [x["id"] for x in p["providers"]]
+    assert {"ollama", "groq", "gemini", "openrouter", "anthropic"} <= set(ids)
+    assert "custom" not in ids and p["allow_custom_url"] is False  # off by default
+    assert "api_key" not in str(p).lower()
+    assert client.get("/api/status").json()["llm_user_keys"] is True
+
+
+def test_users_own_model_is_used_for_their_request_only(client, monkeypatch):
+    import datadoctor.api.main as api
+
+    seen = []
+    monkeypatch.setattr(api, "client_from_config", lambda cfg, st: seen.append(cfg) or _FakeModel())
+    hero = client.get("/api/overview").json()["hero_finding"]["id"]
+    cfg = {"provider": "groq", "model": "llama-3.1-8b-instant", "api_key": SECRET}
+    out = client.post(f"/api/findings/{hero}/explain", json={"llm": cfg}).json()
+    assert out["method"] == "llm:fake:model"
+    assert seen[0].api_key.get_secret_value() == SECRET and SECRET not in repr(seen[0])
+    # Without settings the server default applies (none in tests): the template.
+    assert client.post(f"/api/findings/{hero}/explain", json={}).json()["method"] == "template"
+    p = client.post("/api/claims/parse", json={"text": "Ozone and diabetes in Benevento", "llm": cfg}).json()
+    assert p["method"].startswith("llm:fake:model") or p["method"].startswith("deterministic")
+
+
+def test_bad_user_settings_are_explained_not_hidden(client):
+    hero = client.get("/api/overview").json()["hero_finding"]["id"]
+    r = client.post(f"/api/findings/{hero}/explain", json={"llm": {"provider": "groq"}})
+    assert r.status_code == 400 and "needs an API key" in r.json()["detail"]
+    r = client.post(f"/api/findings/{hero}/explain", json={"llm": {"provider": "custom", "base_url": "http://169.254.169.254/"}})
+    assert r.status_code == 400 and "switched off" in r.json()["detail"]
+    t = client.post("/api/llm/test", json={"provider": "nope", "api_key": SECRET}).json()
+    assert t["ok"] is False and "Unknown provider" in t["error"] and SECRET not in str(t)
+
+
+def test_connection_test_reports_models(client, monkeypatch):
+    import datadoctor.api.main as api
+
+    monkeypatch.setattr(api, "client_from_config", lambda cfg, st: _FakeModel())
+    t = client.post("/api/llm/test", json={"provider": "groq", "api_key": SECRET}).json()
+    assert t["ok"] and t["name"] == "fake:model" and t["models"] == ["model-a", "model-b"] and t["latency_ms"] >= 0
+
+
+def test_validation_errors_never_echo_the_key(client):
+    # Missing "provider": FastAPI's default 422 would include the whole llm object, key and all.
+    r = client.post("/api/claims/parse", json={"text": "NO2 at site 01", "llm": {"api_key": SECRET}})
+    assert r.status_code == 422 and SECRET not in r.text
+    assert r.json()["detail"][0]["loc"] == ["body", "llm", "provider"]

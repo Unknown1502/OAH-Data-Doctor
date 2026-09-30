@@ -7,12 +7,15 @@ import functools
 import hashlib
 import logging
 import os
+import time
 from collections import Counter
-from contextlib import asynccontextmanager
+from collections.abc import Iterator
+from contextlib import asynccontextmanager, contextmanager
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
@@ -20,7 +23,15 @@ from pydantic import BaseModel
 
 from datadoctor import __version__
 from datadoctor.ai.explainer import TemplateExplainer, get_explainer
-from datadoctor.ai.llm import LLMClient, get_llm
+from datadoctor.ai.llm import (
+    LLMClient,
+    LLMConfig,
+    LLMError,
+    client_from_config,
+    close_client,
+    get_llm,
+    presets_for,
+)
 from datadoctor.api.state import AppState
 from datadoctor.audit.service import blocking_keys
 from datadoctor.claims.engine import ClaimError, evaluate_claim
@@ -73,6 +84,13 @@ app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http
                    allow_methods=["GET", "POST"], allow_headers=["*"])
 
 
+@app.exception_handler(RequestValidationError)
+async def _validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
+    """FastAPI's default 422 body echoes the offending input, which could be a user's API key. Report where and why only."""
+    return JSONResponse(status_code=422, content={"detail": [{"loc": list(e.get("loc", ())), "msg": e.get("msg"), "type": e.get("type")}
+                                                             for e in exc.errors()]})
+
+
 # ---------------------------------------------------------------------------------------------------
 # Views
 # ---------------------------------------------------------------------------------------------------
@@ -100,6 +118,7 @@ def status() -> dict[str, Any]:
             "fhir_base": s.settings.fhir_base if s else None,
             "llm": s.settings.llm_provider if s else "none",
             "llm_name": (c.name if (c := _llm(s.settings)) else None) if s else None,
+            "llm_user_keys": s.settings.llm_allow_user_keys if s else False,
             "rule_count": len(load_rules()),
             "snapshots": list_snapshots(s.settings.snapshots_dir) if s else []}
 
@@ -216,11 +235,73 @@ def _llm(settings: Settings) -> LLMClient | None:
     return get_llm(settings)
 
 
+@contextmanager
+def _model_for(cfg: LLMConfig | None, settings: Settings) -> Iterator[LLMClient | None]:
+    """The user's own model for this one request if they sent settings (closed afterwards), else the server default.
+
+    A user's key lives only in this request: it is not stored, not logged, and redacted from errors."""
+    if cfg is None:
+        yield _llm(settings)
+        return
+    try:
+        client = client_from_config(cfg, settings)
+    except LLMError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    try:
+        yield client
+    finally:
+        close_client(client)
+
+
+class ExplainRequest(BaseModel):
+    llm: LLMConfig | None = None
+
+
 @app.post("/api/findings/{fid}/explain")
-def explain(fid: str) -> dict[str, Any]:
+def explain(fid: str, req: ExplainRequest | None = None) -> dict[str, Any]:
     s = state()
     f = _finding(fid)
-    return get_explainer(_llm(s.settings)).explain(f).model_dump()
+    with _model_for(req.llm if req else None, s.settings) as client:
+        return get_explainer(client).explain(f).model_dump()
+
+
+def _settings() -> Settings:
+    return STATE.settings if STATE else get_settings()
+
+
+@app.get("/api/llm/providers")
+def llm_providers() -> dict[str, Any]:
+    """What a user may choose from. Contains no secrets: the server's own key, if any, is never exposed."""
+    st = _settings()
+    default = _llm(st)
+    return {"allow_user_keys": st.llm_allow_user_keys, "allow_custom_url": st.llm_allow_custom_url,
+            "server_default": default.name if default else None,
+            "providers": presets_for(st) if st.llm_allow_user_keys else []}
+
+
+@app.post("/api/llm/test")
+def llm_test(cfg: LLMConfig) -> dict[str, Any]:
+    """Check a user's model settings with one tiny request and list the models the key can use. Nothing is stored."""
+    try:
+        client = client_from_config(cfg, _settings())
+    except LLMError as exc:
+        return {"ok": False, "name": None, "error": str(exc), "models": []}
+    try:
+        t0 = time.perf_counter()
+        try:
+            reply = client.complete("You check connectivity.", "Reply with the single word OK.", max_tokens=16)
+        except LLMError as exc:
+            # A valid key with a wrong model name still lists models, so the user can pick one that exists.
+            return {"ok": False, "name": client.name, "error": str(exc), "models": _models(client)}
+        return {"ok": True, "name": client.name, "latency_ms": round((time.perf_counter() - t0) * 1000),
+                "reply": reply[:60], "models": _models(client)}
+    finally:
+        close_client(client)
+
+
+def _models(client: LLMClient) -> list[str]:
+    lister = getattr(client, "list_models", None)
+    return lister()[:300] if callable(lister) else []
 
 
 @app.post("/api/validate/{rtype}/{rid}")
@@ -326,6 +407,7 @@ def claim_endpoint(req: ClaimRequest) -> dict[str, Any]:
 
 class ParseRequest(BaseModel):
     text: str
+    llm: LLMConfig | None = None
 
 
 @app.post("/api/claims/parse")
@@ -334,7 +416,8 @@ def parse_endpoint(req: ParseRequest) -> dict[str, Any]:
     assert s.ds is not None
     if not req.text.strip() or len(req.text) > 500:
         raise HTTPException(400, "claim text must be 1-500 characters")
-    return parse_claim(req.text, s.ds, s.kn, _llm(s.settings)).model_dump()
+    with _model_for(req.llm, s.settings) as client:
+        return parse_claim(req.text, s.ds, s.kn, client).model_dump()
 
 
 @app.get("/api/analyses")

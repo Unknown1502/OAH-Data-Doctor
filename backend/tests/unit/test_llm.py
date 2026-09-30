@@ -209,3 +209,85 @@ def test_model_unavailable_means_deterministic_reading():
     res = parse_claim("Almyros water got warmer between 2013 and 2020", _claim_ds(), KN, FakeClient(error="Ollama is not reachable"))
     assert res.method.startswith("deterministic (language model unavailable")
     assert res.intent.type == "TREND_INCREASE"
+
+
+# --- bring your own key -----------------------------------------------------------------------------------------
+
+KEY = "gsk_live_abcdef123456"
+
+
+def _cfg(**kw):
+    from datadoctor.ai.llm import LLMConfig
+
+    return LLMConfig(**kw)
+
+
+def test_user_config_builds_the_preset_client_with_the_users_key():
+    from datadoctor.ai.llm import client_from_config
+
+    reply = {"choices": [{"message": {"content": "OK"}}]}
+    c = client_from_config(_cfg(provider="groq", api_key=KEY), Settings(), transport=_transport(200, reply))
+    assert c.name == "groq:llama-3.1-8b-instant"  # the preset's default model
+    assert c.complete("s", "u") == "OK"
+    assert str(SENT[0].url) == "https://api.groq.com/openai/v1/chat/completions"
+    assert SENT[0].headers["Authorization"] == f"Bearer {KEY}"
+    assert KEY not in repr(_cfg(provider="groq", api_key=KEY))  # SecretStr
+
+
+@pytest.mark.parametrize(("cfg", "settings", "msg"), [
+    ({"provider": "nope"}, {}, "Unknown provider"),
+    ({"provider": "gemini"}, {}, "needs an API key"),
+    ({"provider": "groq", "api_key": "has space"}, {}, "does not look like an API key"),
+    ({"provider": "groq", "api_key": KEY, "model": "bad model!"}, {}, "model name"),
+    ({"provider": "custom", "base_url": "http://169.254.169.254/latest"}, {}, "switched off"),
+    ({"provider": "custom", "model": "m", "base_url": "file:///etc/passwd"}, {"llm_allow_custom_url": True}, "base URL"),
+    ({"provider": "groq", "api_key": KEY}, {"llm_allow_user_keys": False}, "does not accept"),
+])
+def test_user_config_is_validated(cfg, settings, msg):
+    from datadoctor.ai.llm import client_from_config
+
+    with pytest.raises(LLMError, match=msg):
+        client_from_config(_cfg(**cfg), replace(Settings(), **settings))
+
+
+def test_custom_endpoint_when_the_operator_allows_it():
+    from datadoctor.ai.llm import client_from_config, presets_for
+
+    assert "custom" not in [p["id"] for p in presets_for(Settings())]
+    allowed = replace(Settings(), llm_allow_custom_url=True)
+    assert "custom" in [p["id"] for p in presets_for(allowed)]
+    c = client_from_config(_cfg(provider="custom", model="local-model", base_url="http://localhost:1234/v1"), allowed,
+                           transport=_transport(200, {"choices": [{"message": {"content": "OK"}}]}))
+    c.complete("s", "u")
+    assert str(SENT[0].url) == "http://localhost:1234/v1/chat/completions" and "Authorization" not in SENT[0].headers
+
+
+def test_rejected_key_is_redacted_from_errors():
+    c = OpenAICompatibleClient("m", "https://api.example.org/v1", KEY,
+                               transport=_transport(401, {"error": {"message": f"Invalid API Key: {KEY}"}}))
+    with pytest.raises(LLMError) as exc:
+        c.complete("s", "u")
+    assert "HTTP 401" in str(exc.value) and KEY not in str(exc.value) and "***" in str(exc.value)
+
+
+def test_retries_without_parameters_the_model_rejects():
+    calls: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        body = json.loads(request.content)
+        calls.append(body)
+        if "temperature" in body:
+            return httpx.Response(400, json={"error": {"message": "Unsupported value: 'temperature' does not support 0"}})
+        return httpx.Response(200, json={"choices": [{"message": {"content": "OK"}}]})
+
+    c = OpenAICompatibleClient("reasoning-model", "https://api.example.org/v1", "k", transport=httpx.MockTransport(handler))
+    assert c.complete("s", "u") == "OK"
+    assert len(calls) == 2 and "temperature" not in calls[1]
+
+
+def test_model_listing_is_best_effort():
+    listing = {"data": [{"id": "b-model"}, {"id": "a-model"}]}
+    assert OpenAICompatibleClient("m", "https://x.org/v1", "k", transport=_transport(200, listing)).list_models() == ["a-model", "b-model"]
+    assert OpenAICompatibleClient("m", "https://x.org/v1", "k", transport=_transport(403, {})).list_models() == []
+    tags = {"models": [{"name": "qwen2.5:3b"}]}
+    assert OllamaClient("m", transport=_transport(200, tags)).list_models() == ["qwen2.5:3b"]
