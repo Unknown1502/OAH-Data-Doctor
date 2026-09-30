@@ -1,0 +1,28 @@
+# Domain plausibility bounds, in the indicator's canonical unit (knowledge/indicators/registry.yaml).
+#
+# hard:    values outside are physically or definitionally IMPOSSIBLE  -> SEM-RANGE-001 (CRITICAL)
+# typical: values outside are UNUSUAL but possible                     -> SEM-RANGE-002 (WARNING)
+#
+# Principle (docs/04_RULES_CATALOG.md): unusual != impossible. Hard bounds are only set where physics or
+# the definition of the quantity forbids the value. Typical ranges are only set where we can state a
+# defensible rationale; otherwise they are omitted rather than invented.
+
+kinds:
+  concentration:
+    hard: {min: 0, rationale: "A concentration cannot be negative."}
+  prevalence:
+    hard: {min: 0, max: 100, rationale: "A percentage of a population is bounded by 0 and 100 by definition."}
+
+indicators:
+  water-temperature:
+    hard: {min: -5, max: 100, rationale: "Liquid surface water at ~1 atm freezes near 0 C (seawater ~-1.9 C) and boils at 100 C; a liquid-water temperature outside [-5, 100] C is physically impossible."}
+    typical: {min: 0, max: 35, rationale: "Typical range for surface freshwater bodies in temperate/Mediterranean climates. General limnology range (UNVERIFIED for any specific site)."}
+  ph:
+    hard: {min: 0, max: 14, rationale: "Outside 0-14 is only attainable in concentrated laboratory acids/bases, not in natural surface water."}
+    typical: {min: 4, max: 10, rationale: "Natural surface waters rarely fall outside pH 4-10. General range (UNVERIFIED for any specific site)."}
+  dissolved-oxygen:
+    hard: {min: 0, max: 60, rationale: "Negative DO is impossible; even pure-oxygen supersaturation does not approach 60 mg/L in natural water."}
+    typical: {min: 0, max: 20, rationale: "Air-saturation DO is ~14.6 mg/L at 0 C; >20 mg/L requires extreme supersaturation."}
+  electrical-conductivity:
+    hard: {min: 0, max: 300000, rationale: "Negative conductivity is impossible; saturated brines are ~250,000 uS/cm."}
+    typical: {min: 5, max: 2000, rationale: "Typical freshwater range. Values above ~2,000 uS/cm are unusual for freshwater but normal for brackish (~2,000-30,000) or sea water (~50,000)."}

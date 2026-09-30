@@ -1,0 +1,33 @@
+# Measure-identity map used by CMP-MEASURE. Relationship semantics (after FHIR ConceptMap equivalence):
+#   equal      - same code
+#   equivalent - different codes, same measure; comparison allowed (DIRECT on this dimension)
+#   related    - plausibly the same construct but the definition differs or is unverified -> CONDITIONAL
+#   broader    - one measure contains the other (e.g. a composite) -> NOT comparable
+# Anything not listed and not equal is "unmapped" -> NOT comparable.
+
+relations:
+  - a: water-temperature
+    b: water-temperature
+    relationship: equivalent
+    note: "SNOMED 703421000 'Temperature' with text 'Temperature (water)' and OAH #waterTemperature both denote water temperature."
+  - a: electrical-conductivity
+    b: electrical-conductivity
+    relationship: related
+    when_codes_differ: true
+    note: "OAH #electrical-conductivity (lab) vs #conductivity (field probe). Whether values are temperature-compensated to a reference temperature is not stated (UNVERIFIED)."
+  - a: obesity
+    b: bmi-above-30
+    relationship: related
+    note: "WHO defines adult obesity as BMI >= 30 kg/m2, but the Benevento indicator ('% affected from obesity') does not state whether it is measured BMI, self-report or diagnosis (UNVERIFIED)."
+  - a: hypertension-treatment
+    b: hbp-treatment
+    relationship: related
+    note: "Near-identical published definitions ('under treatment for hypertension' vs 'under treatment for high blood pressure') yet different values for the same cohorts. See SEM-CODE-001."
+  - a: cvd
+    b: diabetes-copd-cvd
+    relationship: broader
+    note: "Oslo's composite (diabetes OR COPD OR CVD, ever) strictly contains CVD; values are not comparable."
+  - a: high-blood-pressure
+    b: hbp-treatment
+    relationship: broader
+    note: "Prevalence of high blood pressure vs share under treatment: different constructs."

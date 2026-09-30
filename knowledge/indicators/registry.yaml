@@ -1,0 +1,92 @@
+# Indicator registry: maps (code system, code) observed in OAH data to a canonical measure key.
+# Every entry was taken from codes actually present in the live sandbox (docs/DISCOVERY.md, D4/D5).
+# medium: water | air | population-health | field-assessment
+# kind: concentration | temperature | conductivity | ph | oxygen | prevalence | categorical
+# canonical_unit: UCUM code used for plausibility checks and conversions.
+
+systems:
+  oah: http://hl7.eu/fhir/ig/oah/CodeSystem/temporarySystem-oah-eu
+  air: https://oneaquahealth.eu/air-parameters
+  snomed: http://snomed.info/sct
+
+indicators:
+  water-temperature:
+    label: Water temperature
+    medium: water
+    kind: temperature
+    canonical_unit: Cel
+    codes:
+      - {system: snomed, code: "703421000", note: "SNOMED 'Temperature' used with text 'Temperature (water)' in Almyros lab summaries"}
+      - {system: oah, code: waterTemperature}
+  electrical-conductivity:
+    label: Electrical conductivity
+    medium: water
+    kind: conductivity
+    canonical_unit: uS/cm
+    codes:
+      - {system: oah, code: electrical-conductivity}
+      - {system: oah, code: conductivity, note: "field probe code; temperature compensation not stated"}
+  ph: {label: pH, medium: water, kind: ph, canonical_unit: "[pH]", codes: [{system: oah, code: ph}]}
+  dissolved-oxygen: {label: Dissolved oxygen, medium: water, kind: oxygen, canonical_unit: mg/L, codes: [{system: oah, code: dissolved-oxygen}]}
+  ammonium: {label: Ammonium, medium: water, kind: concentration, canonical_unit: mg/L, codes: [{system: oah, code: ammonium}]}
+  nitrate: {label: Nitrate, medium: water, kind: concentration, canonical_unit: mg/L, codes: [{system: oah, code: nitrate}]}
+  nitrite: {label: Nitrite, medium: water, kind: concentration, canonical_unit: mg/L, codes: [{system: oah, code: nitrite}]}
+  chloride: {label: Chloride, medium: water, kind: concentration, canonical_unit: mg/L, codes: [{system: oah, code: chloride}]}
+  sulphate: {label: Sulphate, medium: water, kind: concentration, canonical_unit: mg/L, codes: [{system: oah, code: sulphate}]}
+  sodium: {label: Sodium, medium: water, kind: concentration, canonical_unit: mg/L, codes: [{system: oah, code: sodium}]}
+  potassium: {label: Potassium, medium: water, kind: concentration, canonical_unit: mg/L, codes: [{system: oah, code: potassium}]}
+  calcium: {label: Calcium, medium: water, kind: concentration, canonical_unit: mg/L, codes: [{system: oah, code: calcium}]}
+  magnesium: {label: Magnesium, medium: water, kind: concentration, canonical_unit: mg/L, codes: [{system: oah, code: magnesium}]}
+  carbonates: {label: Carbonates, medium: water, kind: concentration, canonical_unit: mg/L, codes: [{system: oah, code: carbonates}]}
+  bicarbonate: {label: Hydrogen carbonate (HCO3), medium: water, kind: concentration, canonical_unit: mg/L, codes: [{system: oah, code: hydrogen-carbonate-bicarbonate-hco3}]}
+  total-phosphates: {label: Total phosphates, medium: water, kind: concentration, canonical_unit: mg/L, codes: [{system: oah, code: total-phosphates}]}
+  aluminium-dissolved: {label: Aluminium (dissolved), medium: water, kind: concentration, canonical_unit: ug/L, codes: [{system: oah, code: aluminium-dissolved}]}
+  arsenic-dissolved: {label: Arsenic (dissolved), medium: water, kind: concentration, canonical_unit: ug/L, codes: [{system: oah, code: arsenic-dissolved}]}
+  cadmium-dissolved: {label: Cadmium (dissolved), medium: water, kind: concentration, canonical_unit: ug/L, codes: [{system: oah, code: cadmium-dissolved}]}
+  chromium-dissolved: {label: Chromium (dissolved), medium: water, kind: concentration, canonical_unit: ug/L, codes: [{system: oah, code: chromium-dissolved}]}
+  chromium-6: {label: Chromium VI, medium: water, kind: concentration, canonical_unit: ug/L, codes: [{system: oah, code: chromium-6-plus}]}
+  copper-dissolved: {label: Copper (dissolved), medium: water, kind: concentration, canonical_unit: ug/L, codes: [{system: oah, code: copper-dissolved}]}
+  iron-dissolved: {label: Iron (dissolved), medium: water, kind: concentration, canonical_unit: ug/L, codes: [{system: oah, code: iron-dissolved}]}
+  lead-dissolved: {label: Lead (dissolved), medium: water, kind: concentration, canonical_unit: ug/L, codes: [{system: oah, code: lead-dissolved}]}
+  manganese-dissolved: {label: Manganese (dissolved), medium: water, kind: concentration, canonical_unit: ug/L, codes: [{system: oah, code: manganese-dissolved}]}
+  mercury-dissolved: {label: Mercury (dissolved), medium: water, kind: concentration, canonical_unit: ug/L, codes: [{system: oah, code: mercury-dissolved}]}
+  nickel-dissolved: {label: Nickel (dissolved), medium: water, kind: concentration, canonical_unit: ug/L, codes: [{system: oah, code: nickel-dissolved}]}
+  zinc-dissolved: {label: Zinc (dissolved), medium: water, kind: concentration, canonical_unit: ug/L, codes: [{system: oah, code: zinc-dissolved}]}
+
+  no2: {label: Nitrogen dioxide (NO2), medium: air, kind: concentration, canonical_unit: ug/m3, codes: [{system: air, code: no2}]}
+  o3: {label: Ozone (O3), medium: air, kind: concentration, canonical_unit: ug/m3, codes: [{system: air, code: o3}]}
+  pm10: {label: PM10, medium: air, kind: concentration, canonical_unit: ug/m3, codes: [{system: air, code: pm10}]}
+  pm2-5: {label: PM2.5, medium: air, kind: concentration, canonical_unit: ug/m3, codes: [{system: air, code: pm2-5}]}
+  benzene: {label: Benzene, medium: air, kind: concentration, canonical_unit: ug/m3, codes: [{system: air, code: benzene}]}
+
+  # Population health (Benevento 2024, Oslo/Nordre Aker 2024). All published with unit '%'.
+  obesity: {label: Obesity prevalence, medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: obesity}]}
+  bmi-above-30: {label: "BMI >= 30 prevalence", medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: bmi-above-30}]}
+  bmi-below-18: {label: "BMI < 18.5 prevalence", medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: bmi-below-18}]}
+  bmi-below-25: {label: "BMI 18.5-24.9 prevalence", medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: bmi-below-25}]}
+  bmi-below-30: {label: "BMI 25-29.9 prevalence", medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: bmi-below-30}]}
+  cvd: {label: Cardiovascular disease prevalence, medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: cvd}]}
+  diabetes: {label: High blood sugar / diabetes prevalence, medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: diabetes}]}
+  diabetes-treatment: {label: Under treatment for diabetes, medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: diabetes-treatment}]}
+  high-blood-pressure: {label: High blood pressure prevalence, medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: high-blood-pression}]}
+  hbp-treatment: {label: Under treatment for high blood pressure, medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: high-blood-pression-treatment}]}
+  hypertension-treatment: {label: Under treatment for hypertension, medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: hypertension}]}
+  hypercholesterolemia-treatment: {label: Under treatment for hypercholesterolemia, medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: hypercholesterolemia-treatment}]}
+  cholesterolemia-190: {label: "Total cholesterol >= 190 mg/dl", medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: cholesterolemia-190}]}
+  cholesterolemia-240: {label: "Total cholesterol >= 240 mg/dl", medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: cholesterolemia-240}]}
+  diabetes-copd-cvd: {label: "Diabetes, COPD or CVD (ever)", medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: diabate-copd-cvd}]}
+  no-diabetes-copd-cvd: {label: "No diabetes, COPD or CVD", medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: no-diabate-copd-cvd}]}
+  long-term-disease: {label: Long-term disease prevalence, medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: long-term-disease}]}
+  no-long-term-disease: {label: No long-term disease, medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: no-long-term-disease}]}
+  mental-health: {label: Mental health issues, medium: population-health, kind: prevalence, canonical_unit: "%", codes: [{system: oah, code: mental-health}]}
+
+# Sets of indicators that partition 100% of a cohort (used by SEM-COHORT-002).
+# Only sets whose definitions are exhaustive and mutually exclusive by construction are listed.
+complements:
+  - {id: dcc, members: [diabetes-copd-cvd, no-diabetes-copd-cvd], note: "'have or have had' vs 'do not have' — exhaustive by definition"}
+  - {id: ltd, members: [long-term-disease, no-long-term-disease]}
+  - {id: bmi, members: [bmi-below-18, bmi-below-25, bmi-below-30, bmi-above-30], note: "BMI bands <18.5 | 18.5-24.9 | 25-29.9 | >=30 cover all adults"}
+
+# Pairs where the first measure is physically a subset of the second at the same place and time (SEM-XREC-001).
+subsets:
+  - {sub: pm2-5, super: pm10, rationale: "PM2.5 (particles <= 2.5 um) is by definition contained in PM10 (particles <= 10 um); for co-located measurements over the same days every order statistic of PM2.5 must be <= that of PM10."}

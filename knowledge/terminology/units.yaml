@@ -1,0 +1,27 @@
+# Curated UCUM table. We do not ship a full UCUM parser: a code is accepted if it is in `valid`,
+# rejected with a suggestion if it is in `invalid`, and otherwise reported as UNRECOGNISED (lower confidence).
+
+valid: ["Cel", "K", "[degF]", "%", "1", "ug/m3", "mg/m3", "ng/m3", "ug/L", "mg/L", "ng/L", "g/L", "ug/l", "mg/l",
+        "uS/cm", "mS/cm", "S/m", "[pH]", "m", "cm", "mm", "{CFU}/dL", "{CFU}/mL", "a", "mo", "d", "h", "/10*5"]
+
+invalid:
+  pH: {suggest: "[pH]", note: "UCUM represents pH with the arbitrary unit [pH]; 'pH' is not a valid UCUM code."}
+  "°C": {suggest: "Cel", note: "The degree sign form is a display string, not a UCUM code."}
+
+# Linear conversions to canonical units: canonical_value = value * factor.
+# Affine conversions (temperature) carry an offset and are flagged: differences convert differently than levels.
+conversions:
+  - {from: mg/L, to: ug/L, factor: 1000}
+  - {from: ug/L, to: mg/L, factor: 0.001}
+  - {from: ng/L, to: ug/L, factor: 0.001}
+  - {from: mg/l, to: mg/L, factor: 1}
+  - {from: ug/l, to: ug/L, factor: 1}
+  - {from: mS/cm, to: uS/cm, factor: 1000}
+  - {from: uS/cm, to: mS/cm, factor: 0.001}
+  - {from: S/m, to: uS/cm, factor: 10000}
+  - {from: mg/m3, to: ug/m3, factor: 1000}
+  - {from: ng/m3, to: ug/m3, factor: 0.001}
+  - {from: "%", to: /10*5, factor: 1000, note: "1 % = 1,000 per 100,000"}
+  - {from: /10*5, to: "%", factor: 0.001}
+  - {from: K, to: Cel, factor: 1, offset: -273.15, affine: true}
+  - {from: Cel, to: K, factor: 1, offset: 273.15, affine: true}

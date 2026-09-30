@@ -1,0 +1,96 @@
+# Reference thresholds used by the EXCEEDS_THRESHOLD claim type.
+# Each threshold carries its legal/guideline context. The claim guardrail refuses to turn a threshold into a
+# verdict when the context does not match the data (matrix, averaging period, statistic).
+#
+# matrix: ambient-air | drinking-water
+# averaging: the aggregation the limit is defined on. Our data offers "calendar-year summary" statistics.
+
+thresholds:
+  eu-2008-50-no2-annual:
+    indicator: no2
+    value: 40
+    unit: ug/m3
+    matrix: ambient-air
+    averaging: calendar-year-mean
+    statistic: average
+    source: "Directive 2008/50/EC, Annex XI (limit value for the protection of human health, calendar year)"
+  eu-2008-50-pm10-annual:
+    indicator: pm10
+    value: 40
+    unit: ug/m3
+    matrix: ambient-air
+    averaging: calendar-year-mean
+    statistic: average
+    source: "Directive 2008/50/EC, Annex XI (calendar year)"
+  eu-2008-50-pm25-annual:
+    indicator: pm2-5
+    value: 25
+    unit: ug/m3
+    matrix: ambient-air
+    averaging: calendar-year-mean
+    statistic: average
+    source: "Directive 2008/50/EC, Annex XIV (limit value, calendar year)"
+  eu-2008-50-benzene-annual:
+    indicator: benzene
+    value: 5
+    unit: ug/m3
+    matrix: ambient-air
+    averaging: calendar-year-mean
+    statistic: average
+    source: "Directive 2008/50/EC, Annex XI (calendar year)"
+  eu-2008-50-o3-target:
+    indicator: o3
+    value: 120
+    unit: ug/m3
+    matrix: ambient-air
+    averaging: max-daily-8h-mean
+    statistic: null
+    source: "Directive 2008/50/EC, Annex VII (target value: maximum daily 8-hour mean). Not comparable with an annual mean."
+  who-2021-pm25-annual:
+    indicator: pm2-5
+    value: 5
+    unit: ug/m3
+    matrix: ambient-air
+    averaging: calendar-year-mean
+    statistic: average
+    source: "WHO Global Air Quality Guidelines (2021), annual AQG level"
+  who-2021-pm10-annual:
+    indicator: pm10
+    value: 15
+    unit: ug/m3
+    matrix: ambient-air
+    averaging: calendar-year-mean
+    statistic: average
+    source: "WHO Global Air Quality Guidelines (2021), annual AQG level"
+  who-2021-no2-annual:
+    indicator: no2
+    value: 10
+    unit: ug/m3
+    matrix: ambient-air
+    averaging: calendar-year-mean
+    statistic: average
+    source: "WHO Global Air Quality Guidelines (2021), annual AQG level"
+  eu-dwd-nitrate:
+    indicator: nitrate
+    value: 50
+    unit: mg/L
+    matrix: drinking-water
+    averaging: individual-sample
+    statistic: null
+    source: "Directive (EU) 2020/2184 (Drinking Water Directive), Annex I Part B parametric value"
+  eu-dwd-arsenic:
+    indicator: arsenic-dissolved
+    value: 10
+    unit: ug/L
+    matrix: drinking-water
+    averaging: individual-sample
+    statistic: null
+    source: "Directive (EU) 2020/2184, Annex I Part B parametric value"
+  eu-dwd-conductivity:
+    indicator: electrical-conductivity
+    value: 2500
+    unit: uS/cm
+    matrix: drinking-water
+    averaging: individual-sample
+    statistic: null
+    source: "Directive (EU) 2020/2184, Annex I Part C indicator parameter (at 20 C)"

@@ -1,0 +1,114 @@
+{
+ "repo": "https://github.com/hl7-eu/oah",
+ "commit": "b907cf0869b59d82d9138b3d147fca66f333d911",
+ "files": [
+  {
+   "path": "input/fsh/examples/almyros_gov_chem.fsh",
+   "sha256": "4253068e7b66400b204053d86d988f047e94b3aa7868cf76185fd380008c91cf"
+  },
+  {
+   "path": "input/fsh/examples/benevento_libraries.fsh",
+   "sha256": "b6fc91b880f97efa23937c5e3c100b9fc08215e5d952dac9511d72fa3ee55b8d"
+  },
+  {
+   "path": "input/fsh/examples/benevento_pollutant_01.fsh",
+   "sha256": "e59c3b7637fdeece72f9ec3ea2c2439c60173827225516b5ffccc6fa1cf57627"
+  },
+  {
+   "path": "input/fsh/examples/benevento_pollutant_02.fsh",
+   "sha256": "769e3897402f7116514269d2a90d30eefb75d3826f6bef645ce04aefc84d2d48"
+  },
+  {
+   "path": "input/fsh/examples/benevento_pollutant_03.fsh",
+   "sha256": "068a4380dd611e147304b5651f5d62edd093675c28a355221d3fed6c128b7b8f"
+  },
+  {
+   "path": "input/fsh/examples/benevento_pollutant_04.fsh",
+   "sha256": "e7e53b6e2316bc18633725170721f109072a646747ec14039575bd8b8e5a2690"
+  },
+  {
+   "path": "input/fsh/examples/benevento_pollutant_05.fsh",
+   "sha256": "cd1ff13d577e0fae62a6f9a4f27285a544ff2d2c567946b25b0bcd917fa863f7"
+  },
+  {
+   "path": "input/fsh/examples/benevento_pollutant_06.fsh",
+   "sha256": "4184887a9f51ba7809692c86c748c84b5665c0867d1f842b3add4a4ca4dc5c79"
+  },
+  {
+   "path": "input/fsh/examples/benevento_pollutant_07.fsh",
+   "sha256": "99e3692e5d66ad5918c0105ea2cacfea86a77d05dc8ea76eef0e002feff06d1c"
+  },
+  {
+   "path": "input/fsh/examples/benevento_pollutant_08.fsh",
+   "sha256": "e7161cf4f0c1beb426683db03ada493374d2a8e7f9a581a2abb921bf2a3e52e3"
+  },
+  {
+   "path": "input/fsh/examples/benevento_pollutant_09.fsh",
+   "sha256": "c4ffb8e860578be5469bdb1f5ed020f7207a15560a08951fe4f369942755eddb"
+  },
+  {
+   "path": "input/fsh/examples/benevento_pollutant_10.fsh",
+   "sha256": "af64ef9bf56364bf60e42418920892b52270dc72142c881551e97026f7eb8ee2"
+  },
+  {
+   "path": "input/fsh/examples/benevento_pollutant_11.fsh",
+   "sha256": "ed2705c3afc092aa8b0dd95ba94886593a066f4db287de0dd5b1652e047791aa"
+  },
+  {
+   "path": "input/fsh/examples/benevento_pollutant_12.fsh",
+   "sha256": "3b4d112747a62a470509468d1a7e2199de65fbdf3cb05c9225eab3e09c66ba63"
+  },
+  {
+   "path": "input/fsh/examples/bn_disease_prevalence_groups.fsh",
+   "sha256": "598ad54e52dfebb2c940d063827d99805d13ae2866f6d06b3eb9ff9259ea96eb"
+  },
+  {
+   "path": "input/fsh/examples/bn_disease_prevalence_observations.fsh",
+   "sha256": "0b17624410ce2bc78684f82a086710cdf3a58d6fa91b45d7f491fe3ecdd2017b"
+  },
+  {
+   "path": "input/fsh/examples/ec_tmp.fsh",
+   "sha256": "fda0465d8a8748dbbc0f6464f9cdaf8b9e9fc6f487ecc44f9e56ae93812c2bee"
+  },
+  {
+   "path": "input/fsh/examples/library_tmp.fsh",
+   "sha256": "0f76d7dbb0aac15758bc7c08dd87e5739e4133f45304248d41efbcca10fb4995"
+  },
+  {
+   "path": "input/fsh/examples/loc_benevento.fsh",
+   "sha256": "66a8a664370e37edd0ab0be1f78ecaa7f48cc4b7059421635ba27a4568a05282"
+  },
+  {
+   "path": "input/fsh/examples/loc_nordre_aker.fsh",
+   "sha256": "9b93a24c2b0eb1d390414633d80ec504df5cd45040ef0137e33ce1cbcfbc6322"
+  },
+  {
+   "path": "input/fsh/examples/organization_arpac.fsh",
+   "sha256": "f9cf6e7d627aed8614b3eccb8d9bc009f50000c647064c4f0957d6a0078db9c8"
+  },
+  {
+   "path": "input/fsh/examples/os_disease_prevalence_groups.fsh",
+   "sha256": "bb1c9c7560f0c62163a9788e3b41f5df7d8a784e7264cbb358f28427edd6dca6"
+  },
+  {
+   "path": "input/fsh/examples/os_disease_prevalence_observations.fsh",
+   "sha256": "6fb2731c6676d57109bafc9f4c596ae9c1c1c279dfadcd7ced6c52aa97e1f0f7"
+  },
+  {
+   "path": "input/fsh/examples/oslo_libraries.fsh",
+   "sha256": "e61661ba4b12a81d253368d40dac61a2a90773ca10c9e56a7dd82b76e874d606"
+  },
+  {
+   "path": "input/fsh/examples/water_tmp.fsh",
+   "sha256": "eceb9127541330ab159efa873076c460520fc891f3d9cd58fe5d9bebfae7876e"
+  },
+  {
+   "path": "input/fsh/terminologies/oah-codeSystem.fsh",
+   "sha256": "f4536a45d46d2e7b75c13fd7b38239e7d95a4dfb7445fe3717c364444c93ee97"
+  },
+  {
+   "path": "_samples/crete/Almyros_gov_chem_analysis.csv",
+   "sha256": "4bb59552b0568f8526e14191cf6f99583f9ff0ce1d3db28598bbf045a179c197"
+  }
+ ]
+}

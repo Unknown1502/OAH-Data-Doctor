@@ -1,0 +1,66 @@
+# The analyses Data Doctor computes on every audit run. The Impact Trace (docs/IMPACT_TRACE_SPEC.md) only
+# reports downstream consumers that exist in this catalog, in auto-derived trend series / library profiles,
+# or in comparisons/claims a user actually ran. Nothing here is a hard-coded result: every verdict is
+# recomputed from the data of the current run.
+
+comparisons:
+  - id: cmp-field-temp-almyros-vs-giofyros
+    title: "Water temperature, same day, two streams (field probe)"
+    a: {observation: Obs-WaterTemp-Almyros-2024-11-21}
+    b: {observation: Obs-WaterTemp-Giofyros-2024-11-21}
+  - id: cmp-benevento-no2-site01-vs-site02-2019
+    title: "NO2 annual mean, Benevento site 01 vs site 02 (2019)"
+    a: {observation: Obs-Benevento01-No2-2019, statistic: average}
+    b: {observation: Obs-Benevento02-No2-2019, statistic: average}
+  - id: cmp-benevento-no2-2018-vs-2019
+    title: "NO2 annual mean, Benevento site 01, 2018 vs 2019"
+    a: {observation: Obs-Benevento01-No2-2018, statistic: average}
+    b: {observation: Obs-Benevento01-No2-2019, statistic: average}
+  - id: cmp-obesity-benevento-vs-oslo-18-29
+    title: "Obesity, Benevento women 35-74 vs Oslo adults 18-29"
+    a: {observation: Obs-BN-BN1-obesity-Female-Age-35-74}
+    b: {observation: Obs-OS-bmi-above-30-Age-18-29}
+  - id: cmp-obesity-benevento-vs-oslo-female
+    title: "Obesity, Benevento women 35-74 vs Oslo women (all ages)"
+    a: {observation: Obs-BN-BN1-obesity-Female-Age-35-74}
+    b: {observation: Obs-OS-bmi-above-30-Female}
+  - id: cmp-almyros-temp-lab-2013-vs-2014
+    title: "Almyros water temperature annual mean, 2013 vs 2014 (lab summaries)"
+    a: {observation: Obs-Almyros-TemperatureWater-2013, statistic: average}
+    b: {observation: Obs-Almyros-TemperatureWater-2014, statistic: average}
+  - id: cmp-almyros-ec-lab-vs-field
+    title: "Almyros conductivity: 2020 lab median vs 2024 field probe"
+    a: {observation: Obs-Almyros-ElectricalConductivity-2020, statistic: median}
+    b: {observation: Obs-EC-Almyros-2024-11-21}
+
+claims:
+  - id: clm-almyros-temperature-rising
+    title: "Water temperature at Almyros increased 2013-2020"
+    claim: {type: TREND_INCREASE, location_id: Loc-Almyros, indicator_key: water-temperature, statistic: average, year_from: 2013, year_to: 2020}
+  - id: clm-almyros-temperature-rising-median
+    title: "Median water temperature at Almyros increased 2013-2020"
+    claim: {type: TREND_INCREASE, location_id: Loc-Almyros, indicator_key: water-temperature, statistic: median, year_from: 2013, year_to: 2020}
+  - id: clm-benevento-no2-site01-higher
+    title: "NO2 was higher at Benevento site 01 than site 02 in 2019"
+    claim: {type: COMPARE_HIGHER, subject: Obs-Benevento01-No2-2019, object: Obs-Benevento02-No2-2019, statistic: average}
+  - id: clm-benevento-pm25-exceeds-who
+    title: "PM2.5 at Benevento site 01 exceeded the WHO 2021 annual guideline in 2019"
+    claim: {type: EXCEEDS_THRESHOLD, subject: Obs-Benevento01-Pm25-2019, statistic: average, threshold_id: who-2021-pm25-annual}
+  - id: clm-benevento04-pm10-exceeds-who-2018
+    title: "PM10 at Benevento site 04 exceeded the WHO 2021 annual guideline in 2018"
+    claim: {type: EXCEEDS_THRESHOLD, subject: Obs-Benevento04-Pm10-2018, statistic: average, threshold_id: who-2021-pm10-annual}
+  - id: clm-giofyros-warmer-than-almyros
+    title: "Giofyros was warmer than Almyros on 21 November 2024"
+    claim: {type: COMPARE_HIGHER, subject: Obs-WaterTemp-Giofyros-2024-11-21, object: Obs-WaterTemp-Almyros-2024-11-21}
+  - id: clm-benevento-pm10-exceeds-eu
+    title: "PM10 at Benevento site 01 exceeded the EU annual limit value in 2019"
+    claim: {type: EXCEEDS_THRESHOLD, subject: Obs-Benevento01-Pm10-2019, statistic: average, threshold_id: eu-2008-50-pm10-annual}
+  - id: clm-obesity-benevento-higher-than-oslo
+    title: "Obesity is higher among Benevento women than Oslo young adults"
+    claim: {type: COMPARE_HIGHER, subject: Obs-BN-BN1-obesity-Female-Age-35-74, object: Obs-OS-bmi-above-30-Age-18-29}
+  - id: clm-pm25-associated-with-cvd
+    title: "PM2.5 is associated with cardiovascular disease prevalence across Benevento sites"
+    claim: {type: ASSOCIATION, indicator_key: pm2-5, outcome_indicator_key: cvd, year_from: 2019, year_to: 2019}
+  - id: clm-pm25-causes-cvd
+    title: "PM2.5 causes cardiovascular disease in Benevento"
+    claim: {type: CAUSAL, indicator_key: pm2-5, outcome_indicator_key: cvd}

@@ -1,0 +1,8 @@
+# Deterministic text normalisation for SEM-CODE-001 (near-synonymous indicator definitions).
+# Applied to lower-cased display strings, whole-word, in order.
+strip_prefixes: ["% of people with ", "% of people ", "% of men and women aged 35-74 yo "]
+replace:
+  pression: pressure
+  hypertension: high blood pressure
+  "blood sugar/diabetes": diabetes
+  affected from: with

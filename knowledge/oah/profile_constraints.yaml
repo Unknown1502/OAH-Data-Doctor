@@ -1,0 +1,62 @@
+# OAH profile constraints checked locally by STR-PROF-001.
+# The sandbox cannot validate against OAH profiles (it does not host them; see DISCOVERY.md D3), so we derive
+# the checkable subset by hand from the FSH at the pinned commit (knowledge/oah/sources.json).
+#
+# check types:
+#   min      - path must yield at least `value` items
+#   max      - path must yield at most `value` items
+#   fixed    - every item at path must equal `value`
+#   ref_type - every reference at path must point to resource type `value`
+# Paths are dotted FHIR paths; `[x]` matches any choice type (valueQuantity, valueString, ...).
+
+base: http://hl7.eu/fhir/ig/oah/StructureDefinition/
+
+profiles:
+  observation-indicators-oah:
+    source: input/fsh/profiles/observation-indicators-oah.fsh
+    checks:
+      - {path: status, type: fixed, value: final}
+      - {path: code, type: min, value: 1}
+      - {path: subject, type: min, value: 1}
+      - {path: subject, type: ref_type, value: Location}
+      - {path: "effective[x]", type: min, value: 1}
+      - {path: performer, type: min, value: 1}
+      - {path: "component.value[x]", type: per_item_min, parent: component, value: 1}
+  observation-with-component-oah:
+    source: input/fsh/profiles/observation-with-component.fsh
+    parent: observation-indicators-oah
+    checks:
+      - {path: "value[x]", type: max, value: 0}
+      - {path: component, type: min, value: 1}
+  observation-health-measure-oah:
+    source: input/fsh/profiles/observation-health-measure-oah.fsh
+    checks:
+      - {path: status, type: fixed, value: final}
+      - {path: code, type: min, value: 1}
+      - {path: subject, type: min, value: 1}
+      - {path: subject, type: ref_type, value: Location}
+      - {path: "effective[x]", type: min, value: 1}
+      - {path: focus, type: ref_type, value: Group}
+  group-oah:
+    source: input/fsh/profiles/group-oah.fsh
+    checks:
+      - {path: type, type: fixed, value: person}
+      - {path: actual, type: fixed, value: false}
+      - {path: member, type: max, value: 0}
+      - {path: characteristic, type: min, value: 1}
+      - {path: characteristic.exclude, type: per_item_min, parent: characteristic, value: 1}
+      - {path: "characteristic.value[x]", type: per_item_min, parent: characteristic, value: 1}
+  library-oah:
+    source: input/fsh/profiles/library-oah.fsh
+    checks:
+      - {path: url, type: min, value: 1}
+      - {path: title, type: min, value: 1}
+      - {path: status, type: min, value: 1}
+      - {path: type, type: min, value: 1}
+      - {path: date, type: min, value: 1}
+  location-oah:
+    source: input/fsh/profiles/location-oah.fsh
+    checks:
+      - {path: identifier, type: min, value: 1}
+      - {path: name, type: min, value: 1}
+      - {path: mode, type: fixed, value: instance}

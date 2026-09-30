@@ -1,0 +1,1118 @@
+{
+ "url": "http://hl7.eu/fhir/ig/oah/CodeSystem/temporarySystem-oah-eu",
+ "repo": "hl7-eu/oah",
+ "commit": "b907cf0869b59d82d9138b3d147fca66f333d911",
+ "source": "input/fsh/terminologies/oah-codeSystem.fsh",
+ "concepts": [
+  {
+   "code": "macroinvertebreates",
+   "display": "Benthic Macro invertebrates count",
+   "definition": "Benthic Macroinvertebrates count",
+   "fsh_line": 10
+  },
+  {
+   "code": "diatomes",
+   "display": "Diatoms (microalgae/phytobenthos)",
+   "definition": "Diatoms (microalgae/phytobenthos)",
+   "fsh_line": 12
+  },
+  {
+   "code": "fishes",
+   "display": "Fish",
+   "definition": "Fish",
+   "fsh_line": 14
+  },
+  {
+   "code": "macrophytes",
+   "display": "Macrophytes",
+   "definition": "Macrophytes (aquatic plants)",
+   "fsh_line": 16
+  },
+  {
+   "code": "liveworts",
+   "display": "Liveworts/mosses/lichens",
+   "definition": "Liveworts/mosses/lichens",
+   "fsh_line": 18
+  },
+  {
+   "code": "broad-leaved-herbs",
+   "display": "Emergent broad-leaved herbs",
+   "definition": "Emergent broad-leaved herbs",
+   "fsh_line": 19
+  },
+  {
+   "code": "floating-leaved",
+   "display": "Floating-leaved (rooted)",
+   "definition": "Floating-leaved (rooted)",
+   "fsh_line": 20
+  },
+  {
+   "code": "free-floating",
+   "display": "Free-floating",
+   "definition": "Free-floating",
+   "fsh_line": 21
+  },
+  {
+   "code": "amphibious",
+   "display": "Amphibious (occupy the transition between land and water)",
+   "definition": "Amphibious (occupy the transition between land and water)",
+   "fsh_line": 22
+  },
+  {
+   "code": "submerged-broad-leaved",
+   "display": "Submerged broad-leaved",
+   "definition": "Submerged broad-leaved",
+   "fsh_line": 23
+  },
+  {
+   "code": "submerged-linear-leaved",
+   "display": "Submerged linear-leaved",
+   "definition": "Submerged linear-leaved",
+   "fsh_line": 24
+  },
+  {
+   "code": "filamentous-algae",
+   "display": "Filamentous algae",
+   "definition": "Filamentous algae",
+   "fsh_line": 25
+  },
+  {
+   "code": "liveworts-non-native",
+   "display": "Liveworts/mosses/lichens Non native",
+   "definition": "Liveworts/mosses/lichens non native",
+   "fsh_line": 27
+  },
+  {
+   "code": "broad-leaved-herbs-non-native",
+   "display": "Emergent broad-leaved herbs non native",
+   "definition": "Emergent broad-leaved herbs non native",
+   "fsh_line": 28
+  },
+  {
+   "code": "floating-leaved-non-native",
+   "display": "Floating-leaved (rooted) Non native",
+   "definition": "Floating-leaved (rooted) non native",
+   "fsh_line": 29
+  },
+  {
+   "code": "free-floating-non-native",
+   "display": "Free-floating Non native",
+   "definition": "Free-floating non native",
+   "fsh_line": 30
+  },
+  {
+   "code": "amphibious-non-native",
+   "display": "Amphibious (occupy the transition between land and water) Non native",
+   "definition": "Amphibious (occupy the transition between land and water) non native",
+   "fsh_line": 31
+  },
+  {
+   "code": "submerged-broad-leaved-non-native",
+   "display": "Submerged broad-leaved Non native",
+   "definition": "Submerged broad-leaved non native",
+   "fsh_line": 32
+  },
+  {
+   "code": "submerged-linear-leaved-non-native",
+   "display": "Submerged linear-leaved Non native",
+   "definition": "Submerged linear-leaved non native",
+   "fsh_line": 33
+  },
+  {
+   "code": "filamentous-algae-non-native",
+   "display": "Filamentous algae Non native",
+   "definition": "Filamentous algae",
+   "fsh_line": 34
+  },
+  {
+   "code": "riparianVegetation",
+   "display": "Riparian vegetation",
+   "definition": "Riparian vegetation",
+   "fsh_line": 37
+  },
+  {
+   "code": "trees",
+   "display": "Trees (height >3m)",
+   "definition": "Trees (height >3m)",
+   "fsh_line": 38
+  },
+  {
+   "code": "bushes",
+   "display": "Bushes (height (1.5-3m)",
+   "definition": "Bushes (height (1.5-3m)",
+   "fsh_line": 39
+  },
+  {
+   "code": "herbaceous",
+   "display": "Herbaceous (height < 1.5m)",
+   "definition": "Herbaceous (height < 1.5m)",
+   "fsh_line": 40
+  },
+  {
+   "code": "microbiomes",
+   "display": "Microbiomes/Biofilms",
+   "definition": "Microbiomes/Biofilms",
+   "fsh_line": 42
+  },
+  {
+   "code": "morophology",
+   "display": "Morphology of the streams",
+   "definition": "Morphology of the streams – habitat, shape of the channel and valley, substrate in the channel and margins",
+   "fsh_line": 43
+  },
+  {
+   "code": "hydrology",
+   "display": "Hydrology of the stream",
+   "definition": "Hydrology of the stream – flow type, diversity of flow types, longitudinal connectivity, runoff",
+   "fsh_line": 44
+  },
+  {
+   "code": "LandUse",
+   "display": "Land use in the margins",
+   "definition": "Land use in the margins",
+   "fsh_line": 45
+  },
+  {
+   "code": "nutrients",
+   "display": "Nutrients",
+   "definition": "Nutrients (Nitrates, nitrites, ammonia, phosphates, total P, total N, …)",
+   "fsh_line": 46
+  },
+  {
+   "code": "pH",
+   "display": "pH",
+   "definition": "pH",
+   "fsh_line": 47
+  },
+  {
+   "code": "dissolvedO2",
+   "display": "Dissolved O2",
+   "definition": "Dissolved O2",
+   "fsh_line": 48
+  },
+  {
+   "code": "waterTemperature",
+   "display": "Water temperature",
+   "definition": "Water temperature",
+   "fsh_line": 49
+  },
+  {
+   "code": "tds",
+   "display": "Total dissolved solids (TDS)",
+   "definition": "Total dissolved solids (TDS)",
+   "fsh_line": 50
+  },
+  {
+   "code": "tss",
+   "display": "Total suspended solids (TSS)",
+   "definition": "Total suspended solids (TSS)",
+   "fsh_line": 51
+  },
+  {
+   "code": "conductivity",
+   "display": "Conductivity",
+   "definition": "Conductivity",
+   "fsh_line": 52
+  },
+  {
+   "code": "pharmaceuticals",
+   "display": "Pharmaceuticals",
+   "definition": "Pharmaceuticals",
+   "fsh_line": 53
+  },
+  {
+   "code": "foam",
+   "display": "Foam/colour/smell",
+   "definition": "Foam/colour/smell",
+   "fsh_line": 54
+  },
+  {
+   "code": "coliforms",
+   "display": "Coliforms",
+   "definition": "Coliforms",
+   "fsh_line": 55
+  },
+  {
+   "code": "diptera",
+   "display": "Diptera",
+   "definition": "Diptera (specially Culicidae and Psycodidae)",
+   "fsh_line": 56
+  },
+  {
+   "code": "ticks",
+   "display": "Ticks",
+   "definition": "Ticks",
+   "fsh_line": 57
+  },
+  {
+   "code": "invasiveOrganisms",
+   "display": "Invasive invertebrate, plants and fish",
+   "definition": "Invasive invertebrate, plants and fish",
+   "fsh_line": 58
+  },
+  {
+   "code": "birds",
+   "display": "Birds",
+   "definition": "Birds",
+   "fsh_line": 59
+  },
+  {
+   "code": "diatomTratology",
+   "display": "Diatom teratology",
+   "definition": "Diatom teratology (deformities)",
+   "fsh_line": 60
+  },
+  {
+   "code": "fish",
+   "display": "Fish",
+   "definition": "Fish",
+   "fsh_line": 61
+  },
+  {
+   "code": "amphibians",
+   "display": "Amphibians",
+   "definition": "Amphibians",
+   "fsh_line": 62
+  },
+  {
+   "code": "disease-prevalence",
+   "display": "Cases of disease prevalence",
+   "definition": "Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 65
+  },
+  {
+   "code": "high-blood-pression",
+   "display": "% of people with high blood pressure (prevalence)",
+   "definition": "% of people with high blood pressure (prevalence) - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 66
+  },
+  {
+   "code": "hypertension",
+   "display": "% of people under treatment for hypertension",
+   "definition": "% of people under treatment for hypertension - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 67
+  },
+  {
+   "code": "high-blood-pression-treatment",
+   "display": "% of people under treatment for high blood pressure",
+   "definition": "% of people under treatment for high blood pressure - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 68
+  },
+  {
+   "code": "obesity",
+   "display": "% of people affected from obesity",
+   "definition": "% of people affected from obesity - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 69
+  },
+  {
+   "code": "cholesterolemia-190",
+   "display": "% of people with high total cholesterolemia (>=190 mg/dl)",
+   "definition": "% of people with high total cholesterolemia (>=190 mg/dl) - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 70
+  },
+  {
+   "code": "hypercholesterolemia-treatment",
+   "display": "% of people under treatment for hypercholesterolemia",
+   "definition": "% of people under treatment for hypercholesterolemia - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 71
+  },
+  {
+   "code": "cholesterolemia-240",
+   "display": "% of people with high total cholesterolemia (>=240 mg/dl)",
+   "definition": "% of people with high total cholesterolemia (>=240 mg/dl) - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 72
+  },
+  {
+   "code": "diabetes",
+   "display": "% of people with high blood sugar/diabetes",
+   "definition": "% of people with high blood sugar/diabetes - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 73
+  },
+  {
+   "code": "diabetes-treatment",
+   "display": "% of people under treatment for diabetes",
+   "definition": "% of people under treatment for diabetes - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 74
+  },
+  {
+   "code": "no-physical-activity",
+   "display": "% of people not engaging in physical activity",
+   "definition": "% of people not engaging in physical activity - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 75
+  },
+  {
+   "code": "cvd",
+   "display": "% of people affected from CVD",
+   "definition": "% of people affected from CVD - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 76
+  },
+  {
+   "code": "gastrointestinal",
+   "display": "% of people with Cases of Gastrointestinal diseases",
+   "definition": "% of people with Cases of Gastrointestinal diseases - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 77
+  },
+  {
+   "code": "long-term-disease",
+   "display": "% of people with long-term disease",
+   "definition": "% of people with long-term disease - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 78
+  },
+  {
+   "code": "no-long-term-disease",
+   "display": "% of people without long-term disease",
+   "definition": "% of people without long-term disease - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 79
+  },
+  {
+   "code": "bmi-below-18",
+   "display": "% of people with BMI <18,5",
+   "definition": "% of people with BMI <18,5 - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 80
+  },
+  {
+   "code": "bmi-below-25",
+   "display": "% of people with BMI 18,5-24,9",
+   "definition": "% of people with BMI 18,5-24,9 - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 81
+  },
+  {
+   "code": "bmi-below-30",
+   "display": "% of people with BMI 25-29,9",
+   "definition": "% of people with BMI 25-29,9 - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 82
+  },
+  {
+   "code": "bmi-above-30",
+   "display": "% of people with BMI =>30",
+   "definition": "% of people with BMI =>30 - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 83
+  },
+  {
+   "code": "diabate-copd-cvd",
+   "display": "% of people that have or have had Diabetes, COPD or Cardiovascular disease",
+   "definition": "% of people that have or have had Diabetes, COPD or Cardiovascular disease - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 84
+  },
+  {
+   "code": "no-diabate-copd-cvd",
+   "display": "% of people that do not have Diabetes, COPD or Cardiovascular disease",
+   "definition": "% of people that do not have Diabetes, COPD or Cardiovascular disease - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 85
+  },
+  {
+   "code": "mental-health",
+   "display": "% of people experience with mental health issues",
+   "definition": "% of people experience with mental health issues - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 86
+  },
+  {
+   "code": "borrelia",
+   "display": "% of people with Borrelia Burgdoferi",
+   "definition": "% of people with Borrelia Burgdoferi - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 87
+  },
+  {
+   "code": "campylobacter",
+   "display": "% of people with Campylobacter",
+   "definition": "% of people with Campylobacter - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 88
+  },
+  {
+   "code": "chlamydia",
+   "display": "% of people with Chlamydia Psittaci",
+   "definition": "% of people with Chlamydia Psittaci - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 89
+  },
+  {
+   "code": "cryptosporidium",
+   "display": "% of people with Cryptosporidium",
+   "definition": "% of people with Cryptosporidium - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 90
+  },
+  {
+   "code": "entamoeba",
+   "display": "% of people with Entamoeba histolytica",
+   "definition": "% of people with Entamoeba histolytica - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 91
+  },
+  {
+   "code": "escherichia-coli",
+   "display": "% of people with Escherichia Coli",
+   "definition": "% of people with Escherichia Coli - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 92
+  },
+  {
+   "code": "giarda",
+   "display": "% of people with Giarda",
+   "definition": "% of people with Giarda - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 93
+  },
+  {
+   "code": "salmonella",
+   "display": "% of people with Salmonella",
+   "definition": "% of people with Salmonella - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 94
+  },
+  {
+   "code": "yersinia-enterocolitica",
+   "display": "% of people with Yersinia enterocolitica",
+   "definition": "% of people with Yersinia enterocolitica - Cases of disease prevalence per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 95
+  },
+  {
+   "code": "causes-of-death",
+   "display": "Cases of death",
+   "definition": "Cases of death per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 97
+  },
+  {
+   "code": "tbc",
+   "display": "% of deaths due to TBC",
+   "definition": "% of deaths due to TBC - Cases per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 98
+  },
+  {
+   "code": "viral-hepatitis",
+   "display": "% of deaths due to Viral Hepatitis",
+   "definition": "% of deaths due to Viral Hepatitis - Cases per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 99
+  },
+  {
+   "code": "infective-and-parasitic",
+   "display": "% of deaths due to infective and parasitic diseases",
+   "definition": "% of deaths due to infective and parasitic diseases - Cases per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 100
+  },
+  {
+   "code": "blood-and-hematopoietic-organs",
+   "display": "% of deaths due to diseases of the blood and hematopoietic organs",
+   "definition": "% of deaths due to diseases of the blood and hematopoietic organs - Cases per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 101
+  },
+  {
+   "code": "diabetes-mellitus",
+   "display": "% of deaths due to Diabetes Mellitus",
+   "definition": "% of deaths due to Diabetes Mellitus - Cases per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 102
+  },
+  {
+   "code": "endocrine-nutritional-metabolic",
+   "display": "% of deaths due to endocrine, nutritional and metabolic diseases",
+   "definition": "% of deaths due to endocrine, nutritional and metabolic diseases - Cases per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 103
+  },
+  {
+   "code": "ischemic-heart",
+   "display": "% of deaths due to ischemic diseases of the heart",
+   "definition": "% of deaths due to ischemic diseases of the heart - Cases per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 104
+  },
+  {
+   "code": "other-heart",
+   "display": "% of deaths due to other diseases of the heart",
+   "definition": "% of deaths due to other diseases of the heart - Cases per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 105
+  },
+  {
+   "code": "other-circulatory-system",
+   "display": "% of deaths due to other diseases of the circulatory system",
+   "definition": "% of deaths due to other diseases of the circulatory system - Cases per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 106
+  },
+  {
+   "code": "pneumonia",
+   "display": "% of deaths due to Pneumonia",
+   "definition": "% of deaths due to Pneumonia - Cases per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 107
+  },
+  {
+   "code": "chronic-lower-respiratory",
+   "display": "% of deaths due to chronic diseases of the lower respiratory tract",
+   "definition": "% of deaths due to chronic diseases of the lower respiratory tract - Cases per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 108
+  },
+  {
+   "code": "other-respiratory-system",
+   "display": "% of deaths due to other diseases of the respiratory system",
+   "definition": "% of deaths due to other diseases of the respiratory system - Cases per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 109
+  },
+  {
+   "code": "skin-subcutaneous-tissue",
+   "display": "% of deaths due to diseases of the skin and subcutaneous tissue",
+   "definition": "% of deaths due to diseases of the skin and subcutaneous tissue - Cases per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 110
+  },
+  {
+   "code": "accidental-poisoning",
+   "display": "% of deaths due to accidental poisoning",
+   "definition": "% of deaths due to accidental poisoning - Cases per 100.000 inhabitants, per district, for each of the causes considered as relatable to the project",
+   "fsh_line": 111
+  },
+  {
+   "code": "malignant-tumor",
+   "display": "% of deaths due to Malignant Tumors",
+   "definition": "% of deaths due to Malignant Tumors - Cases per 100.000 inhabitants, per parish for each of the causes considered as relatable to the project",
+   "fsh_line": 112
+  },
+  {
+   "code": "healthcare-sensitive-causes",
+   "display": "% of deaths due to Healthcare-Sensitive Causes",
+   "definition": "% of deaths due to Healthcare-Sensitive Causes - Cases per 100.000 inhabitants, per parish for each of the causes considered as relatable to the project",
+   "fsh_line": 113
+  },
+  {
+   "code": "winter-excess",
+   "display": "% of Excess Mortality in Winter",
+   "definition": "% of Excess Mortality in Winter - Cases per 100.000 inhabitants, per parish for each of the causes considered as relatable to the project",
+   "fsh_line": 114
+  },
+  {
+   "code": "all-causes",
+   "display": "% of deaths due to all causes",
+   "definition": "% of deaths due to all causes - Cases per 100.000 inhabitants, per borough for each of the causes considered as relatable to the project",
+   "fsh_line": 115
+  },
+  {
+   "code": "cancer",
+   "display": "% of deaths due to cancer",
+   "definition": "% of deaths due to cancer - Cases per 100.000 inhabitants, per borough for each of the causes considered as relatable to the project",
+   "fsh_line": 116
+  },
+  {
+   "code": "diabetes-deaths",
+   "display": "% of deaths due to diabetes",
+   "definition": "% of deaths due to diabetes - Cases per 100.000 inhabitants, per borough for each of the causes considered as relatable to the project",
+   "fsh_line": 117
+  },
+  {
+   "code": "cardiovascular",
+   "display": "% of deaths due to cardiovascular disease",
+   "definition": "% of deaths due to cardiovascular disease - Cases per 100.000 inhabitants, per borough for each of the causes considered as relatable to the project",
+   "fsh_line": 118
+  },
+  {
+   "code": "respiratory",
+   "display": "% of deaths due to respiratory disease",
+   "definition": "% of deaths due to respiratory disease - Cases per 100.000 inhabitants, per borough for each of the causes considered as relatable to the project",
+   "fsh_line": 119
+  },
+  {
+   "code": "copd-lung-cancer",
+   "display": "% of deaths due to COPD and lung cancer",
+   "definition": "% of deaths due to COPD and lung cancer - Cases per 100.000 inhabitants, per borough for each of the causes considered as relatable to the project",
+   "fsh_line": 120
+  },
+  {
+   "code": "hospitalization",
+   "display": "Hospitalization",
+   "definition": "Hospitalization indicators",
+   "fsh_line": 122
+  },
+  {
+   "code": "hospitalization-diabetes-mellitus",
+   "display": "% of hospitalizations due to Diabetes Mellitus",
+   "definition": "% of hospitalizations due to Diabetes Mellitus (No. per 100,000 inhabitants)",
+   "fsh_line": 123
+  },
+  {
+   "code": "hospitalization-malignant-tumor",
+   "display": "% of hospitalizations due to malignant tumors",
+   "definition": "% of hospitalizations due to malignant tumors (number per 100,000 inhabitants)",
+   "fsh_line": 124
+  },
+  {
+   "code": "hospitalization-hypertension",
+   "display": "% of hospitalizations due to Hypertension",
+   "definition": "% of hospitalizations due to Hypertension (No. per 100,000 inhabitants)",
+   "fsh_line": 125
+  },
+  {
+   "code": "hospitalization-cardiovascular",
+   "display": "% of hospitalizations due to Circulatory System Diseases",
+   "definition": "% of hospitalizations due to Circulatory System Diseases (No. per 100,000 inhabitants)",
+   "fsh_line": 126
+  },
+  {
+   "code": "hospitalization-respiratory",
+   "display": "% of hospitalizations due to respiratory diseases",
+   "definition": "% of hospitalizations due to respiratory diseases (No. per 100,000 inhabitants)",
+   "fsh_line": 127
+  },
+  {
+   "code": "hospitalization-asthma",
+   "display": "% of hospitalizations for Asthma",
+   "definition": "% of hospitalizations for Asthma (No. per 100,000 inhabitants)",
+   "fsh_line": 128
+  },
+  {
+   "code": "hospitalization-avoidable-primary-prevention",
+   "display": "% of hospitalizations avoidable by primary prevention",
+   "definition": "% of hospitalizations avoidable by primary prevention (No. per 100,000 inhabitants)",
+   "fsh_line": 129
+  },
+  {
+   "code": "benzene",
+   "display": "Benzene",
+   "definition": "Benzene (C6H6)",
+   "fsh_line": 132
+  },
+  {
+   "code": "no2",
+   "display": "Nitrogen dioxide (NO2)",
+   "definition": "Nitrogen dioxide",
+   "fsh_line": 133
+  },
+  {
+   "code": "o3",
+   "display": "Ozone (O3)",
+   "definition": "Ozone",
+   "fsh_line": 134
+  },
+  {
+   "code": "pm10",
+   "display": "Particulate Matter PM10",
+   "definition": "Particulate Matter PM10",
+   "fsh_line": 135
+  },
+  {
+   "code": "pm2-5",
+   "display": "Particulate Matter PM2.5",
+   "definition": "Particulate Matter PM2.5",
+   "fsh_line": 136
+  },
+  {
+   "code": "ndvi",
+   "display": "Normalized Difference Vegetation Index (NDVI)",
+   "definition": "",
+   "fsh_line": 139
+  },
+  {
+   "code": "mndvi",
+   "display": "Modified Normalized Difference Vegetation Index (mNDVI)",
+   "definition": "",
+   "fsh_line": 140
+  },
+  {
+   "code": "evi",
+   "display": "Enhanced Vegetation Index (EVI)",
+   "definition": "",
+   "fsh_line": 141
+  },
+  {
+   "code": "evi2",
+   "display": "Enhanced Vegetation Index 2 (EVI2)",
+   "definition": "",
+   "fsh_line": 142
+  },
+  {
+   "code": "savi",
+   "display": "Soil Adjusted Vegetation Index (SAVI)",
+   "definition": "",
+   "fsh_line": 143
+  },
+  {
+   "code": "tsavi",
+   "display": "Transformed Soil Adjusted Vegetation Index (TSAVI)",
+   "definition": "",
+   "fsh_line": 144
+  },
+  {
+   "code": "bwdrvi",
+   "display": "Blue-wide Dynamic Range Vegetation Index (BWDRVI)",
+   "definition": "",
+   "fsh_line": 145
+  },
+  {
+   "code": "lwci",
+   "display": "Leaf Water Content Index (LWCI)",
+   "definition": "",
+   "fsh_line": 146
+  },
+  {
+   "code": "gvmi",
+   "display": "Global Vegetation Moisture Index (GVMI)",
+   "definition": "",
+   "fsh_line": 147
+  },
+  {
+   "code": "gemi",
+   "display": "Global Environment Monitoring Index (GEMI)",
+   "definition": "",
+   "fsh_line": 148
+  },
+  {
+   "code": "ndmi",
+   "display": "Normalized Difference Moisture Index (NDMI)",
+   "definition": "",
+   "fsh_line": 149
+  },
+  {
+   "code": "lai",
+   "display": "Leaf Area Index (LAI)",
+   "definition": "",
+   "fsh_line": 150
+  },
+  {
+   "code": "glai",
+   "display": "Green Leaf Area Index (GLAI)",
+   "definition": "",
+   "fsh_line": 151
+  },
+  {
+   "code": "fapar",
+   "display": "Fraction of Absorbed PAR (FAPAR)",
+   "definition": "",
+   "fsh_line": 152
+  },
+  {
+   "code": "ndwi",
+   "display": "Normalized Difference Water Index (NDWI)",
+   "definition": "",
+   "fsh_line": 153
+  },
+  {
+   "code": "mndwi",
+   "display": "Modified Normalized Difference Water Index (mNDWI)",
+   "definition": "",
+   "fsh_line": 154
+  },
+  {
+   "code": "andwi",
+   "display": "Augmented Normalized Difference Water Index (ANDWI)",
+   "definition": "",
+   "fsh_line": 155
+  },
+  {
+   "code": "s2wi",
+   "display": "Sentinel-2 Water Index (S2WI)",
+   "definition": "",
+   "fsh_line": 156
+  },
+  {
+   "code": "lswi",
+   "display": "Land Surface Water Index (LSWI)",
+   "definition": "",
+   "fsh_line": 157
+  },
+  {
+   "code": "ndvi-mndwi-model",
+   "display": "NDVI–MNDWI Model",
+   "definition": "",
+   "fsh_line": 158
+  },
+  {
+   "code": "lst",
+   "display": "Land Surface Temperature (LST)",
+   "definition": "",
+   "fsh_line": 159
+  },
+  {
+   "code": "blfei",
+   "display": "Built-Up Land Features Extraction Index (BLFEI)",
+   "definition": "",
+   "fsh_line": 160
+  },
+  {
+   "code": "brba",
+   "display": "Band Ratio for Built-up Area (BRBA)",
+   "definition": "",
+   "fsh_line": 161
+  },
+  {
+   "code": "nbai",
+   "display": "Normalized Built-up Area Index (NBAI)",
+   "definition": "",
+   "fsh_line": 162
+  },
+  {
+   "code": "ibi",
+   "display": "Index-Based Built-Up Index (IBI)",
+   "definition": "",
+   "fsh_line": 163
+  },
+  {
+   "code": "ebbi",
+   "display": "Enhanced Built-Up and Bareness Index (EBBI)",
+   "definition": "",
+   "fsh_line": 164
+  },
+  {
+   "code": "pisi",
+   "display": "Perpendicular Impervious Surface Index (PISI)",
+   "definition": "",
+   "fsh_line": 165
+  },
+  {
+   "code": "ui",
+   "display": "Urban Index (UI)",
+   "definition": "",
+   "fsh_line": 166
+  },
+  {
+   "code": "vibi",
+   "display": "Vegetation Index Built-up Index (VIBI)",
+   "definition": "",
+   "fsh_line": 167
+  },
+  {
+   "code": "ndci",
+   "display": "Normalized Difference Chlorophyll Index (NDCI)",
+   "definition": "",
+   "fsh_line": 168
+  },
+  {
+   "code": "mci",
+   "display": "Maximum Chlorophyll Index (MCI)",
+   "definition": "",
+   "fsh_line": 169
+  },
+  {
+   "code": "ci-green",
+   "display": "Chlorophyll Index Green (CI Green)",
+   "definition": "",
+   "fsh_line": 170
+  },
+  {
+   "code": "absent",
+   "display": "Absent",
+   "definition": "Absent",
+   "fsh_line": 175
+  },
+  {
+   "code": "present",
+   "display": "Present",
+   "definition": "Present",
+   "fsh_line": 176
+  },
+  {
+   "code": "extensive",
+   "display": "Extensive",
+   "definition": "Extensive",
+   "fsh_line": 177
+  },
+  {
+   "code": "several-non-native-species",
+   "display": "Several non-native species",
+   "definition": "Several non-native species",
+   "fsh_line": 180
+  },
+  {
+   "code": "non-native-species",
+   "display": "Non-native species",
+   "definition": "Non-native species",
+   "fsh_line": 181
+  },
+  {
+   "code": "unknown-non-native-species",
+   "display": "Unknown non-native species",
+   "definition": "Unknown non-native species",
+   "fsh_line": 182
+  },
+  {
+   "code": "0-20-percent",
+   "display": "0-20%",
+   "definition": "0-20%",
+   "fsh_line": 184
+  },
+  {
+   "code": "21-40-percent",
+   "display": "21-40%",
+   "definition": "21-40%",
+   "fsh_line": 185
+  },
+  {
+   "code": "41-60-percent",
+   "display": "41-60%",
+   "definition": "41-60%",
+   "fsh_line": 186
+  },
+  {
+   "code": "61-80-percent",
+   "display": "61-80%",
+   "definition": "61-80%",
+   "fsh_line": 187
+  },
+  {
+   "code": "81-100-percent",
+   "display": "81-100%",
+   "definition": "81-100%",
+   "fsh_line": 188
+  },
+  {
+   "code": "total-phosphates",
+   "display": "Total phosphates",
+   "definition": "Total phosphates",
+   "fsh_line": 191
+  },
+  {
+   "code": "zinc-dissolved",
+   "display": "Zinc dissolved",
+   "definition": "Zinc dissolved",
+   "fsh_line": 192
+  },
+  {
+   "code": "aluminium-dissolved",
+   "display": "Aluminium dissolved",
+   "definition": "Aluminium dissolved",
+   "fsh_line": 193
+  },
+  {
+   "code": "ammonium",
+   "display": "Ammonium",
+   "definition": "Ammonium",
+   "fsh_line": 194
+  },
+  {
+   "code": "arsenic-dissolved",
+   "display": "Arsenic dissolved",
+   "definition": "Arsenic dissolved",
+   "fsh_line": 195
+  },
+  {
+   "code": "chloride",
+   "display": "Chloride",
+   "definition": "Chloride",
+   "fsh_line": 196
+  },
+  {
+   "code": "copper-dissolved",
+   "display": "Copper dissolved",
+   "definition": "Copper dissolved",
+   "fsh_line": 197
+  },
+  {
+   "code": "dissolved-oxygen",
+   "display": "Dissolved Oxygen",
+   "definition": "Dissolved Oxygen",
+   "fsh_line": 198
+  },
+  {
+   "code": "electrical-conductivity",
+   "display": "Electrical conductivity",
+   "definition": "Electrical conductivity",
+   "fsh_line": 199
+  },
+  {
+   "code": "hydrogen-carbonate-bicarbonate-hco3",
+   "display": "Hydrogen carbonate (Bicarbonate) HCO3",
+   "definition": "Hydrogen carbonate (Bicarbonate) HCO3",
+   "fsh_line": 200
+  },
+  {
+   "code": "lead-dissolved",
+   "display": "Lead dissolved",
+   "definition": "Lead dissolved",
+   "fsh_line": 201
+  },
+  {
+   "code": "magnesium",
+   "display": "Magnesium",
+   "definition": "Magnesium",
+   "fsh_line": 202
+  },
+  {
+   "code": "manganese-dissolved",
+   "display": "Manganese dissolved",
+   "definition": "Manganese dissolved",
+   "fsh_line": 203
+  },
+  {
+   "code": "nickel-dissolved",
+   "display": "Nickel dissolved",
+   "definition": "Nickel dissolved",
+   "fsh_line": 204
+  },
+  {
+   "code": "nitrate",
+   "display": "Nitrate",
+   "definition": "Nitrate",
+   "fsh_line": 205
+  },
+  {
+   "code": "sodium",
+   "display": "Sodium",
+   "definition": "Sodium",
+   "fsh_line": 206
+  },
+  {
+   "code": "potassium",
+   "display": "Potassium",
+   "definition": "Potassium",
+   "fsh_line": 207
+  },
+  {
+   "code": "sulphate",
+   "display": "Sulphate",
+   "definition": "Sulphate",
+   "fsh_line": 208
+  },
+  {
+   "code": "cadmium-dissolved",
+   "display": "Cadmium dissolved",
+   "definition": "Cadmium dissolved",
+   "fsh_line": 209
+  },
+  {
+   "code": "calcium",
+   "display": "Calcium",
+   "definition": "Calcium",
+   "fsh_line": 210
+  },
+  {
+   "code": "carbonates",
+   "display": "Carbonates",
+   "definition": "Carbonates",
+   "fsh_line": 211
+  },
+  {
+   "code": "chromium-6-plus",
+   "display": "Chromium 6+",
+   "definition": "Chromium (6 plus)",
+   "fsh_line": 212
+  },
+  {
+   "code": "iron-dissolved",
+   "display": "Iron dissolved",
+   "definition": "Iron dissolved",
+   "fsh_line": 213
+  },
+  {
+   "code": "phosphates",
+   "display": "Phosphates",
+   "definition": "Phosphates",
+   "fsh_line": 214
+  },
+  {
+   "code": "silicates",
+   "display": "Silicates",
+   "definition": "Silicates",
+   "fsh_line": 215
+  },
+  {
+   "code": "nitrite",
+   "display": "Nitrite",
+   "definition": "Nitrite",
+   "fsh_line": 216
+  },
+  {
+   "code": "ph",
+   "display": "pH",
+   "definition": "pH",
+   "fsh_line": 217
+  },
+  {
+   "code": "chromium-dissolved",
+   "display": "Chromium dissolved",
+   "definition": "Chromium dissolved",
+   "fsh_line": 218
+  },
+  {
+   "code": "mercury-dissolved",
+   "display": "Mercury dissolved",
+   "definition": "Mercury dissolved",
+   "fsh_line": 219
+  }
+ ]
+}
