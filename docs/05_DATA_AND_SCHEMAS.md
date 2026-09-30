@@ -35,21 +35,22 @@ This file wins on schemas. Machine-readable JSON Schemas are in `schemas/`, gene
 See docs/COMPARABILITY_SPEC.md and docs/CLAIM_SAFETY_SPEC.md for semantics. A `ClaimResult` always has `reasons[]` and
 `rule_trace[]`; BLOCKED results have `blocking_findings[]`.
 
-## Snapshot
+## Snapshot (format 2: FHIR bulk-data NDJSON)
 
 ```
 data/snapshots/<YYYY-MM-DDTHH-MM-SSZ>/
-  manifest.json                      snapshot_id, source_url, fetched_at, completed_at, fhir_version, server_software,
-                                     resource_counts, server_validations, ig_source {repo, commit}, knowledge_version, tool,
-                                     files[{path, sha256, bytes}], manifest_sha256 (sha256 of the manifest without this field)
+  manifest.json                    snapshot_id, source_url, fetched_at, completed_at, fhir_version, server_software, format,
+                                   resource_counts, server_validations, ig_source {repo, commit}, knowledge_version, tool,
+                                   [repacked], files[{path, sha256, bytes}], manifest_sha256 (sha256 of the manifest without it)
   metadata/capability_statement.json
-  metadata/resource_counts.json      server $get-resource-counts (includes deleted versions; not used for counts)
-  resources/<Type>/<id>.json         raw resource JSON as served (keys sorted, values unchanged)
-  validation/Observation/<id>.json   server $validate OperationOutcome for each OAH-IG Observation
+  metadata/resource_counts.json    server $get-resource-counts (includes deleted versions; not used for counts)
+  resources/<Type>.ndjson          one resource per line, sorted by id, canonical JSON (sorted keys, values as served)
+  validation/<Type>.ndjson         one {"resource": "Type/id", "outcome": <OperationOutcome from $validate>} per line
 ```
 
-`verify_snapshot` recomputes every file's sha256 and the manifest digest; snapshots are verified before use and in CI.
-`.gitattributes` stores evidence files byte-for-byte (no end-of-line conversion).
+`verify_snapshot` recomputes every file's sha256 and the manifest digest. Snapshots are verified before use and in CI.
+`.gitattributes` stores evidence files byte-for-byte (no end-of-line conversion). Paths never contain resource ids, so a clone
+works under Windows' 260-character path limit (format 1, one file per resource, is still readable).
 
 ## FHIR OperationOutcome export
 

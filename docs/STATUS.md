@@ -41,4 +41,4 @@ TypeScript strict mode clean.
 
 ## Decisions
 
-See docs/DECISIONS.md (D-001 … D-018).
+See docs/DECISIONS.md (D-001 … D-019).

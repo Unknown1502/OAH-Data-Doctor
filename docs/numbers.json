@@ -1,8 +1,8 @@
 {
  "SNAPSHOT_ID": "2026-09-30T09-08-55Z",
  "SNAPSHOT_FETCHED": "2026-09-30T09:08:55Z",
- "MANIFEST_SHA": "49995f970d8dfa40d6af4b596a7fe6d730ca78ad732d7f948d005dea5f6a1af6",
- "N_FILES": "948",
+ "MANIFEST_SHA": "a80584b564874cdff9f09b709fae5f9f269cced51f439b38bd09eddba1be7003",
+ "N_FILES": "10",
  "RULES_VERSION": "77925a293d32a9d6",
  "KNOWLEDGE_VERSION": "e5c54d8d52c62e83",
  "IG_COMMIT": "b907cf08",
@@ -51,6 +51,6 @@
  "ANCHOR_LINEAGE": "_samples/crete/Almyros_gov_chem_analysis.csv, line 125",
  "ANCHOR_IMPACT": "Within the analyses Data Doctor computes, this record feeds 1 library, 1 profile, 2 series, 1 comparison, 2 claims.",
  "GATE0_CONFIRMED": "20 of 20",
- "N_BACKEND_TESTS": "156",
+ "N_BACKEND_TESTS": "160",
  "N_E2E_TESTS": "15"
 }

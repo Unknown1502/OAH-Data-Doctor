@@ -6,7 +6,7 @@ timestamp and a short response excerpt. Nothing here is assumed. Where a fact co
 
 - Sandbox base URL: `https://sandbox.hl7europe.eu/oneaquahealth/fhir`
 - Context: the sandbox's DNS record disappeared on 2026-09-23 ([hl7-eu/oah#8](https://github.com/hl7-eu/oah/issues/8)). On 2026-09-30 it resolved again (`65.109.92.210`), and every request below returned HTTP 200 unless stated otherwise.
-- Frozen copy: snapshot `2026-09-30T09-08-55Z` (manifest sha256 `49995f970d8dfa40d6af4b596a7fe6d730ca78ad732d7f948d005dea5f6a1af6`, 948 files, verified).
+- Frozen copy: snapshot `2026-09-30T09-08-55Z`, first written as 948 per-resource files (manifest sha256 `49995f970d8dfa40d6af4b596a7fe6d730ca78ad732d7f948d005dea5f6a1af6`), then repacked as FHIR bulk-data NDJSON (manifest sha256 `a80584b564874cdff9f09b709fae5f9f269cced51f439b38bd09eddba1be7003`). All 561 resources and 385 validation outcomes are byte-identical by canonical sha256 (see `repacked` in the manifest and DECISIONS D-019).
 
 ## D1. Metadata, FHIR version, hosted profiles
 

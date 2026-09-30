@@ -18,7 +18,7 @@ by OneAquaHealth, HL7 Europe or IEEE.
 ## What it found in the OneAquaHealth sandbox
 
 Every number below is computed by the tool from snapshot `2026-09-30T09-08-55Z` of the live sandbox (fetched 2026-09-30T09:08:55Z,
-manifest sha256 `49995f970d8dfa40d6af4b596a7fe6d730ca78ad732d7f948d005dea5f6a1af6`). `python scripts/render_docs.py` regenerates this file, and a test fails if it drifts from a fresh audit.
+manifest sha256 `a80584b564874cdff9f09b709fae5f9f269cced51f439b38bd09eddba1be7003`). `python scripts/render_docs.py` regenerates this file, and a test fails if it drifts from a fresh audit.
 
 - **The server's own validator accepts every record. Data Doctor flags 125 of 385 official observations.**
   The sandbox's HAPI FHIR `$validate` was run on 385 official observations and reported 0 errors.
@@ -106,7 +106,7 @@ More: [architecture](docs/03_ARCHITECTURE.md), [rules catalog](docs/04_RULES_CAT
 
 ## Evidence that it works
 
-- **156 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
+- **160 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
   tests; contract tests against the published JSON Schemas and the FHIR R4 schema; API and snapshot integration tests) and
   **15 Playwright tests** (run on desktop, with the home page also run on a mobile viewport). The Playwright tests cover the demo path with all external network blocked, plus
   axe-core WCAG 2.1 AA scans of every main page in light and dark mode. CI runs ruff, mypy, pytest and Playwright.

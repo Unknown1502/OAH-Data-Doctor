@@ -63,3 +63,9 @@ Snapshot) and refreshes from live in the background. This keeps the demo robust 
 
 **D-018 Readouts in the UI face, code in mono.** A monospace face spaced decimal points and thousands separators awkwardly. Numeric
 readouts use Bricolage Grotesque at 82 % width with tabular figures; Azeret Mono is reserved for identifiers (FHIRPath, ids, hashes).
+
+**D-019 Snapshots as NDJSON (format 2).** The fresh-clone test failed on Windows: per-resource file names built from long ids
+exceeded the 260-character path limit in deep folders. Choice: one NDJSON file per resource type (the FHIR Bulk Data format),
+one canonical resource per line. The existing snapshot was repacked with `repack_snapshot`, which verifies the old snapshot,
+writes the new one, and aborts unless every resource's canonical sha256 and every validation outcome is unchanged. The manifest
+records the previous manifest hash under `repacked`.
