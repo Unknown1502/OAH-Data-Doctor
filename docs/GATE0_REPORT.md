@@ -48,7 +48,7 @@ By severity: {'CRITICAL': 125, 'ERROR': 212, 'WARNING': 9, 'INFO': 0}. By scope:
 
 - Distinct OAH-IG resources with at least one ERROR/CRITICAL finding: **123** (threshold: >= 10).
 - ERROR/CRITICAL findings on OAH-IG resources: **337**.
-- Human review of the random sample below is REQUIRED before GO (>= 80 % true positives).
+- Human review of the random sample below is REQUIRED before GO (>= 80 % true positives; an uncertain verdict does not count as one).
 
 ## Random sample of 20 findings (seed 20260930)
 
@@ -145,7 +145,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 2. SEM-SCALE-001 · ERROR · confidence 0.9 · oah-ig
 
@@ -255,7 +257,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 3. SEM-STAT-003 · ERROR · confidence 0.9 · oah-ig
 
@@ -365,7 +369,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 4. SEM-STAT-001 · CRITICAL · confidence 0.95 · oah-ig
 
@@ -475,7 +481,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 5. SEM-XREC-001 · WARNING · confidence 0.7 · oah-ig
 
@@ -489,7 +497,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 
 **Independent re-derivation:** CONFIRMED (raw values violate the constraint)
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 6. SEM-SCALE-001 · ERROR · confidence 0.75 · oah-ig
 
@@ -582,7 +592,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 7. SEM-STAT-003 · ERROR · confidence 0.9 · oah-ig
 
@@ -692,7 +704,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 8. SEM-STAT-002 · ERROR · confidence 0.95 · oah-ig
 
@@ -785,7 +799,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 9. SEM-XREC-001 · ERROR · confidence 0.7 · oah-ig
 
@@ -799,7 +815,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 
 **Independent re-derivation:** CONFIRMED (raw values violate the constraint)
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 10. SEM-SCALE-001 · ERROR · confidence 0.9 · oah-ig
 
@@ -892,7 +910,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 11. SEM-RANGE-001 · CRITICAL · confidence 0.97 · oah-ig
 
@@ -1002,7 +1022,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 12. SEM-STAT-001 · CRITICAL · confidence 0.95 · oah-ig
 
@@ -1095,7 +1117,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 13. SEM-STAT-003 · ERROR · confidence 0.9 · oah-ig
 
@@ -1205,7 +1229,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 14. SEM-SCALE-001 · ERROR · confidence 0.9 · oah-ig
 
@@ -1298,7 +1324,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 15. SEM-STAT-002 · ERROR · confidence 0.95 · oah-ig
 
@@ -1408,7 +1436,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 16. SEM-STAT-003 · ERROR · confidence 0.9 · oah-ig
 
@@ -1518,7 +1548,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 17. SEM-SCALE-001 · ERROR · confidence 0.9 · oah-ig
 
@@ -1611,7 +1643,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 18. SEM-RANGE-001 · CRITICAL · confidence 0.97 · oah-ig
 
@@ -1721,7 +1755,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 19. SEM-RANGE-001 · CRITICAL · confidence 0.97 · oah-ig
 
@@ -1814,7 +1850,9 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ### 20. SEM-STAT-002 · ERROR · confidence 0.95 · oah-ig
 
@@ -1907,11 +1945,13 @@ Each entry prints the raw evidence. `Independent re-derivation` recomputes stati
 ```
 </details>
 
-**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______
+**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  
+**Reason:** ______  
+**Reviewer:** ______
 
 ## Sign-off
 
-- [ ] A human reviewed the sample above; true-positive rate: ____ / 20
+- [ ] A human reviewed the sample above; true positives: ____ / 20; false positives: ____; uncertain: ____
 - [ ] GO  /  [ ] STOP
 
 Reviewer: ____________________  Date: __________

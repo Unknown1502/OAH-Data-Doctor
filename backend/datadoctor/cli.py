@@ -133,7 +133,7 @@ def _gate0_report(res: AuditResult, ds: Dataset, seed: int, n: int) -> str:
         "",
         f"- Distinct OAH-IG resources with at least one ERROR/CRITICAL finding: **{len(distinct_resources)}** (threshold: >= 10).",
         f"- ERROR/CRITICAL findings on OAH-IG resources: **{len(blocking)}**.",
-        "- Human review of the random sample below is REQUIRED before GO (>= 80 % true positives).",
+        "- Human review of the random sample below is REQUIRED before GO (>= 80 % true positives; an uncertain verdict does not count as one).",
         "",
         f"## Random sample of {len(sample)} findings (seed {seed})",
         "",
@@ -161,8 +161,9 @@ def _gate0_report(res: AuditResult, ds: Dataset, seed: int, n: int) -> str:
         if f.evidence.raw_excerpt is not None:
             lines += ["<details><summary>Raw FHIR excerpt</summary>", "", "```json",
                       json.dumps(f.evidence.raw_excerpt, indent=1, ensure_ascii=False)[:2500], "```", "</details>", ""]
-        lines += ["**Human verdict:** [ ] true positive  [ ] false positive  — reviewer: ______", ""]
-    lines += ["## Sign-off", "", "- [ ] A human reviewed the sample above; true-positive rate: ____ / " + str(len(sample)),
+        lines += ["**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN  ", "**Reason:** ______  ",
+                  "**Reviewer:** ______", ""]
+    lines += ["## Sign-off", "", "- [ ] A human reviewed the sample above; true positives: ____ / " + str(len(sample)) + "; false positives: ____; uncertain: ____",
               "- [ ] GO  /  [ ] STOP", "", "Reviewer: ____________________  Date: __________", ""]
     return "\n".join(lines)
 

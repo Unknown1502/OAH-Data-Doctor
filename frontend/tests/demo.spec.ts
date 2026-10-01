@@ -23,6 +23,10 @@ test("home opens with the anchor case and computed numbers @mobile", async ({ pa
   const status = await (await page.request.get("/api/status")).json();
   await expect(page.getByText(status.source.kind === "live" ? "Live" : "Snapshot", { exact: true })).toBeVisible();
   await expect(page.getByText("No issues detected during validation")).toBeVisible();
+  // The opening contrast, in words: FHIR conformance passes, scientific consistency is critical.
+  const verdicts = page.getByRole("group", { name: /^Two verdicts/ }).first();
+  await expect(verdicts.getByText("Pass", { exact: true })).toBeVisible();
+  await expect(verdicts.getByText("Critical", { exact: true })).toBeVisible();
   await expect(page.getByRole("img", { name: /Order-of-magnitude ruler/ })).toBeVisible();
   const findings = await (await page.request.get("/api/overview")).json();
   await expect(page.getByText(`See all ${findings.summary.findings_total} findings`)).toBeVisible();
@@ -55,6 +59,11 @@ test("compare returns NOT for non-overlapping age bands, with computed alternati
   await expect(page.getByRole("heading", { name: "What you can do instead" })).toBeVisible();
   await expect(page.getByText("A direct comparison of these two values.")).toBeVisible();
   // Each dimension opens to show what A and B published for it.
+  // The kind of each problem comes from the engine's semantics: a population mismatch is a hard blocker, a related
+  // measure is a caveat.
+  const population = page.locator("summary", { hasText: "Population" });
+  await expect(population.getByText("hard blocker")).toBeVisible();
+  await expect(page.locator("summary", { hasText: "Measure" }).getByText("contextual")).toBeVisible();
   await page.getByText("Population", { exact: true }).click();
   await expect(page.locator("details[open]").getByText(/^A: Obesity prevalence/)).toBeVisible();
 });

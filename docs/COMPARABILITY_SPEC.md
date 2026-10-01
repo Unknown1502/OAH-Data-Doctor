@@ -22,6 +22,21 @@ Question answered: *can value A and value B be compared as the same quantity, an
 3. Otherwise, any CONDITIONAL → **CONDITIONAL**: comparable with the listed caveats and transformations.
 4. Otherwise → **DIRECT**.
 
+## Kinds of problem (how the console labels a dimension)
+
+The labels restate the verdict rules above; they add no logic.
+
+| Dimension result | Kind | Why |
+|---|---|---|
+| FAIL on measure, unit, medium, population, period or aggregation | **hard blocker** | verdict NOT: "no transformation can fix" it |
+| FAIL on integrity | **blocked until reviewed** | comparable in principle; an input has an ERROR or CRITICAL finding |
+| CONDITIONAL on unit | **transformable** | CONDITIONAL only when an exact conversion exists; the conversion is listed under transformations |
+| any other CONDITIONAL | **contextual** | comparable with the stated caveat (related measure, different sexes or overlapping ages, comparison over time, undocumented method, warnings on inputs) |
+| PASS or N/A | none | |
+
+There is no "unknown" state: an undocumented method is CONDITIONAL with the reason "not documented", and a dimension that does
+not apply (population for environmental data) is N/A.
+
 ## Supported alternatives (computed, never invented)
 
 - Population FAIL: cohorts at B's site, for B's measure, whose age band overlaps A's (and whose sex matches or is "all").

@@ -69,6 +69,13 @@ function Picker({ label, items, value, onChange, stat, onStat }: {
   );
 }
 
+/** What kind of problem a dimension is, from the engine's own semantics (docs/COMPARABILITY_SPEC.md, "Kinds of problem"). */
+function problemKind(d: { status: string; rule_id: string }): string | null {
+  if (d.status === "FAIL") return d.rule_id === "CMP-INTEGRITY" ? "blocked until reviewed" : "hard blocker";
+  if (d.status === "CONDITIONAL") return d.rule_id === "CMP-UNIT" ? "transformable" : "contextual";
+  return null;
+}
+
 const sideText = (d: Descriptor) =>
   [d.location_name, d.cohort?.label, d.period?.start === d.period?.end ? d.period?.start : d.period?.start?.slice(0, 4)].filter(Boolean).join(", ");
 
@@ -210,7 +217,7 @@ export default function Compare() {
 
           <div className="mt-6 rounded-lg border border-line bg-panel">
             <h3 className="m-0 px-4 pt-3 text-lg font-semibold">Comparability matrix</h3>
-            <p className="m-0 px-4 pb-3 text-sm text-ink-3">Each dimension is direct, conditional, not comparable, or not applicable. Open one to see what A and B published for it.</p>
+            <p className="m-0 px-4 pb-3 text-sm text-ink-3">Each dimension is direct, conditional, not comparable, or not applicable. A problem is a <strong className="font-semibold text-ink-2">hard blocker</strong> (no transformation can fix it), <strong className="font-semibold text-ink-2">transformable</strong> (an exact conversion exists), <strong className="font-semibold text-ink-2">contextual</strong> (comparable with the stated caveat), or <strong className="font-semibold text-ink-2">blocked until reviewed</strong> (integrity findings on an input). Open a dimension to see what A and B published for it.</p>
             <div aria-hidden="true" className="hidden grid-cols-[11rem_9.5rem_minmax(0,1fr)] gap-x-4 border-t border-line bg-sunk px-4 py-1.5 text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-ink-2 sm:grid">
               <span>Dimension</span>
               <span>State</span>
@@ -224,6 +231,7 @@ export default function Compare() {
                       <span className="font-semibold">{d.dimension}</span>
                       <span>
                         <Chip text={d.status === "FAIL" && d.rule_id === "CMP-INTEGRITY" ? "Blocked" : DIM_TEXT[d.status]} toneOf={d.status === "FAIL" ? (d.rule_id === "CMP-INTEGRITY" ? "BLOCKED" : "NOT") : d.status} />
+                        {problemKind(d) && <span className="mt-0.5 block text-xs font-semibold uppercase tracking-[0.06em] text-ink-3">{problemKind(d)}</span>}
                       </span>
                       <span className="text-ink-2">{pretty(d.reason)}</span>
                     </summary>

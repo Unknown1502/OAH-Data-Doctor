@@ -188,7 +188,13 @@ export default function Findings() {
             )}
           </div>
           {rows.length === 0 ? (
-            <EmptyState title="No findings match these filters.">Clear a filter to see more.</EmptyState>
+            filtered ? (
+              <EmptyState title="No findings match these filters.">Clear a filter to see more.</EmptyState>
+            ) : (
+              <EmptyState title="Audit complete — no findings.">
+                Every rule ran on the {src?.kind === "live" ? "live" : "snapshot"} data and none of them found a problem.
+              </EmptyState>
+            )
           ) : (
             <div className="overflow-x-auto rounded-lg border border-line" tabIndex={0} role="region" aria-label="Table of findings">
               <table className="data dense">

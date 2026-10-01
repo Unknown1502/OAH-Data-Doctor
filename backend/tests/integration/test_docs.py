@@ -40,3 +40,15 @@ def test_rules_catalog_documents_every_rule():
     text = (REPO_ROOT / "docs" / "04_RULES_CATALOG.md").read_text(encoding="utf-8")
     for rid, rule in load_rules().items():
         assert f"## {rid}" in text and f"v{rule.spec.version}" in text, f"{rid} missing or stale in the rules catalog"
+
+
+def test_gate0_human_verdicts_are_never_prefilled():
+    """Gate 0 needs a human verdict per sample: the report offers TRUE POSITIVE / FALSE POSITIVE / UNCERTAIN with a reason,
+    and no box may be ticked by a tool."""
+    report = (REPO_ROOT / "docs" / "GATE0_REPORT.md").read_text(encoding="utf-8")
+    samples = report.count("**Independent re-derivation:**")
+    assert samples == 20
+    assert report.count("**Human verdict:** [ ] TRUE POSITIVE  [ ] FALSE POSITIVE  [ ] UNCERTAIN") == samples
+    assert report.count("**Reason:** ______") == samples
+    assert "[x]" not in report.lower()
+

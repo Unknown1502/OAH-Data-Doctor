@@ -180,3 +180,13 @@ logic: rules that do no arithmetic (units, references, profiles, definitions, se
 "within 5 % of 10⁴". Tests check that every result equals its measure, that redoing each step's arithmetic from its
 operands gives the shown result, and that no calculation names a cause or a corrected value
 (`tests/integration/test_calculation.py`, `test_api.py`, and a browser test comparing the screen to the API).
+
+**D-030 Release-candidate fixes (no rule, verdict or finding changed).** (1) The two verdict panels state their verdict in one
+word first: the FHIR server's "Pass" (no error issues from `$validate`; "Fail" or "Not checked" otherwise) and Data Doctor's
+worst severity ("Critical"). The Data Doctor panel was always coral; it now takes the colour of the worst finding, so coral keeps
+meaning "critical". (2) Each comparability dimension shows its kind of problem (hard blocker, transformable, contextual, blocked
+until reviewed), restating the engine's own semantics (docs/COMPARABILITY_SPEC.md, "Kinds of problem"); there is no "unknown"
+state because the engine has none. (3) An audit with zero findings says "Audit complete — no findings" instead of the empty-filter
+message. (4) The Gate 0 form offers TRUE POSITIVE, FALSE POSITIVE or UNCERTAIN with a reason and a reviewer per sample (an
+uncertain verdict does not count towards the 80 % threshold); a test checks that no verdict is ever pre-filled.
+
