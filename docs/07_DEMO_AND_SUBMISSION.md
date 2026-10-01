@@ -10,10 +10,11 @@ Source: https://oneaquahealth-ieee-hackathon.devpost.com/ (overview, rules and u
   of 3–5 minutes; public code repository with source and documentation; working prototype, mockup or proof of concept.
 - **Rules:** original work built during the hackathon period; no copyright, licensing or third-party IP violations; every
   participant registered on Devpost. No explicit AI-disclosure clause was found; we disclose anyway.
-- **Eligibility (sources disagree):** the overview lists "Students only" and "Team required"; the latest announcement (deadline
-  extension, no newer one) says "You can participate individually or as part of a team"; the rules page says "individuals or
-  teams" with no student condition. Individual participation: allowed by the latest announcement. **Student status:
-  UNRESOLVED**: the owner must confirm it, or ask the organisers whether the student condition still applies.
+- **Eligibility:** the official OneAquaHealth hackathon page (https://www.oneaquahealth.eu/oneaquahealth-ieee-global-hackathon/,
+  read 2026-10-01) says "Form a team or participate individually", and the latest Devpost announcement says "You can
+  participate individually or as part of a team": **individual participation is not a blocker.** The Devpost overview still
+  lists "Students only"; the official page and the rules page state no student condition. **Student eligibility: ORGANIZER
+  CONFIRMATION REQUIRED** (or the owner confirms student status).
 - **Judging:** impact and alignment with the OneAquaHealth mission 30 %, innovation 20 %, technical implementation 20 %,
   usability 15 %, feasibility and scalability 15 % (rules page; 1–10 per criterion, weighted).
 
@@ -30,8 +31,16 @@ The repository contains OneAquaHealth data, in its files and in its git history:
 The licence of that data is **UNVERIFIED** (docs/DISCOVERY.md D8: the IG's `sushi-config.yaml` has its licence line commented
 out, and the IG repository has no LICENSE file). Attribution alone is not assumed to be enough.
 
-- Do **not** push the repository to the public remote until the organisers answer whether sandbox data may be redistributed.
-- Do not commit a new snapshot either (it would add more raw sandbox data to the history).
+- Do **not** push this repository to the public remote until the organisers answer whether sandbox data may be redistributed.
+- Do not commit a new snapshot either (new snapshots and re-fetched IG source files are git-ignored for that reason).
+
+Questions for the organisers (Devpost discussion board or the OneAquaHealth Slack):
+
+1. May the sandbox data (a dated copy of the 561 resources) be redistributed in a public GitHub repository?
+2. May copied OneAquaHealth IG source files (the Almyros source spreadsheet from `hl7-eu/oah`) be redistributed?
+3. If not, is a private repository shared with the judges acceptable?
+4. If not, is a public repository without the raw data acceptable, where the data is captured from the sandbox by a documented,
+   reproducible command?
 
 ### If the organisers permit publication
 
@@ -40,6 +49,12 @@ IG `hl7-eu/oah` at the pinned commit), the attribution, the permission or licenc
 retrieval date of the snapshot (2026-09-30T09:08:55Z). Then push.
 
 ### If permission is denied or stays unclear: publish a sanitized history
+
+A sanitized copy is prepared next to this repository, in `../oah-data-doctor-public` (not pushed): the same commits without the
+sandbox snapshot and the copied spreadsheet in any of them. CI captures the data when a repository carries none, and the README
+explains the two capture commands. To publish it: `cd ../oah-data-doctor-public && git remote add origin
+https://github.com/Unknown1502/OAH-Data-Doctor.git && git push -u origin main`. If this repository gets more commits, regenerate
+the copy with the commands below.
 
 Deleting the files in a new commit is not enough: they would remain in the git history. Rewrite the history of a copy and
 publish that copy. Tested on 2026-10-01 in a throwaway clone (the working repository was not changed):

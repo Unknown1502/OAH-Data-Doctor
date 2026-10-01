@@ -1,9 +1,9 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useRun } from "../components/Shell";
 import { Button, Chip, ErrorNote, FindingLink, Loading, Metric, SeverityShape, Verdict, useDocumentTitle } from "../components/ui";
-import { download, useApi } from "../lib/api";
+import { api, download, useApi } from "../lib/api";
 import { num, pretty, SEVERITY_ORDER, SEVERITY_TEXT, unit as unitText, when } from "../lib/format";
-import type { FindingCompact, FindingDetail, Overview, RuleSpec, Severity, SupportRow } from "../lib/types";
+import type { Calculation, FindingCompact, FindingDetail, Overview, RuleSpec, Severity, SupportRow } from "../lib/types";
 
 const STATUS_TEXT: Record<SupportRow["status"], string> = {
   USABLE: "Usable",
@@ -33,12 +33,42 @@ const SECTIONS = [
 
 const SEV_TEXT_CLASS: Record<Severity, string> = { CRITICAL: "text-cinnabar", ERROR: "text-ochre", WARNING: "text-sulfur", INFO: "text-slate" };
 
-function Part({ id, n, title, children }: { id: string; n: number; title: string; children: ReactNode }) {
+/** What kind of statement something is. Every statement in the report is one of these four, never presented as another. */
+type Kind = "OBSERVED" | "DERIVED" | "INFERRED" | "UNKNOWN";
+const KIND_TEXT: Record<Kind, string> = {
+  OBSERVED: "read from the FHIR server or the verified snapshot, verbatim",
+  DERIVED: "computed from observed values by deterministic rules",
+  INFERRED: "a hypothesis that fits the evidence; not verified",
+  UNKNOWN: "not established by the evidence",
+};
+
+function KindTag({ kind }: { kind: Kind }) {
+  const style = {
+    OBSERVED: "border-line-strong text-ink-2",
+    DERIVED: "border-line-strong text-ink-2",
+    INFERRED: "border-dashed border-line-strong text-ink-2",
+    UNKNOWN: "border-sulfur/50 bg-sulfur-soft text-sulfur",
+  }[kind];
+  return (
+    <span className={`inline-block whitespace-nowrap rounded border px-1.5 py-px align-[1px] text-[0.68rem] font-bold uppercase tracking-[0.08em] ${style}`}>
+      {kind.toLowerCase()}
+    </span>
+  );
+}
+
+function Part({ id, n, title, kinds = [], children }: { id: string; n: number; title: string; kinds?: Kind[]; children: ReactNode }) {
   return (
     <section aria-labelledby={`${id}-h`} className="report-part mt-12 border-t border-line pt-6">
-      <h2 id={`${id}-h`} className="m-0 flex items-baseline gap-3 text-xl font-bold tracking-tight">
+      <h2 id={`${id}-h`} className="m-0 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xl font-bold tracking-tight">
         <span className="readout text-sm font-semibold text-ink-3">{n}</span>
         {title}
+        {kinds.length > 0 && (
+          <span className="flex gap-1.5">
+            {kinds.map((k) => (
+              <KindTag key={k} kind={k} />
+            ))}
+          </span>
+        )}
       </h2>
       <div className="mt-4">{children}</div>
     </section>
@@ -60,6 +90,19 @@ export default function Report() {
   const sv = s?.server_validation;
   const h = hero.data;
   const tally = (xs: string[]) => Object.entries(xs.reduce<Record<string, number>>((a, v) => ({ ...a, [v]: (a[v] ?? 0) + 1 }), {}));
+  // Every finding on the most important record, with the backend's own calculation for each (derived statements).
+  const [recordFindings, setRecordFindings] = useState<{ rule: string; calc: Calculation | null; hypotheses: string[] }[] | null>(null);
+  useEffect(() => {
+    if (!h) return;
+    let alive = true;
+    const ids = [h.finding.id, ...h.same_resource.map((x) => x.id)];
+    Promise.all(ids.map((id) => api<FindingDetail>(`/findings/${encodeURIComponent(id)}`)))
+      .then((ds) => alive && setRecordFindings(ds.map((d) => ({ rule: d.finding.rule_id, calc: d.calculation, hypotheses: d.finding.hypotheses }))))
+      .catch(() => alive && setRecordFindings([]));
+    return () => {
+      alive = false;
+    };
+  }, [h]);
 
   if (ov.error) return <ErrorNote error={`Could not load the audit: ${ov.error}`} />;
   if (!o || !s) return <Loading what="the report" />;
@@ -96,6 +139,16 @@ export default function Report() {
           <Button onClick={() => download("/reports/findings.json")}>Download JSON</Button>
           <Button onClick={() => download("/reports/operation-outcome.json")}>Export FHIR OperationOutcome</Button>
         </div>
+        <dl className="m-0 mt-8 grid gap-x-4 gap-y-1 text-sm sm:grid-cols-[6.5rem_1fr]" aria-label="How to read this report">
+          {(Object.keys(KIND_TEXT) as Kind[]).map((k) => (
+            <div key={k} className="contents">
+              <dt>
+                <KindTag kind={k} />
+              </dt>
+              <dd className="m-0 text-ink-2">{KIND_TEXT[k]}</dd>
+            </div>
+          ))}
+        </dl>
         <nav aria-label="Report contents" className="no-print mt-8">
           <p className="m-0 mb-2 text-[0.72rem] font-bold uppercase tracking-[0.1em] text-ink-2">Contents</p>
           <ol className="m-0 grid list-none gap-x-6 gap-y-1 p-0 text-sm sm:grid-cols-3">
@@ -112,16 +165,66 @@ export default function Report() {
 
       <Part id="exec" n={1} title="Executive finding">
         {h && avg && h.record ? (
-          <p className="m-0 max-w-[68ch] text-lg leading-relaxed">
-            The {h.record.year} {h.record.indicator?.toLowerCase()} summary for {h.record.location} reports a mean of{" "}
-            <strong className="readout">{num(avg.value)}&nbsp;{unitText(avg.unit)}</strong>.{" "}
-            {h.server_validation && !h.server_validation.issue.some((i) => i.severity === "error" || i.severity === "fatal")
-              ? "The FHIR server's own validator accepts it; Data Doctor flags it: "
-              : "Data Doctor flags it: "}
-            {h.finding.summary.replace(`${h.finding.resource.display ?? ""}: `, "")}
-          </p>
+          <dl className="m-0 grid max-w-[72ch] gap-x-4 gap-y-3 sm:grid-cols-[6.5rem_minmax(0,1fr)]" aria-label="Most important record">
+            <dt><KindTag kind="OBSERVED" /></dt>
+            <dd className="m-0">
+              <span className="font-semibold">{h.finding.resource.display}</span> (<span className="code">{h.finding.resource.resource_type}/{h.finding.resource.resource_id}</span>)
+              is published with{" "}
+              {h.record.stats.map((x, i) => (
+                <span key={x.stat}>
+                  {i > 0 && ", "}
+                  {x.stat} <strong className="readout">{num(x.value)}&nbsp;{unitText(x.unit)}</strong>
+                </span>
+              ))}
+              . The FHIR server's own validator says:{" "}
+              {h.server_validation
+                ? h.server_validation.issue.map((i) => i.diagnostics ?? i.severity).join("; ")
+                : "not checked in this run"}
+              .
+            </dd>
+            <dt><KindTag kind="DERIVED" /></dt>
+            <dd className="m-0">
+              {recordFindings === null ? (
+                "Loading the calculations…"
+              ) : (
+                <ul className="m-0 list-none space-y-1 p-0">
+                  {recordFindings.map((r) => (
+                    <li key={r.rule}>
+                      <span className="code text-ink-2">{r.rule}</span>{" "}
+                      {r.calc ? (
+                        <>
+                          {r.calc.steps[0] && (
+                            <span className="readout">
+                              {r.calc.steps[0].expression} = {r.calc.steps[0].result};{" "}
+                            </span>
+                          )}
+                          {r.calc.result}
+                          {r.calc.check && (
+                            <>
+                              {" "}
+                              <span className="code">{r.calc.check.constraint}</span> does not hold ({r.calc.check.evaluated}).
+                            </>
+                          )}
+                        </>
+                      ) : (
+                        "flagged by a rule that does no arithmetic; see the finding."
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </dd>
+            <dt><KindTag kind="INFERRED" /></dt>
+            <dd className="m-0">
+              {recordFindings && recordFindings.some((r) => r.hypotheses.length)
+                ? Array.from(new Set(recordFindings.flatMap((r) => r.hypotheses))).join(" ")
+                : "No hypothesis is offered for this record."}
+            </dd>
+            <dt><KindTag kind="UNKNOWN" /></dt>
+            <dd className="m-0">Root cause: which published value is wrong, and why, is not established. No value is corrected.</dd>
+          </dl>
         ) : null}
-        <ul className="mb-0 mt-4 max-w-[72ch] space-y-1.5 pl-5">
+        <ul className="mb-0 mt-5 max-w-[72ch] space-y-1.5 pl-5" aria-label="The whole audit">
           <li>
             {num(s.findings_total)} findings: {SEVERITY_ORDER.filter((k) => s.findings_by_severity[k]).map((k) => `${s.findings_by_severity[k]} ${SEVERITY_TEXT[k].toLowerCase()}`).join(", ")}.
           </li>
@@ -134,11 +237,10 @@ export default function Report() {
               server's own validation: conformance checking does not see these problems.
             </li>
           ) : null}
-          <li>Root causes are not claimed: a finding shows that published values cannot all be right, not which one is wrong or why.</li>
         </ul>
       </Part>
 
-      <Part id="health" n={2} title="Dataset health">
+      <Part id="health" n={2} title="Dataset health" kinds={["DERIVED"]}>
         <dl className="m-0 grid grid-cols-2 gap-x-6 gap-y-5 md:grid-cols-4">
           <Metric label="Observations checked" value={num(s.observations_checked)} note={`${num(s.oah_observations)} official`} />
           <Metric label="Findings" value={num(s.findings_total)} note={`${num(s.affected_resources)} records affected`} />
@@ -164,7 +266,7 @@ export default function Report() {
         </p>
       </Part>
 
-      <Part id="crit" n={3} title="Critical findings">
+      <Part id="crit" n={3} title="Critical findings" kinds={["OBSERVED", "DERIVED"]}>
         {crit.data && crit.data.items.length > 0 ? (
           <>
             <p className="m-0 text-ink-2">
@@ -193,7 +295,7 @@ export default function Report() {
         )}
       </Part>
 
-      <Part id="cons" n={4} title="Scientific consequences">
+      <Part id="cons" n={4} title="Scientific consequences" kinds={["DERIVED"]}>
         {h && <p className="m-0 max-w-[72ch]">{h.impact.statement}</p>}
         <p className="mb-0 mt-3 max-w-[72ch] text-ink-2">
           {notUsable.length} published data set and indicator combinations should not be used until reviewed. One row per data set and
@@ -237,7 +339,7 @@ export default function Report() {
         )}
       </Part>
 
-      <Part id="cmp" n={5} title="Comparability">
+      <Part id="cmp" n={5} title="Comparability" kinds={["DERIVED"]}>
         <p className="m-0 text-ink-2">
           {tally(o.comparisons.map((c) => c.verdict)).map(([v, n]) => `${n} ${v.toLowerCase().replace(/_/g, " ")}`).join(", ")}.
         </p>
@@ -251,7 +353,7 @@ export default function Report() {
         </ul>
       </Part>
 
-      <Part id="claims" n={6} title="Claim safety">
+      <Part id="claims" n={6} title="Claim safety" kinds={["DERIVED"]}>
         <p className="m-0 text-ink-2">{tally(o.claims.map((c) => c.verdict)).map(([v, n]) => `${n} ${v.toLowerCase()}`).join(", ")}.</p>
         <ul className="m-0 mt-3 list-none p-0">
           {o.claims.map((c) => (
@@ -263,7 +365,7 @@ export default function Report() {
         </ul>
       </Part>
 
-      <Part id="prov" n={7} title="Provenance">
+      <Part id="prov" n={7} title="Provenance" kinds={["OBSERVED"]}>
         <dl className="m-0 grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-[11rem_1fr]">
           <dt className="text-ink-2">Server</dt>
           <dd className="m-0 break-all">{o.source.base_url}</dd>

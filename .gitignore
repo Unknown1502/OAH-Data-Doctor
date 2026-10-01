@@ -12,11 +12,16 @@ htmlcov/
 build/
 dist/
 
-# Runtime state (regenerated; snapshots ARE committed for offline demos)
+# Runtime state (regenerated)
 data/datadoctor.sqlite
 data/datadoctor.sqlite-*
 data/reports/*
 !data/reports/.gitkeep
+
+# Sandbox data: the committed snapshot stays tracked; new snapshots and re-fetched IG source files stay local until
+# redistribution of OneAquaHealth data is confirmed (docs/07_DEMO_AND_SUBMISSION.md).
+data/snapshots/
+knowledge/oah/upstream/
 
 # Frontend
 frontend/node_modules/

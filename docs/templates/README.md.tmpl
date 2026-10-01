@@ -15,7 +15,25 @@ by OneAquaHealth, HL7 Europe or IEEE.
 
 ![Data health view: a water temperature of 198,000 °C passes FHIR validation](docs/img/home.png)
 
-## What it found in the OneAquaHealth sandbox
+## The problem
+
+OneAquaHealth publishes water, air and population-health indicators as HL7 FHIR so that environmental and human health can be
+studied together across cities and laboratories. A record can be perfectly interoperable and still carry evidence that cannot be
+true. Once published, such a value flows silently into series, cross-site comparisons and research claims.
+
+## Why FHIR validation is not enough
+
+FHIR validation checks shape: structure, cardinality, data types, codes and, where profiles are available, profile constraints.
+It cannot know that a median must lie between its own minimum and maximum, that liquid water cannot be 198,000 °C, or that PM2.5
+is part of PM10. On the OneAquaHealth sandbox the server's own `$validate` reports "No issues detected" for such records (below).
+
+## The solution
+
+OAH Data Doctor is an **evidence-integrity layer above FHIR**. It does not replace FHIR validation; it adds the scientific
+consistency check, the exact evidence and calculation behind every finding, the downstream impact, comparability and claim
+safety. **The core audit is deterministic; AI is an optional explanation layer** that never decides a finding or a verdict.
+
+## Real OneAquaHealth example: what it found
 
 Every number below is computed by the tool from snapshot `{{SNAPSHOT_ID}}` of the live sandbox (fetched {{SNAPSHOT_FETCHED}},
 manifest sha256 `{{MANIFEST_SHA}}`). `python scripts/render_docs.py` regenerates this file, and a test fails if it drifts from a fresh audit.
@@ -44,7 +62,7 @@ In total: {{N_FINDINGS}} findings ({{N_CRITICAL}} critical, {{N_ERROR}} error, {
 {{N_RULES}} rules, over {{N_RESOURCES}} resources. {{N_SAFE_OBS}} of {{N_OAH_OBS}} official observations ({{PASS_RATE}} %) are safe
 to use as published. We report what was observed. We do not claim to know why any value is wrong, and we never modify the data.
 
-## The four capabilities
+## Doctor, Trace, Compare, Claim guardrail
 
 | Doctor: evidence for one record | Compare: eight dimensions | Claim guardrail |
 |---|---|---|
@@ -91,7 +109,7 @@ to use as published. We report what was observed. We do not claim to know why an
 - **Find anything with Ctrl+K**: findings, records, places, rules and commands, from what the audit actually read. Audits show
   their real stages as they run (each resource type fetched, the rules, the server's `$validate`).
 
-## How it works
+## How it works (architecture)
 
 ```mermaid
 flowchart LR
@@ -132,7 +150,7 @@ flowchart LR
 More: [architecture](docs/03_ARCHITECTURE.md), [rules catalog](docs/04_RULES_CATALOG.md),
 [data and schemas](docs/05_DATA_AND_SCHEMAS.md), [discovery log](docs/DISCOVERY.md), [decisions](docs/DECISIONS.md).
 
-## Evidence that it works
+## Test results and evaluation
 
 - **{{N_BACKEND_TESTS}} backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
   tests; contract tests against the published JSON Schemas and the FHIR R4 schema; API and snapshot integration tests) and
@@ -164,7 +182,16 @@ More: [architecture](docs/03_ARCHITECTURE.md), [rules catalog](docs/04_RULES_CAT
 | Can I reproduce it? | Yes: `DD_SOURCE=snapshot python tasks.py run` audits the sha256-verified snapshot offline; `python tasks.py acceptance` checks every endpoint. A fresh live audit gave the same findings (docs/STATUS.md). |
 | Is this the whole OneAquaHealth ecosystem? | No. Data Doctor is an evidence-integrity layer for the data and analyses it can inspect: the sandbox's resources and its own analysis catalog. |
 
-## Quick start
+## Reproducibility
+
+- **Deterministic:** the same data gives the same findings, calculations and verdicts; no step depends on a language model.
+- **Offline:** a sha256-verified snapshot (`data/snapshots/`) lets the whole audit, the console and the acceptance check run
+  without internet, without Ollama and without any external service.
+- **Checked:** on 2026-10-01 a fresh live audit, the committed snapshot and a freshly captured snapshot gave the same findings
+  finding for finding (docs/STATUS.md, verification log). `python tasks.py acceptance` checks every API endpoint against its
+  expected outcome on a running app.
+
+## Setup (quick start)
 
 Requirements: Python 3.11+, Node.js 20+ (for the UI). Works on Windows, macOS and Linux.
 
@@ -175,6 +202,9 @@ python tasks.py run        # http://127.0.0.1:8321  (live sandbox, falls back to
 ```
 
 - Offline demo: `DD_SOURCE=snapshot python tasks.py run` (PowerShell: `$env:DD_SOURCE="snapshot"; python tasks.py run`).
+- If `data/snapshots/` is empty (a copy published without the sandbox data), capture the data once, while online:
+  `python scripts/build_knowledge.py` (the IG source files at the pinned commit) and `python tasks.py snapshot` (about 2
+  minutes). Tests, the offline demo and the acceptance check then work as described.
 - Windows: clone into a short folder (for example `C:\src\oah-data-doctor`). Some third-party Python packages install
   deeply nested files, and pip stops with a long-path error inside very deep folders unless Windows long paths are enabled.
 - Command line: `python tools/oah_audit.py audit --source live`, plus `snapshot`, `gate0` and `verify-snapshot`.
@@ -218,17 +248,41 @@ tools/oah_audit.py    standalone CLI
   only to measures Data Doctor knows. Auditing a whole other server works for servers of this size; very large servers would need
   search filters, which are not implemented.
 - The analysis catalog is small and curated, so the impact trace reports only what Data Doctor computes, not every possible use.
+- Some thresholds are judgement, not universal scientific truth: the 100× mean/median ratio (SEM-SCALE-001), the 10 %
+  PM2.5/PM10 tolerance that separates error from warning (SEM-XREC-001), the series-break factors (SEM-TEMP-001) and the typical
+  ranges. Each rule states its confidence and rationale (docs/04_RULES_CATALOG.md).
+- The live sandbox is shared and writable, so live results can change between runs; each run records its time and hashes, and
+  the snapshot reproduces the published numbers.
+- A comparability verdict covers the eight checked dimensions; a comparison may still need contextual scientific review (for
+  example, data coverage is not published). Claim verdicts are bounded by the evidence in the data: no individual-level data
+  and no published uncertainty.
+- A language-model explanation, when switched on, never determines a finding or a verdict.
 - The IG source declares no licence at the pinned commit. Derived knowledge is attributed and kept separate (see NOTICE).
 
-## AI assistance disclosure
+## AI policy and AI assistance disclosure
+
+In the product: detection, comparability and claim verdicts are deterministic code; the product is complete with
+`DD_LLM_PROVIDER=none` (the default). An optional language model may only reword a computed finding (numbers, causes and
+corrections it adds are detected and the text discarded) or fill gaps in the keyword reading of a typed claim. Details:
+docs/AI_POLICY.md.
+
 
 This project was built with substantial help from an AI coding assistant (Claude, by Anthropic), which drafted code, tests and
 documentation under human direction. The product itself uses no AI to detect problems or decide verdicts. An optional,
 switched-off-by-default language model (free local Ollama, any OpenAI-compatible endpoint, or Claude) can only rephrase already
 computed findings or fill gaps in the keyword reading of a typed claim.
 
-## Attribution and licence
+## Data, attribution and licensing
 
 Data: OneAquaHealth FHIR sandbox, operated by HL7 Europe. Definitions: OneAquaHealth FHIR Implementation Guide
 ([hl7-eu/oah](https://github.com/hl7-eu/oah), commit `{{IG_COMMIT}}`). OneAquaHealth is funded by the European Union's Horizon
 Europe programme. Code: Apache-2.0 (see LICENSE and NOTICE).
+
+Whether a copy of the sandbox data and of the IG source files may be redistributed is being confirmed with the organisers; the
+IG declares no licence at the pinned commit. A copy of this repository published without that data captures it with two
+commands (see Setup).
+
+## Demo video
+
+Link: added when the video is published. Script: docs/DEMO_SCRIPT.md (about 4 minutes, recorded on the verified snapshot with
+the language model off).

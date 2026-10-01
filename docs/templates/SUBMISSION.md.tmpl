@@ -7,11 +7,14 @@
 
 **Track:** 7, Digital Health Standards.
 
-**Track alignment statement.** Track 7 asks for interoperability through FHIR models and integration frameworks.
-Interoperable data is only useful if it is also *trustworthy*. Data Doctor sits on the OneAquaHealth FHIR sandbox and adds the
-layer that conformance validation cannot provide: it checks that published values can be true, traces what an inconsistent record
-would contaminate, decides whether two indicators can be compared, and guards the claims researchers make. It returns its results
-as standard FHIR `OperationOutcome` resources with FHIRPath pointers, validated against R4.
+**Track alignment statement.** Track 7, Digital Health Standards, asks participants to "enable interoperability across
+systems" against "fragmented data and lack of standards", with "FHIR models, AI agents, and integration frameworks".
+Interoperable data is only useful if it is also *trustworthy*: FHIR-conformant records can still carry scientifically
+inconsistent evidence that flows into downstream analysis. Data Doctor is an **evidence-integrity layer above FHIR** on the
+OneAquaHealth FHIR sandbox. It does not replace FHIR validation; it adds what conformance cannot check: whether published values
+can be true, what an inconsistent record would affect, whether two indicators can be compared, and which research claims the
+evidence supports. Results come back as standard FHIR `OperationOutcome` resources with FHIRPath pointers, validated against R4.
+**The core audit is deterministic; AI is an optional explanation layer** that never decides a finding or a verdict.
 
 ## Project description
 
@@ -61,23 +64,29 @@ Measured on the OneAquaHealth sandbox (snapshot `{{SNAPSHOT_ID}}`):
 - In a fault-injection test the rules caught {{EVAL_DETECTED}} of {{EVAL_INJECTED}} planted errors, and raised {{EVAL_FP}} new
   findings on {{EVAL_BENIGN}} records after harmless changes.
 
-What we expect once it is used:
+What we expect once it is used (expectations, not measured outcomes):
 
-- **Fewer wrong numbers reach dashboards, papers and decisions about urban waters**, because broken records are visible before
-  anyone analyses them.
-- **Faster corrections at the source**: data owners get a review list instead of finding problems after publication.
-- **Safer conclusions**: comparisons and claims are checked against the data's real limits (population, period, method,
-  integrity) instead of being taken on trust.
-- **A reusable building block for the standard**: because the output is FHIR, the same checks can run as a `$validate`-style
-  operation on any OneAquaHealth server.
+- **It identifies evidence that may be unsafe for downstream scientific use**, before that evidence reaches an analysis, a
+  dashboard or a decision about urban waters.
+- **It makes scientific consistency problems inspectable and reproducible**, so data owners get a precise review list and can
+  correct problems at the source.
+- **It helps researchers determine which comparisons and claims the available evidence supports**, checked against the data's
+  real limits (population, period, method, integrity) instead of being taken on trust.
+- **It is a reusable building block for the standard**: because the output is FHIR, the same checks could run as a
+  `$validate`-style operation on any OneAquaHealth server.
+
+It does not make all OneAquaHealth data trustworthy or guarantee scientific correctness: it shows which published evidence fails
+which check, and what can still be concluded.
 
 ## Alignment with the OneAquaHealth mission
 
 OneAquaHealth works for healthy waters, healthy ecosystems and healthy communities by combining technology, citizen science and
-the One Health approach for urban freshwater ecosystems. That only works if the shared evidence can be trusted. Data Doctor
-protects that evidence: it checks the water, air and health indicators the project publishes, shows which conclusions about
-streams and communities the data can support, and stops a single scale error from becoming a false trend or a false link between
-water quality and health. It is built on the project's own FHIR Implementation Guide (knowledge derived from the IG source at a
+the One Health approach for urban freshwater ecosystems, and the hackathon asks participants to use AI, data platforms and digital
+health standards "to improve the accuracy, reliability, and interoperability of ecosystem data". Data Doctor addresses the
+reliability part directly: data integrity, then reliable indicators, then reliable cross-site comparisons, then responsible
+research claims, and so better evidence for environmental and One Health decisions. It checks the water, air and health indicators
+the project publishes, shows which conclusions about streams and communities the data can support, and makes a single scale error
+visible before it can turn into a false trend or a false link between water quality and health. It is built on the project's own FHIR Implementation Guide (knowledge derived from the IG source at a
 pinned commit) and its sandbox, and it returns results in FHIR, so it strengthens the standards-based infrastructure the project
 is building rather than replacing it.
 
@@ -94,6 +103,8 @@ is building rather than replacing it.
   and local through Ollama, or simply off.
 - **Grows rule by rule.** Each rule is a small, versioned function with its own tests, and is checked by the fault-injection
   evaluation.
+- **Next steps that reuse the same engine:** more FHIR resource types and data sets, scheduled audits, and integration into
+  research and data pipelines; none of this is built yet.
 - **Known limits.** The findings page loads every finding at once, which is fine for hundreds but would need paging for very large
   servers. OAH profile checks are transcribed from the IG source, because the sandbox hosts no profiles.
 

@@ -84,6 +84,16 @@ test("claim guardrail supports a clean threshold exceedance", async ({ page }) =
   await expect(page.getByRole("heading", { name: "What you can safely say" })).toBeVisible();
 });
 
+test("the report separates observed, derived, inferred and unknown statements", async ({ page }) => {
+  const list = await (await page.request.get("/api/findings?resource=Observation/Obs-Almyros-TemperatureWater-2013&rule=SEM-SCALE-001")).json();
+  const calc = (await (await page.request.get(`/api/findings/${encodeURIComponent(list.items[0].id)}`)).json()).calculation;
+  await page.goto("/report");
+  const exec = page.locator('dl[aria-label="Most important record"]');
+  for (const kind of ["observed", "derived", "inferred", "unknown"]) await expect(exec.getByText(kind, { exact: true })).toBeVisible();
+  await expect(exec.getByText(`${calc.steps[0].expression} = ${calc.steps[0].result};`)).toBeVisible(); // the backend's own calculation
+  await expect(exec.getByText(/Root cause: which published value is wrong, and why, is not established/)).toBeVisible();
+});
+
 test("report offers every export", async ({ page }) => {
   await page.goto("/report");
   for (const name of ["Open researcher report (html)", "Download researcher report", "Download fhir operationoutcome bundle", "Download findings"]) {

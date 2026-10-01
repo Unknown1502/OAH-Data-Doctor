@@ -190,3 +190,12 @@ state because the engine has none. (3) An audit with zero findings says "Audit c
 message. (4) The Gate 0 form offers TRUE POSITIVE, FALSE POSITIVE or UNCERTAIN with a reason and a reviewer per sample (an
 uncertain verdict does not count towards the 80 % threshold); a test checks that no verdict is ever pre-filled.
 
+**D-031 Release candidate, part 2: statement kinds and a publishable path without the raw data.** (1) The report labels every
+statement as observed (read from the server or snapshot, verbatim), derived (computed by deterministic rules), inferred (a
+hypothesis, not verified) or unknown (not established). The executive finding lists them separately for the most important
+record, the derived row from the backend's calculations (D-029); each section carries its kind. (2) Because the redistribution
+licence of the OneAquaHealth data is unconfirmed, the repository can be published without it: new snapshots and re-fetched IG
+source files are git-ignored; CI captures the data only when a repository carries none (a no-op here); the README gives the two
+capture commands; and a sanitized copy with no raw data in any commit is prepared next to the repository (docs/07). The
+committed snapshot is unchanged and still drives the offline demo, the tests and CI here.
+
