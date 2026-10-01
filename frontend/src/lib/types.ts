@@ -90,8 +90,26 @@ export interface OperationOutcome {
   issue: { severity: string; code: string; diagnostics?: string }[];
 }
 
+/** A finding's own evidence written out as arithmetic (backend `audit/calculation.py`); every result is a rule measure. */
+export interface CalcStep {
+  label: string;
+  expression: string;
+  result: string;
+  value: number | null;
+  measure: string | null;
+  operation: string | null;
+  operands: number[];
+}
+
+export interface Calculation {
+  steps: CalcStep[];
+  result: string;
+  check: { constraint: string; evaluated: string; holds: boolean } | null;
+}
+
 export interface FindingDetail {
   finding: Finding;
+  calculation: Calculation | null;
   raw: Record<string, unknown> | null;
   server_validation: OperationOutcome | null;
   impact: Impact;

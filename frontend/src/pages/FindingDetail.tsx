@@ -105,8 +105,96 @@ export default function FindingDetail() {
     URL.revokeObjectURL(url);
   };
   const src = f.provenance?.source;
-  const factor = typeof f.evidence.measures.factor === "number" ? (f.evidence.measures.factor as number) : null;
   const highlight = f.evidence.observed.map((o) => o.fhir_path).filter((x): x is string => !!x);
+
+  const calc = data.calculation;
+  const chain: { title: string; body: React.ReactNode }[] = [
+    {
+      title: "Observed",
+      body: (
+        <dl className="m-0 grid gap-x-8 gap-y-2 sm:grid-cols-2 xl:grid-cols-3">
+          {f.evidence.observed.map((o, i) => (
+            <div key={i} className="min-w-0">
+              <dt className="text-sm text-ink-2">{o.label}</dt>
+              <dd className="readout m-0 text-xl font-semibold">
+                {num(o.value)} <span className="text-sm font-normal text-ink-2">{unit(o.unit)}</span>
+              </dd>
+            </div>
+          ))}
+        </dl>
+      ),
+    },
+    ...(calc && calc.steps.length
+      ? [
+          {
+            title: "Calculation",
+            body: (
+              <ul className="m-0 list-none space-y-2 p-0">
+                {calc.steps.map((st) => (
+                  <li key={st.label}>
+                    <span className="block text-sm text-ink-2">{st.label}</span>
+                    <span className="readout text-[1.02rem] text-ink">
+                      {st.expression} = <strong className="font-semibold">{st.result}</strong>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ),
+          },
+        ]
+      : []),
+    ...(calc ? [{ title: "Result", body: <p className="m-0 text-lg font-semibold leading-snug">{calc.result}</p> }] : []),
+    {
+      title: "Rule broken",
+      body: (
+        <>
+          <p className="m-0">{f.evidence.expected}</p>
+          <dl className="m-0 mt-2 grid gap-x-4 gap-y-1 sm:grid-cols-[5.5rem_minmax(0,1fr)]">
+            <dt className="text-sm text-ink-2">Must hold</dt>
+            <dd className="m-0">
+              <code className="code text-ink">{calc?.check?.constraint ?? f.evidence.constraint}</code>
+            </dd>
+            <dt className="text-sm text-ink-2">Here</dt>
+            <dd className="m-0">
+              {calc?.check && <span className="readout text-ink">{calc.check.evaluated} </span>}
+              <span className="whitespace-nowrap font-semibold text-cinnabar">
+                <span aria-hidden="true">✕ </span>does not hold
+              </span>
+            </dd>
+          </dl>
+          <p className="mb-0 mt-2 text-sm text-ink-3">
+            Rule <span className="code">{data.rule.id}</span> v{data.rule.version}, confidence {f.confidence_label} (
+            <span className="readout">{f.confidence}</span>).
+          </p>
+        </>
+      ),
+    },
+    { title: "Conclusion", body: <p className="m-0">{pretty(f.interpretation)}</p> },
+    {
+      title: "Root cause",
+      body: (
+        <div className="rounded-md border border-sulfur/50 bg-sulfur-soft px-4 py-3">
+          <p className="m-0 font-semibold">
+            Root cause: <span className="uppercase tracking-wide">unknown</span>
+          </p>
+          <p className="m-0 mt-1 text-sm text-ink-2">
+            Data Doctor shows which check the published values fail. It does not claim to know which value is wrong, or why, and it
+            never corrects a value.
+          </p>
+          {f.hypotheses.length > 0 && (
+            <>
+              <p className="mb-0 mt-2 text-sm font-semibold text-ink-2">Possible explanations, not verified</p>
+              <ul className="mb-0 mt-1 pl-5 text-sm text-ink-2">
+                {f.hypotheses.map((h) => (
+                  <li key={h}>{h}</li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   return (
     <article className="space-y-8">
@@ -129,39 +217,21 @@ export default function FindingDetail() {
         <p className="mt-3 max-w-[70ch] text-lg leading-relaxed">{sentence(pretty(f.summary.replace(`${f.resource.display ?? ""}: `, "")))}</p>
       </header>
 
-      <section aria-label="What is wrong and why" className="grid overflow-hidden rounded-lg border border-line bg-panel lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
-        <div className="border-b border-line p-5 lg:border-b-0 lg:border-r">
-          <h2 className="m-0 text-[0.78rem] font-bold uppercase tracking-[0.1em] text-ink-2">Observed</h2>
-          <dl className="m-0 mt-3 space-y-2.5">
-            {f.evidence.observed.map((o, i) => (
-              <div key={i} className="flex items-baseline justify-between gap-4 border-b border-line pb-2 last:border-b-0">
-                <dt className="text-ink-2">{o.label}</dt>
-                <dd className="readout m-0 text-right text-2xl font-semibold">
-                  {num(o.value)} <span className="text-base font-normal text-ink-2">{unit(o.unit)}</span>
-                </dd>
-              </div>
-            ))}
-          </dl>
+      <section aria-label="What is wrong and why" className="rounded-lg border border-line bg-panel">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-line px-5 py-3">
+          <h2 className="m-0 text-[0.78rem] font-bold uppercase tracking-[0.1em] text-ink-2">Evidence chain</h2>
+          <p className="m-0 text-sm text-ink-3">Every number below is the published value or the rule's own computation. Nothing is corrected.</p>
         </div>
-        <div className="p-5">
-          <h2 className="m-0 text-[0.78rem] font-bold uppercase tracking-[0.1em] text-ink-2">Why it was flagged</h2>
-          <p className="mb-0 mt-3 text-lg leading-snug">{f.evidence.expected}</p>
-          <p className="mb-0 mt-2 text-ink-2">
-            It does not hold here: <code className="code text-ink">{f.evidence.constraint}</code>.
-            {factor !== null && factor > 1 && <> The values differ by a factor of <strong className="readout text-ink">{num(factor)}</strong>.</>}
-          </p>
-          <div className="mt-4 rounded-md border border-sulfur/50 bg-sulfur-soft px-4 py-3">
-            <p className="m-0 font-semibold">
-              Root cause: <span className="uppercase tracking-wide">unknown</span>
-            </p>
-            <p className="m-0 mt-1 text-sm text-ink-2">
-              Data Doctor shows that these values cannot all be right. It does not claim to know which one is wrong, or why.
-            </p>
-          </div>
-          <p className="mb-0 mt-3 text-sm text-ink-2">
-            Confidence {f.confidence_label} (<span className="readout">{f.confidence}</span>), rule {data.rule.id} version {data.rule.version}.
-          </p>
-        </div>
+        <ol className="m-0 list-none p-0" aria-label="Evidence chain">
+          {chain.map((step, i) => (
+            <li key={step.title} className="grid gap-x-6 gap-y-2 border-b border-line px-5 py-4 last:border-b-0 md:grid-cols-[11rem_minmax(0,1fr)]">
+              <h3 className="m-0 flex items-baseline gap-2.5 text-sm font-semibold text-ink-2">
+                <span className="readout text-ink-3">{i + 1}</span> {step.title}
+              </h3>
+              <div className="min-w-0">{step.body}</div>
+            </li>
+          ))}
+        </ol>
       </section>
 
       {f.resource.resource_type === "Observation" && (
@@ -216,7 +286,7 @@ export default function FindingDetail() {
             </table>
           </div>
           {measureRows(f.evidence.measures).length > 0 && (
-            <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-[0.95rem]">
+            <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-[0.95rem]" aria-label="Measures the rule computed">
               {measureRows(f.evidence.measures).map(([k, v]) => (
                 <div key={k} className="contents">
                   <dt className="text-ink-2">{k}</dt>
@@ -255,17 +325,7 @@ export default function FindingDetail() {
 
         <div className="min-w-0 space-y-8">
           <Section id="mean-h" title="Why it matters">
-            <p className="m-0">{pretty(f.interpretation)}</p>
-            {f.hypotheses.length > 0 && (
-              <div className="mt-3 rounded-md border border-dashed border-line-strong p-3">
-                <p className="m-0 text-sm font-semibold text-ink-2">Possible explanations, not verified</p>
-                <ul className="mb-0 mt-1 pl-5 text-[0.95rem] text-ink-2">
-                  {f.hypotheses.map((h) => (
-                    <li key={h}>{h}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <p className="m-0">{data.rule.rationale}</p>
           </Section>
           <Section id="safe-h" title="Safe conclusion">
             <p className="m-0">{safeConclusion(f.severity, f.resource.display ?? key)}</p>
@@ -279,9 +339,6 @@ export default function FindingDetail() {
               {data.raw && <Button onClick={() => setRawOpen(true)}>View raw resource</Button>}
               <Button onClick={exportFinding}>Export finding</Button>
             </div>
-            <p className="mb-0 mt-3 text-sm text-ink-3">
-              Rule {data.rule.id} v{data.rule.version}: {data.rule.rationale}
-            </p>
           </Section>
         </div>
       </div>

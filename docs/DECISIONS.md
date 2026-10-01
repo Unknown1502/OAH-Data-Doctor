@@ -168,3 +168,15 @@ population for water data, is "Not applicable"); Findings has no live/snapshot f
 and the page states which; rows carry no per-finding timestamp or review status, because the system records neither (the
 audit time is shown once).
 
+
+**D-029 Every finding proves itself.** The finding page opens with a six-step evidence chain: observed values, the
+calculation, its result, the rule broken (what must hold, and the same constraint with the published numbers in it),
+the conclusion, and the root cause (always "unknown", with any hypothesis marked "not verified"). The arithmetic is written
+out by `backend/datadoctor/audit/calculation.py` from the finding's own evidence, and only from it. Every shown result is a
+measure the rule already computed, every operand is a published value or another measure, and numbers show every digit the
+rule kept (198,000 − 19.8 = 197,980.2, not a rounded 197,980). It changes no rule, verdict or finding id, and it adds no
+logic: rules that do no arithmetic (units, references, profiles, definitions, series breaks) show no calculation step.
+"Exactly 10⁴" is said only when the ratio is 10^k; the rules' power-of-ten signature (within about 4.7 %) is shown as
+"within 5 % of 10⁴". Tests check that every result equals its measure, that redoing each step's arithmetic from its
+operands gives the shown result, and that no calculation names a cause or a corrected value
+(`tests/integration/test_calculation.py`, `test_api.py`, and a browser test comparing the screen to the API).

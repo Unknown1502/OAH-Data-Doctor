@@ -32,7 +32,7 @@ test("finding detail shows evidence, lineage and the impact trace", async ({ pag
   await page.goto("/");
   await page.getByRole("link", { name: "Open the evidence for this record" }).click();
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Water temperature");
-  await expect(page.getByRole("heading", { name: "Evidence" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Evidence", exact: true })).toBeVisible();
   await expect(page.getByText("Observation.component[4].valueQuantity")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Where these values first appear" })).toBeVisible();
   await expect(page.getByText(/this record feeds 1 library, 1 profile, 2 series, \d+ comparisons?, \d+ claims/)).toBeVisible();
@@ -220,8 +220,9 @@ test("finding detail: what is wrong, why, root cause unknown, and the raw record
   const ov = await (await page.request.get("/api/overview")).json();
   await page.goto(`/findings/${encodeURIComponent(ov.hero_finding.id)}`);
   const hero = page.getByRole("region", { name: "What is wrong and why" });
-  await expect(hero.getByRole("heading", { name: "Observed" })).toBeVisible();
-  await expect(hero.getByRole("heading", { name: "Why it was flagged" })).toBeVisible();
+  await expect(hero.getByRole("list", { name: "Evidence chain" }).getByRole("heading")).toHaveText(
+    ["1 Observed", "2 Calculation", "3 Result", "4 Rule broken", "5 Conclusion", "6 Root cause"],
+  );
   await expect(hero.getByText(/Root cause:\s*unknown/i)).toBeVisible();
   await page.getByRole("button", { name: "View raw resource" }).click();
   const drawer = page.getByRole("dialog");
@@ -334,4 +335,22 @@ test("on a phone the navigation opens as a drawer @mobile", async ({ page, isMob
   await expect(page).toHaveURL(/\/sources$/);
   await expect(drawer).toBeHidden();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Sources & rules");
+});
+
+test("every finding proves itself: the calculation on screen is the backend's own evidence", async ({ page }) => {
+  const list = await (await page.request.get("/api/findings?resource=Observation/Obs-Almyros-TemperatureWater-2013&rule=SEM-SCALE-001")).json();
+  const id = list.items[0].id;
+  const detail = await (await page.request.get(`/api/findings/${encodeURIComponent(id)}`)).json();
+  const step = detail.calculation.steps[0];
+  expect(step.expression).toBe("average / median = 198,000 / 19.8");
+  expect(step.value).toBe(detail.finding.evidence.measures.mean_median_ratio);
+  await page.goto(`/findings/${encodeURIComponent(id)}`);
+  const chain = page.getByRole("list", { name: "Evidence chain" });
+  await expect(chain.getByText(`${step.expression} = ${step.result}`, { exact: true })).toBeVisible();
+  await expect(chain.getByText(detail.calculation.result, { exact: true })).toBeVisible(); // "... exactly 10⁴."
+  await expect(chain.getByText(detail.calculation.check.evaluated, { exact: true })).toBeVisible();
+  await expect(chain.getByText("does not hold")).toBeVisible();
+  await expect(chain.getByText(/Root cause:\s*unknown/i)).toBeVisible();
+  // Never a corrected value: the page states no "correct" temperature.
+  await expect(page.getByText(/correct(ed)? (value|temperature)|actual temperature/i)).toHaveCount(0);
 });

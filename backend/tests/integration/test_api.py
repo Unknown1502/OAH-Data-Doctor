@@ -48,6 +48,19 @@ def test_finding_detail_has_evidence_trace_and_server_verdict(client):
     assert d["server_validation"]["issue"][0]["severity"] == "information"
     assert d["impact"]["counts"]["claim"] >= 2
     assert d["explanation"]["method"] == "template"
+
+
+def test_finding_detail_writes_out_the_calculation(client):
+    """The evidence chain the UI shows is the backend's own: the anchor's mean/median ratio, every digit as computed."""
+    items = client.get("/api/findings?resource=Observation/Obs-Almyros-TemperatureWater-2013&rule=SEM-SCALE-001").json()["items"]
+    d = client.get(f"/api/findings/{items[0]['id']}").json()
+    calc, measures = d["calculation"], d["finding"]["evidence"]["measures"]
+    assert calc["steps"][0]["expression"] == "average / median = 198,000 / 19.8"
+    assert calc["steps"][0]["result"] == "10,000" and calc["steps"][0]["value"] == measures["mean_median_ratio"]
+    assert calc["result"] == "The average is 10,000 times the median: exactly 10⁴."
+    assert calc["check"] == {"constraint": "1/100 < mean / median < 100", "evaluated": "10,000 ≥ 100", "holds": False}
+    unit = client.get("/api/findings?rule=STR-UNIT-001").json()["items"][0]["id"]
+    assert client.get(f"/api/findings/{unit}").json()["calculation"] is None  # no arithmetic, no calculation
     assert d["finding"]["lineage"]["matches"]["median"] is True
 
 

@@ -34,6 +34,7 @@ from datadoctor.ai.llm import (
     presets_for,
 )
 from datadoctor.api.state import AppState
+from datadoctor.audit.calculation import calculation
 from datadoctor.audit.lab import LabError, edited_copy, for_server_validation, run_lab
 from datadoctor.audit.service import blocking_keys
 from datadoctor.audit.upload import MAX_CHARS as MAX_UPLOAD_CHARS
@@ -231,7 +232,9 @@ def finding_detail(fid: str) -> dict[str, Any]:
     raw = s.ds.raw.get(f.resource.resource_type, {}).get(f.resource.resource_id)
     same = [_compact(x) for x in s.result.findings if x.id != f.id and x.resource.key == f.resource.key]
     record = _record_view(s.ds, s.kn, f.resource.resource_id) if f.resource.resource_type == "Observation" else None
+    calc = calculation(f)
     return {"finding": f.model_dump(), "raw": raw, "record": record,
+            "calculation": calc.model_dump() if calc else None,
             "server_validation": s.ds.server_validation.get(f.resource.key),
             "impact": impact(s.graph, f).model_dump(),
             "explanation": TemplateExplainer().explain(f).model_dump(),
