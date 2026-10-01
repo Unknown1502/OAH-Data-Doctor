@@ -55,7 +55,9 @@ to use as published. We report what was observed. We do not claim to know why an
   \|mean − median\| ≤ SD, SD ≤ range/√2), and domain knowledge (physical limits, subset relations, cohort partitions,
   terminology). Every value is compared within half a unit of its last published decimal, so rounding alone never raises a finding.
   Each finding shows the exact FHIRPath, the values, the broken constraint, a confidence, the server's own verdict for the same
-  record and, where available, the source-spreadsheet row it came from.
+  record and, where available, the source-spreadsheet row it came from. Its page opens with an evidence chain that writes the
+  arithmetic out so it can be checked by hand: observed values, calculation (for the anchor, average / median =
+  198,000 / 19.8 = 10,000, exactly 10⁴), result, rule broken, conclusion, and root cause: unknown.
 - **Trace.** A dependency graph from each record to the data sets, annual series, comparisons and claims Data Doctor actually
   computes, including the ones a user ran. It never estimates impact. For the anchor record: "Within the analyses Data Doctor computes, this record feeds 1 library, 1 profile, 2 series, 1 comparison, 2 claims."
 - **Compare.** Measure identity (with an explicit concept map), unit (explicit conversion table), medium, population (sex and
@@ -132,9 +134,9 @@ More: [architecture](docs/03_ARCHITECTURE.md), [rules catalog](docs/04_RULES_CAT
 
 ## Evidence that it works
 
-- **249 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
+- **258 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
   tests; contract tests against the published JSON Schemas and the FHIR R4 schema; API and snapshot integration tests) and
-  **34 Playwright tests** (desktop, plus a phone viewport for the home page and a no-sideways-scroll check of every page). The Playwright tests cover the demo path with all external network blocked, plus
+  **35 Playwright tests** (desktop, plus a phone viewport for the home page and a no-sideways-scroll check of every page). The Playwright tests cover the demo path with all external network blocked, plus
   axe-core WCAG 2.1 AA scans of every main page in light and dark mode. CI runs ruff, mypy, pytest and Playwright.
 - **Property tests.** Summaries of randomly generated real samples, rounded at 0–4 decimals, never trigger a statistical-identity
   rule. This is the false-positive guarantee behind the precision tolerance.
@@ -169,7 +171,8 @@ python tasks.py run        # http://127.0.0.1:8321  (live sandbox, falls back to
 - Optional free language model: install [Ollama](https://ollama.com), run `ollama pull qwen2.5:3b`, and set
   `DD_LLM_PROVIDER=ollama` in `.env`. A "Rephrase" button then appears on each finding. Free hosted endpoints work with
   `DD_LLM_PROVIDER=openai-compatible` (see `.env.example`); Claude with `DD_LLM_PROVIDER=anthropic`.
-- Bring your own key: anyone using the console can choose **Language model** at the top of any page, pick a provider (Groq,
+- Bring your own key: anyone using the console can open **Language model** at the bottom of the sidebar (in the menu on a
+  phone), pick a provider (Groq,
   Google Gemini, OpenRouter and Mistral have free tiers) and paste their own key. The key stays in their browser and is sent
   only with their own requests; the server never stores or logs it.
 

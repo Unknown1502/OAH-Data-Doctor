@@ -15,7 +15,8 @@
   All calls use temperature 0. Small free models are less reliable, so correctness never depends on model quality: every
   output passes the deterministic guards below, or it is discarded.
 - **Bring your own key.** Anyone using the console can pick a provider and paste their own key under "Language model" at
-  the top of every page (Groq, Google Gemini, OpenRouter, Mistral, OpenAI, Claude, or the local Ollama). The key:
+  the bottom of the sidebar, or in the menu on a phone (Groq, Google Gemini, OpenRouter, Mistral, OpenAI, Claude, or the
+  local Ollama). The key:
   - stays in that browser (this tab only by default; "Remember on this device" keeps it in local storage) and can be
     forgotten with one click;
   - is sent only with that user's own requests to this Data Doctor server, which uses it for that one call and drops it;
