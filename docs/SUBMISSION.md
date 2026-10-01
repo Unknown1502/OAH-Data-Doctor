@@ -13,6 +13,90 @@ layer that conformance validation cannot provide: it checks that published value
 would contaminate, decides whether two indicators can be compared, and guards the claims researchers make. It returns its results
 as standard FHIR `OperationOutcome` resources with FHIRPath pointers, validated against R4.
 
+## Project description
+
+### The problem
+
+OneAquaHealth publishes water, air and population-health indicators from urban streams and cities (Almyros and Giofyros in
+Crete, Benevento in Italy, Nordre Aker in Oslo) as HL7 FHIR, so researchers can study environmental and human health together:
+the One Health idea. But FHIR validation only checks that a record has the right *shape*. It cannot tell that a water
+temperature of 198,000 °C is impossible, or that a median of 19.8 °C cannot sit below a minimum of
+185,000 °C. On the OneAquaHealth sandbox, 125 records that cannot be right as published all pass the
+server's own validator. Errors like these flow silently into trends, cross-city comparisons and published claims.
+
+### Our solution
+
+OAH Data Doctor is a read-only scientific integrity layer on top of FHIR. It reads the OneAquaHealth FHIR server (or any FHIR R4
+server, or a file you bring) and answers four questions:
+
+1. **Can this value be true?** 20 deterministic rules check physics, statistics and definitions, and point to the exact
+   field (FHIRPath), the published values and the constraint they break.
+2. **What would it contaminate?** An impact trace lists the data sets, series, comparisons and claims that use a flagged record.
+3. **Can these two numbers be compared?** Eight dimensions (measure, unit, medium, population, period, aggregation, method,
+   integrity) give a verdict: direct, conditional, not comparable, or blocked by broken records.
+4. **Can I say this?** A claim guardrail judges a researcher's sentence against the data and offers wording the data supports.
+
+Results come back as standard FHIR `OperationOutcome` resources, so existing FHIR tools can use them. No AI decides any finding or
+verdict, nothing is ever changed on the server, and the root cause of a problem is never guessed.
+
+### Target users
+
+- **Data stewards and publishers of OneAquaHealth data**, the partners who load monitoring results into FHIR. They get a
+  prioritised list of records to review, with the exact field and, where the source file is known, the line where the value
+  first appears.
+- **One Health researchers and public-health analysts** who combine stream, air and health indicators across cities. They learn
+  which records they can use, which comparisons are valid and which claims the data supports, before they publish.
+- **FHIR integrators and implementers** (Track 7). They can add a scientific check to a data pipeline (the `check` command exits
+  with an error status when it finds an error or a critical problem) or point Data Doctor at another FHIR server.
+- **Teams preparing data for the platform**, including monitoring and citizen-science programmes. They can paste or drop a file
+  in the browser and see its problems before it is shared; nothing is stored.
+
+### Expected impact
+
+Measured on the OneAquaHealth sandbox (snapshot `2026-09-30T09-08-55Z`):
+
+- 125 of 385 official records are not safe to use as published, and 125 of them pass
+  the FHIR server's own validation. 260 can be used as published.
+- 346 findings (125 critical), each with the field and values a data owner needs to correct the record.
+- In a fault-injection test the rules caught 271 of 271 planted errors, and raised 0 new
+  findings on 100 records after harmless changes.
+
+What we expect once it is used:
+
+- **Fewer wrong numbers reach dashboards, papers and decisions about urban waters**, because broken records are visible before
+  anyone analyses them.
+- **Faster corrections at the source**: data owners get a review list instead of finding problems after publication.
+- **Safer conclusions**: comparisons and claims are checked against the data's real limits (population, period, method,
+  integrity) instead of being taken on trust.
+- **A reusable building block for the standard**: because the output is FHIR, the same checks can run as a `$validate`-style
+  operation on any OneAquaHealth server.
+
+## Alignment with the OneAquaHealth mission
+
+OneAquaHealth works for healthy waters, healthy ecosystems and healthy communities by combining technology, citizen science and
+the One Health approach for urban freshwater ecosystems. That only works if the shared evidence can be trusted. Data Doctor
+protects that evidence: it checks the water, air and health indicators the project publishes, shows which conclusions about
+streams and communities the data can support, and stops a single scale error from becoming a false trend or a false link between
+water quality and health. It is built on the project's own FHIR Implementation Guide (knowledge derived from the IG source at a
+pinned commit) and its sandbox, and it returns results in FHIR, so it strengthens the standards-based infrastructure the project
+is building rather than replacing it.
+
+## Feasibility and scalability
+
+- **Runs today.** Two commands set it up and run it on a laptop (`python tasks.py setup`, `python tasks.py run`). A full audit of the sandbox snapshot (561 resources)
+  takes about two seconds; a live audit adds the time to read the server. A sha256-verified snapshot lets it work offline.
+- **Any FHIR server.** One setting (`DD_FHIR_BASE`) points it at another FHIR R4 server, read-only (GET and `$validate` only).
+  Statistical and structural rules apply to any data; physical-range rules use an indicator registry
+  (`knowledge/indicators/registry.yaml`) that can be extended.
+- **Fits into pipelines.** `python tools/oah_audit.py check data.ndjson` exits with status 1 on an error, so it can stop bad data
+  before publication. Reports come as JSON, Markdown/HTML and a FHIR OperationOutcome bundle.
+- **Cheap to run.** Deterministic rules and no paid service. The optional language model only rewords explanations; it is free
+  and local through Ollama, or simply off.
+- **Grows rule by rule.** Each rule is a small, versioned function with its own tests, and is checked by the fault-injection
+  evaluation.
+- **Known limits.** The findings page loads every finding at once, which is fine for hundreds but would need paging for very large
+  servers. OAH profile checks are transcribed from the IG source, because the sandbox hosts no profiles.
+
 ## Inspiration
 
 We opened the anchor record of the OneAquaHealth sandbox: the 2013 water temperature of the Almyros stream in Crete. It reports an
@@ -68,7 +152,7 @@ rephrases computed findings: any number, cause or correction it adds is detected
 
 - 271 of 271 injected faults detected (95 % CI 98.6–100.0 %), and 0 new findings on
   100 records after benign transformations. We say plainly that this measures rule sensitivity, not real-world accuracy.
-- 249 backend tests and 29 end-to-end tests, including offline runs and WCAG 2.1 AA accessibility checks.
+- 249 backend tests and 34 end-to-end tests, including offline runs and WCAG 2.1 AA accessibility checks.
 - Our FHIR output validates against R4 (0 schema errors; HAPI: no issues).
 - Honesty by construction: no hand-typed numbers (these documents are rendered from a run), root cause always "unknown",
   read-only access, and live and snapshot data always labelled.

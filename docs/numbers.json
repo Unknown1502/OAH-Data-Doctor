@@ -52,5 +52,5 @@
  "ANCHOR_IMPACT": "Within the analyses Data Doctor computes, this record feeds 1 library, 1 profile, 2 series, 1 comparison, 2 claims.",
  "GATE0_CONFIRMED": "20 of 20",
  "N_BACKEND_TESTS": "249",
- "N_E2E_TESTS": "29"
+ "N_E2E_TESTS": "34"
 }
