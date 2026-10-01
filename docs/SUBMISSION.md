@@ -182,5 +182,5 @@ uses no AI to detect problems or decide verdicts.
 
 ## Links
 
-- Repository: (add the public GitHub URL)
+- Repository: https://github.com/Unknown1502/OAH-Data-Doctor
 - Demo video: (add the link; script in docs/DEMO_SCRIPT.md)
