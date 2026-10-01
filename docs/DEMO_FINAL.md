@@ -10,6 +10,13 @@ in the product was changed for it.
   available when this was written. A **draft** with the Windows built-in voice exists for checking timing; it is visibly
   watermarked "DRAFT" and is not for submission.
 - **Length:** draft 4:01. The final render stretches deliberate pauses (never speech) toward about 3:50, inside 3–5 minutes.
+- **Draft QA (2026-10-01):**
+  - 1920 × 1080 at 30 fps; −16.4 LUFS, true peak −1.5 dB;
+  - 69 caption cues;
+  - every scene checked frame by frame (one frame every 2 s, plus the transitions);
+  - narrated places and numbers checked against the snapshot.
+  
+  The full report is `../artifacts/demo/demo-production-report.md`, outside the repository.
 
 ## Recording configuration
 
@@ -30,7 +37,7 @@ The pipeline lives outside the repository (`../artifacts/demo/pipeline/`), so no
 node capture.cjs
 # 2. voice: final (ElevenLabs) or draft (Windows voice, timing only)
 $env:ELEVENLABS_API_KEY = "<key>"; .\make-final.ps1            # lists 3 candidate voices and writes samples
-.\make-final.ps1 -VoiceId <voice_id>                            # voice + render -> ..\demo-final.mp4
+.\make-final.ps1 -VoiceId <voice_id>                            # voice, render, script, QA sheets -> ..\demo-final.mp4
 python voice.py sapi; python render.py --out ..\draft          # draft only
 ```
 

@@ -95,7 +95,8 @@ with "capture a snapshot first"; and remove the backup branch from the copy (`--
       `python tasks.py acceptance` (90/90). Results in docs/STATUS.md.
 - [x] Offline test (2026-10-01): snapshot mode with the FHIR server address pointed at an unreachable host and no language
       model: acceptance 90/90.
-- [ ] Record the video following docs/DEMO_SCRIPT.md (about 4 minutes; language model off; time one rehearsal first).
+- [ ] Demo video: built and QA'd with a draft voice (docs/DEMO_FINAL.md). Still needed: the ElevenLabs render
+      (`make-final.ps1` with `ELEVENLABS_API_KEY`), then one human watch-and-listen of the whole video before upload.
 - [ ] After the licence answer: push (or push the sanitized copy), then confirm the repository URL in docs/SUBMISSION.md
       (already filled in: https://github.com/Unknown1502/OAH-Data-Doctor) and add the video link.
 - [ ] Paste docs/SUBMISSION.md into Devpost; add screenshots from docs/img/.
