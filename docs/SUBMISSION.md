@@ -104,6 +104,33 @@ visible before it can turn into a false trend or a false link between water qual
 pinned commit) and its sandbox, and it returns results in FHIR, so it strengthens the standards-based infrastructure the project
 is building rather than replacing it.
 
+### What the learning sessions asked for, and where Data Doctor answers it
+
+Quotes are from the published slides of the hackathon learning sessions (Session 4, *Informatics, Technology & Standards*,
+27 August 2026; Session 3, *One Digital Health and FAIR Principles*, 15 July 2026).
+
+- **Validation that goes past the profile.** The OAH data pipeline's validation step is: "IG profiles enforce cardinality, code
+  bindings, UCUM units" (Session 4, slide 45). Data Doctor adds the check a profile cannot make, whether the values can be true,
+  before the publication step. The anchor's values are identical in the IG's own source spreadsheet, so this is not a FHIR
+  mapping problem: the inconsistency predates conversion.
+- **"Ready-to-use statistical summaries".** OAH observations carry "full statistical components: average, max, min, standard
+  deviation, and median" (Session 4, slide 52). The statistical rules check those components against each other before anyone
+  analyses them.
+- **Indicators that differ between sites.** Health indicators from different sites "are characterised by varying levels of
+  granularity, population definitions, and reporting practices" (Session 4, slide 76). The comparability check examines exactly
+  this (population, period, method, aggregation) before two values are put side by side.
+- **Compliance reporting.** The dissolved-metal observations (Cd, As, Cr, Al) "are structured to support EQS compliance
+  reporting" under the Environmental Quality Standards Directive 2008/105/EC (Session 4, slide 61). The Almyros cadmium, arsenic,
+  chromium and aluminium summaries are among the records Data Doctor flags as not safe to use as published.
+- **Independent validation and structured provenance.** "Machine-readable formats (XML/JSON/TTL) enable independent validation"
+  (Session 4, slide 62), and the project's FAIR assessment found that "provenance details (R1.2) ... were often included in
+  free-text rather than structured formats" (Session 3, slide 32). Data Doctor is such an independent validation, and every
+  finding carries structured provenance: FHIRPath, server, retrieval time, sha256, rule version and, where known, the line in
+  the source spreadsheet.
+- **Replication in new cities.** Step 5 of the IG's replication framework is "Publish & Validate ... Validate against IG
+  constraints" (Session 4, slide 63). `python tools/oah_audit.py check` can run in that step and stop a dataset that is
+  well-formed but scientifically impossible.
+
 ## Feasibility and scalability
 
 - **Runs today.** Two commands set it up and run it on a laptop (`python tasks.py setup`, `python tasks.py run`). A full audit of the sandbox snapshot (561 resources)
