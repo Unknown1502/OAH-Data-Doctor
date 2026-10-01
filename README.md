@@ -134,7 +134,7 @@ More: [architecture](docs/03_ARCHITECTURE.md), [rules catalog](docs/04_RULES_CAT
 
 ## Evidence that it works
 
-- **258 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
+- **259 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
   tests; contract tests against the published JSON Schemas and the FHIR R4 schema; API and snapshot integration tests) and
   **35 Playwright tests** (desktop, plus a phone viewport for the home page and a no-sideways-scroll check of every page). The Playwright tests cover the demo path with all external network blocked, plus
   axe-core WCAG 2.1 AA scans of every main page in light and dark mode. CI runs ruff, mypy, pytest and Playwright.
@@ -151,13 +151,26 @@ More: [architecture](docs/03_ARCHITECTURE.md), [rules catalog](docs/04_RULES_CAT
 - **Our own FHIR output validates.** The OperationOutcome export has 0 errors against the official R4 JSON schema, and the
   sandbox's HAPI validator reports no issues ([docs/VALIDATION.md](docs/VALIDATION.md)).
 
+## Questions a reviewer will ask
+
+| Question | Answer, and where to check it |
+|---|---|
+| How do you know this is wrong? | Each finding writes out its evidence chain: observed values, calculation, result, the constraint with the published numbers in it. For the anchor: average / median = 198,000 / 19.8 = 10,000, exactly 10⁴ (finding page; `backend/datadoctor/audit/calculation.py`). |
+| Doesn't FHIR validation catch this? | No. The server's own `$validate` returns "No issues detected" for the anchor and passes all 125 flagged official records: conformance checks shape, not scientific consistency (docs/DISCOVERY.md D3). |
+| Is a language model deciding? | No. Findings, comparisons and claim verdicts are deterministic code; the product is complete with `DD_LLM_PROVIDER=none` and gives the same results (docs/AI_POLICY.md). |
+| What is the root cause? | Unknown. A power-of-ten pattern is shown as a hypothesis, labelled "not verified". The same values are in the IG's source spreadsheet, so the problem predates FHIR conversion. |
+| What does it affect? | The impact trace lists the data sets, series, comparisons and claims that use a flagged record, only those Data Doctor computes. |
+| Can the data still be compared, or a claim made? | Compare gives direct, conditional, not comparable or blocked, dimension by dimension; the claim guardrail shows how far the evidence reaches and what can safely be said. |
+| Can I reproduce it? | Yes: `DD_SOURCE=snapshot python tasks.py run` audits the sha256-verified snapshot offline; `python tasks.py acceptance` checks every endpoint. A fresh live audit gave the same findings (docs/STATUS.md). |
+| Is this the whole OneAquaHealth ecosystem? | No. Data Doctor is an evidence-integrity layer for the data and analyses it can inspect: the sandbox's resources and its own analysis catalog. |
+
 ## Quick start
 
 Requirements: Python 3.11+, Node.js 20+ (for the UI). Works on Windows, macOS and Linux.
 
 ```bash
 python tasks.py setup      # or: make setup   (virtualenv, backend, UI build)
-python tasks.py test       # backend tests
+python tasks.py test       # backend tests (the 6 Claude SDK contract tests run when the optional extra is installed: pip install -e ".[ai]")
 python tasks.py run        # http://127.0.0.1:8321  (live sandbox, falls back to the verified snapshot)
 ```
 

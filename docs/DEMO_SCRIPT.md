@@ -8,9 +8,15 @@ are computed on every scan, so **read them from the screen**; if a number differ
 
 ## Before recording
 
-1. Start with the language model off, so nothing on screen depends on it:
-   `DD_LLM_PROVIDER=none python tasks.py run` (live, falls back to the snapshot automatically), or
-   `DD_SOURCE=snapshot DD_LLM_PROVIDER=none python tasks.py run` for a guaranteed offline take.
+1. Start the app with the language model off, so nothing on screen depends on a model, a network or a remote service:
+   - **Primary (reliable take):** `DD_SOURCE=snapshot DD_LLM_PROVIDER=none python tasks.py run`. The top bar says
+     *Snapshot · Captured 30 Sept 2026, 09:08 UTC · sha256 verified*. Works without internet.
+   - **Secondary (live credibility, when the sandbox is up):** `DD_SOURCE=live DD_LLM_PROVIDER=none python tasks.py run`.
+     The top bar says *Live · OAH FHIR sandbox · fetched N min ago* once the live audit completes. If the sandbox is
+     unreachable, the app keeps showing the verified snapshot, labelled *Snapshot*, and the strip under the top bar says
+     *Audit failed … Failed: Connecting to the FHIR server*. Then record with the primary configuration.
+   - PowerShell: `$env:DD_SOURCE="snapshot"; $env:DD_LLM_PROVIDER="none"; python tasks.py run`.
+   The sidebar then shows *Language model: off*.
 2. Browser at http://127.0.0.1:8321, window 1440 × 900, zoom 100 %, dark theme. Wait until the strip under the top bar
    says "Audit complete", then select **Dismiss**.
 3. Open a second tab on the scale finding of the same record: **Findings** → Rule **SEM-SCALE-001** → *Mean and median
@@ -20,7 +26,7 @@ are computed on every scan, so **read them from the screen**; if a number differ
 
 | Time | Screen | Say | Do |
 |---|---|---|---|
-| 0:00–0:20 | **Data health** (`/`), top | "This is real OneAquaHealth data: the 2013 annual water temperature of the Almyros stream in Crete. Its average is 198,000 degrees Celsius. The FHIR server's own validator: no issues detected. Data Doctor: four findings on the same record. FHIR checks the shape. We check whether the evidence can be true." | Point at the headline, then at the two verdict panels: *FHIR server's own validator ✓ No issues detected during validation* and *OAH Data Doctor: 4 findings* |
+| 0:00–0:20 | **Data health** (`/`), top | "This is real OneAquaHealth data: the 2013 annual water temperature of the Almyros stream in Crete. Its average is 198,000 degrees Celsius. The FHIR server's own validator: no issues detected. Data Doctor: four findings on the same record. FHIR checks the shape. We check whether the evidence can be true." | Point at the headline (*198,000 °C* is the only coral number), then at the two verdict panels: *FHIR server's own validator ✓ Pass, No issues detected during validation* and *OAH Data Doctor ◆ Critical, 4 findings* |
 | 0:20–1:00 | **Data health**, *Dataset status*; then the **finding** page | "And it is not one record. 260 of 385 official records can be used as published. 125 are flagged, and all 125 pass the server's validation. Let's open the evidence. Minimum 185,000, maximum 211,000, and a median of 19.8. A median is the middle value of the same data. It can never be below its own minimum." | Scroll to *Dataset status*; point at *Flagged, yet server-valid: 125 of 125*. Scroll back up, select **Open the evidence for this record**. Point at step 1 *Observed* of the evidence chain |
 | 1:00–1:40 | **Finding** (SEM-STAT-001), *Evidence chain*; second tab (SEM-SCALE-001) | "Minimum divided by median: 9,343. The rule says minimum ≤ median ≤ maximum; here 19.8 is below 185,000, so it does not hold. Root cause: unknown. We never guess, and we never correct a value. On the same record, 198,000 divided by 19.8 is exactly 10,000, ten to the fourth. That fits a scale error, and we label it a hypothesis. The same numbers are in the Implementation Guide's source spreadsheet: the problem predates FHIR." | Point at steps 2–6. Switch to the second tab: point at *average / median = 198,000 / 19.8 = 10,000* and *exactly 10⁴*, then *Possible explanations, not verified*. Scroll to *Where these values first appear* (line 125) |
 | 1:40–2:10 | Same page, **What this affects** | "What does this record contaminate? Within the analyses Data Doctor computes, it feeds one data set, one indicator profile, two annual series, one comparison and two published claims. We show only dependencies we actually compute. Nothing is estimated." | Scroll to *What this affects*; select the claim box *median water temperature …*; point at *Depends on* and *Used by* |

@@ -10,8 +10,10 @@ Source: https://oneaquahealth-ieee-hackathon.devpost.com/ (overview, rules and u
   of 3–5 minutes; public code repository with source and documentation; working prototype, mockup or proof of concept.
 - **Rules:** original work built during the hackathon period; no copyright, licensing or third-party IP violations; every
   participant registered on Devpost. No explicit AI-disclosure clause was found; we disclose anyway.
-- **Eligibility:** the overview lists "students only". The extension update allows individuals and teams. UNVERIFIED for this
-  project: the owner must confirm student status.
+- **Eligibility (sources disagree):** the overview lists "Students only" and "Team required"; the latest announcement (deadline
+  extension, no newer one) says "You can participate individually or as part of a team"; the rules page says "individuals or
+  teams" with no student condition. Individual participation: allowed by the latest announcement. **Student status:
+  UNRESOLVED**: the owner must confirm it, or ask the organisers whether the student condition still applies.
 - **Judging:** impact and alignment with the OneAquaHealth mission 30 %, innovation 20 %, technical implementation 20 %,
   usability 15 %, feasibility and scalability 15 % (rules page; 1–10 per criterion, weighted).
 
@@ -26,28 +28,65 @@ The repository contains OneAquaHealth data, in its files and in its git history:
 - raw value excerpts in docs/GATE0_REPORT.md.
 
 The licence of that data is **UNVERIFIED** (docs/DISCOVERY.md D8: the IG's `sushi-config.yaml` has its licence line commented
-out, and the IG repository has no LICENSE file).
+out, and the IG repository has no LICENSE file). Attribution alone is not assumed to be enough.
 
 - Do **not** push the repository to the public remote until the organisers answer whether sandbox data may be redistributed.
 - Do not commit a new snapshot either (it would add more raw sandbox data to the history).
-- If redistribution is not allowed, the options need a decision: a repository without the snapshot (users then capture their
-  own with `python tasks.py snapshot`; tests and CI that read the snapshot would have to change), or a private repository
-  shared with the judges, if the organisers accept that.
+
+### If the organisers permit publication
+
+Record in README ("Attribution and licence") and docs/DISCOVERY.md D8: the source (OneAquaHealth FHIR sandbox, HL7 Europe;
+IG `hl7-eu/oah` at the pinned commit), the attribution, the permission or licence (who granted it, where, when), and the
+retrieval date of the snapshot (2026-09-30T09:08:55Z). Then push.
+
+### If permission is denied or stays unclear: publish a sanitized history
+
+Deleting the files in a new commit is not enough: they would remain in the git history. Rewrite the history of a copy and
+publish that copy. Tested on 2026-10-01 in a throwaway clone (the working repository was not changed):
+
+```bash
+git clone --no-local --single-branch --branch main oah-data-doctor oah-data-doctor-public
+cd oah-data-doctor-public
+git remote remove origin
+FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --index-filter \
+  'git rm -r --cached --ignore-unmatch -q data/snapshots knowledge/oah/upstream' --prune-empty -- main
+git for-each-ref --format='delete %(refname)' refs/original | git update-ref --stdin
+git reflog expire --expire=now --all && git gc --prune=now
+git rev-list --objects --all | grep -cE 'data/snapshots/|Almyros_gov_chem_analysis'   # must print 0
+```
+
+Measured result: 651 raw-data objects before, 0 after; 48 commits became 47 (one commit only added the snapshot). Without the
+data, 38 backend tests fail and 17 error (they read the snapshot). A user recovers both parts with two commands, which need the
+sandbox and GitHub to be reachable:
+
+```bash
+python scripts/build_knowledge.py     # re-fetches the IG files at the pinned commit (byte-identical except the spreadsheet)
+python tasks.py snapshot              # captures the sandbox (111 s on 2026-10-01)
+```
+
+After that, all tests passed again (253 passed, 1 skipped; the same as a full clone without the optional `ai` extra). Before
+publishing a sanitized copy, also: decide whether the raw excerpts in docs/GATE0_REPORT.md stay; make the CI capture a
+snapshot (or skip the snapshot steps), because it currently verifies the committed one; replace the offline-demo instructions
+with "capture a snapshot first"; and remove the backup branch from the copy (`--single-branch` above already leaves it out).
 
 ## Checklist
 
 - [ ] Organisers' answer on redistributing sandbox data (above). Ask on the Devpost discussion board or the OneAquaHealth Slack.
-- [ ] Owner confirms eligibility (students only).
-- [ ] Human reviewer marks the 20-finding sample in docs/GATE0_REPORT.md (true or false positive for each).
-- [ ] Fresh-clone test: `git clone … && python tasks.py setup && python tasks.py test && python tasks.py run`, then in a
-      second terminal `python tasks.py acceptance` (every endpoint against its expected outcome; exit 0 = all passed).
-- [ ] Offline test: disconnect the network, `DD_SOURCE=snapshot python tasks.py run`, walk docs/DEMO_SCRIPT.md.
+- [ ] Owner confirms eligibility (student status; see above).
+- [ ] Human reviewer marks the 20-finding sample in docs/GATE0_REPORT.md: TRUE POSITIVE, FALSE POSITIVE or UNCERTAIN, with a
+      reason, for each.
+- [x] Fresh-clone test (2026-10-01, short path on Windows): `git clone …`, `python tasks.py setup` (73 s),
+      `python tasks.py test`, `python tasks.py e2e`, `DD_SOURCE=snapshot DD_LLM_PROVIDER=none python tasks.py run` and
+      `python tasks.py acceptance` (90/90). Results in docs/STATUS.md.
+- [x] Offline test (2026-10-01): snapshot mode with the FHIR server address pointed at an unreachable host and no language
+      model: acceptance 90/90.
 - [ ] Record the video following docs/DEMO_SCRIPT.md (about 4 minutes; language model off; time one rehearsal first).
-- [ ] After the licence answer: push, then confirm the repository URL in docs/SUBMISSION.md (already filled in:
-      https://github.com/Unknown1502/OAH-Data-Doctor) and add the video link.
+- [ ] After the licence answer: push (or push the sanitized copy), then confirm the repository URL in docs/SUBMISSION.md
+      (already filled in: https://github.com/Unknown1502/OAH-Data-Doctor) and add the video link.
 - [ ] Paste docs/SUBMISSION.md into Devpost; add screenshots from docs/img/.
 
 ## Documents
 
-README.md (overview, computed results, quick start, limitations, AI disclosure, attribution), docs/SUBMISSION.md (Devpost text),
-docs/DEMO_SCRIPT.md (video script and fallback), docs/DISCOVERY.md, docs/GATE0_REPORT.md, docs/EVALUATION.md, docs/VALIDATION.md.
+README.md (overview, computed results, reviewer questions, quick start, limitations, AI disclosure, attribution),
+docs/SUBMISSION.md (Devpost text), docs/DEMO_SCRIPT.md (video script and fallback), docs/DISCOVERY.md, docs/GATE0_REPORT.md,
+docs/EVALUATION.md, docs/VALIDATION.md, docs/STATUS.md (verification log).

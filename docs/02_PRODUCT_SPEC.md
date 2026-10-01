@@ -36,16 +36,20 @@
 
 | Screen | Purpose | Key elements |
 |---|---|---|
-| Data health (home) | Show, with a real record, why this matters, and give the state of the data | Anchor case headline computed from data; the server's verdict next to Data Doctor's; magnitude ruler; readout strip (checked, findings, safe records, flagged records that pass server validation); blocking findings by site; rules that fired; support status; catalog verdicts |
-| Findings | Triage | Severity, rule, record-scope and text filters in the URL; sortable table of record, what is wrong, rule and confidence |
-| Finding detail | Investigate one finding | Summary; magnitude ruler; two verdicts plus "ask the server now"; evidence table with FHIRPaths; measures; meaning (root cause unknown, hypotheses labelled "not verified", remediation); upstream lineage row; impact trace graph; plain-language explanation; related findings; raw FHIR; provenance; exports |
-| Compare | Can two numbers be compared? | Catalog examples; two record pickers (filter + native listbox + statistic); verdict panel; dimension table; transformations; blocking findings; alternatives |
-| Check a claim | Guard a sentence | Free-text claim with examples; structured builder; "how Data Doctor read your claim"; verdict panel; safe wording with copy; blocking findings; ordered rule trace |
-| Report | Export | Four exports; support table |
+| Data health (home) | Show, with a real record, why this matters, and give the state of the data | Most important finding first: headline computed from data (only the impossible value in coral); evidence and the two verdicts ("Pass" vs "Critical"); what it may affect; dataset status and supporting metrics (checked, findings, usable as published, flagged yet server-valid); what-if lab; blocking findings by site; rules that fired; catalog verdicts |
+| Findings | Triage | Investigation queue: severity, category, rule, place, indicator, records and text filters in the URL; one dense row per finding (severity, finding, record, place, rule and field); zero-findings and empty-filter states |
+| Finding detail | Investigate one finding | Evidence chain (observed, calculation, result, rule broken, conclusion, root cause unknown with hypotheses "not verified"); two verdicts plus "ask the server now"; evidence (magnitude ruler, values with FHIRPaths, measures, provenance); why it matters; safe conclusion; suggested action; upstream lineage; what this affects (impact trace); plain-language or AI explanation; what-if lab; related findings; raw FHIR drawer; exports |
+| Compare | Can two numbers be compared? | Catalog examples; two record pickers (filter + native listbox + statistic); verdict panel; comparability matrix with each problem's kind (hard blocker, transformable, contextual, blocked until reviewed); transformations; blocking findings; what you can do instead |
+| Check a claim | Guard a sentence | Free-text claim read live by keyword rules, with examples; structured builder; "how Data Doctor read your claim"; verdict panel; evidence ladder (observation to causation); safe wording with copy; blocking findings; ordered rule trace |
+| Report | Evidence integrity report | Dataset, source, mode, audit timestamp; executive finding; dataset health; critical findings; scientific consequences (support table); comparability; claim safety; provenance; rules applied; technical appendix (exports, limitations); print to PDF |
+| The data | Browse what was published | Provenance of the copy; monitoring places; values over time; every official record exactly as published, with a link to it on the FHIR server |
+| Check your data | Bring FHIR data from anywhere | Paste or drop a resource, Bundle, JSON array or NDJSON; checked in memory, never stored; the command line and whole-server options |
 | Sources & rules | Transparency | Current source; scan live, use snapshot, clear the analyses I ran; verified snapshots with hashes; full rule catalog; AI policy |
 
-Global: source badge (Live + fetch time, or Snapshot + date, with the manifest hash on hover); fallback banner when live failed;
-"Scan live sandbox" action; theme choice (system, light, dark).
+Global: top bar with the source state (Live + "fetched N min ago", or Snapshot + capture time + "sha256 verified"), Search
+(Ctrl+K) and "Scan live sandbox"; audit stages strip; fallback banner when live failed; sidebar grouped under Investigate and
+Data, with the source status, the language-model control and an icon-only theme menu (dark, light, system) at the bottom; on a
+phone, a menu drawer and a bottom bar.
 
 ## Behaviour requirements
 
