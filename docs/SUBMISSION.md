@@ -54,26 +54,39 @@ verdict, nothing is ever changed on the server, and the root cause of a problem 
 - **Teams preparing data for the platform**, including monitoring and citizen-science programmes. They can paste or drop a file
   in the browser and see its problems before it is shared; nothing is stored.
 
-### Expected impact
+### Expected impact on ecosystem and human health
 
-Measured on the OneAquaHealth sandbox (snapshot `2026-09-30T09-08-55Z`):
+One Health links the state of water ecosystems to human, animal and environmental health. Those links are only as good as the
+monitoring data behind them. Measured on the OneAquaHealth sandbox (snapshot `2026-09-30T09-08-55Z`):
 
-- 125 of 385 official records are not safe to use as published, and 125 of them pass
-  the FHIR server's own validation. 260 can be used as published.
-- 346 findings (125 critical), each with the field and values a data owner needs to correct the record.
-- In a fault-injection test the rules caught 271 of 271 planted errors, and raised 0 new
-  findings on 100 records after harmless changes.
+- **Water ecosystems.** 121 of 141 official stream-water records from Crete are not safe to use as
+  published. They include the summaries of dissolved oxygen, nitrate, nitrite, temperature, pH and dissolved metals such as
+  mercury, lead, cadmium and arsenic: the conditions aquatic life depends on.
+- **Air, the environmental exposure.** 4 of 103 official air-quality records from Benevento are not safe
+  as published: PM2.5 is reported above PM10 for the same site and year, which cannot happen because PM2.5 is part of PM10.
+- **Human health.** 0 of 141 official population-health records (Benevento and Oslo) have an error
+  or critical finding. The risk there lies in how they are compared and what is claimed from them: indicators defined "per
+  100,000 inhabitants" but published in %, cohorts whose age bands do not overlap, and causal claims that aggregated data cannot
+  support.
+- **Overall.** 125 of 385 official records are not safe to use as published, and 125
+  of them pass the FHIR server's own validation; 260 can be used as published. 346 findings
+  (125 critical) each give the field and values a data owner needs to correct the record. In a fault-injection test the
+  rules caught 271 of 271 planted errors, and raised 0 new findings on 100
+  records after harmless changes.
 
 What we expect once it is used (expectations, not measured outcomes):
 
-- **It identifies evidence that may be unsafe for downstream scientific use**, before that evidence reaches an analysis, a
-  dashboard or a decision about urban waters.
-- **It makes scientific consistency problems inspectable and reproducible**, so data owners get a precise review list and can
-  correct problems at the source.
-- **It helps researchers determine which comparisons and claims the available evidence supports**, checked against the data's
-  real limits (population, period, method, integrity) instead of being taken on trust.
-- **It is a reusable building block for the standard**: because the output is FHIR, the same checks could run as a
-  `$validate`-style operation on any OneAquaHealth server.
+- **Monitoring and protecting urban streams (ecosystem and animal health).** A power-of-ten scale error in a temperature, oxygen
+  or metal summary (like the 10,000-fold one in the Almyros water temperature) is caught before it becomes a false warming or
+  pollution trend, so assessments and protection decisions about urban waters rest on values that can be true.
+- **Human health messages built on evidence that supports them.** The comparability check and the claim guardrail stop invalid
+  comparisons between populations and causal claims the data cannot carry (for example "PM2.5 causes cardiovascular disease in
+  Benevento"), and offer the wording the evidence does support. This matters most where water and air data meet health data.
+- **Awareness at the source.** Data owners, monitoring partners and citizen-science teams get a precise review list (the field, the
+  values, the line in the source spreadsheet), and can check a file in the browser before sharing it, so problems are fixed where
+  they start.
+- **A reusable building block for the standard.** Because the output is FHIR, the same checks could run as a `$validate`-style
+  operation on any OneAquaHealth server.
 
 It does not make all OneAquaHealth data trustworthy or guarantee scientific correctness: it shows which published evidence fails
 which check, and what can still be concluded.
@@ -81,7 +94,8 @@ which check, and what can still be concluded.
 ## Alignment with the OneAquaHealth mission
 
 OneAquaHealth works for healthy waters, healthy ecosystems and healthy communities by combining technology, citizen science and
-the One Health approach for urban freshwater ecosystems, and the hackathon asks participants to use AI, data platforms and digital
+the One Health approach (the connection between water ecosystems and human, animal and environmental health) for urban
+freshwater ecosystems, and the hackathon asks participants to use AI, data platforms and digital
 health standards "to improve the accuracy, reliability, and interoperability of ecosystem data". Data Doctor addresses the
 reliability part directly: data integrity, then reliable indicators, then reliable cross-site comparisons, then responsible
 research claims, and so better evidence for environmental and One Health decisions. It checks the water, air and health indicators

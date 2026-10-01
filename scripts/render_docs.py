@@ -20,8 +20,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
 from datadoctor.audit.analyses import run_catalog  # noqa: E402
-from datadoctor.audit.service import run_audit  # noqa: E402
+from datadoctor.audit.service import blocking_keys, run_audit  # noqa: E402
 from datadoctor.config import Settings  # noqa: E402
+from datadoctor.domain.enums import Medium, Scope  # noqa: E402
 from datadoctor.knowledge.loader import load_knowledge  # noqa: E402
 from datadoctor.rules.registry import load_rules  # noqa: E402
 
@@ -65,6 +66,11 @@ def numbers() -> dict[str, str]:
     n_samples = len(re.findall(r"^### \d+\. ", gate0, re.M))
     n_confirmed = gate0.count("Independent re-derivation:** CONFIRMED")
     sv = s.server_validation
+    # Official records per medium, and how many are not safe to use as published (same definition as N_FLAGGED_OBS).
+    blocked = blocking_keys(res.findings)
+    official = [o for o in ds.observations.values() if o.scope is Scope.OAH_IG]
+    per_medium = {m: [o for o in official if o.medium is m] for m in (Medium.WATER, Medium.AIR, Medium.POPULATION_HEALTH)}
+    flagged = {m: sum(1 for o in xs if o.key in blocked) for m, xs in per_medium.items()}
     n = {
         "SNAPSHOT_ID": res.source.snapshot_id,
         "SNAPSHOT_FETCHED": res.source.fetched_at,
@@ -84,6 +90,12 @@ def numbers() -> dict[str, str]:
         "N_AFFECTED": s.affected_resources,
         "N_FLAGGED_OBS": s.oah_observations_with_blocking,
         "N_SAFE_OBS": s.oah_observations - s.oah_observations_with_blocking,
+        "N_WATER_OBS": len(per_medium[Medium.WATER]),
+        "N_WATER_FLAGGED": flagged[Medium.WATER],
+        "N_AIR_OBS": len(per_medium[Medium.AIR]),
+        "N_AIR_FLAGGED": flagged[Medium.AIR],
+        "N_HEALTH_OBS": len(per_medium[Medium.POPULATION_HEALTH]),
+        "N_HEALTH_FLAGGED": flagged[Medium.POPULATION_HEALTH],
         "PASS_RATE": f"{(s.integrity_pass_rate or 0) * 100:.1f}",
         "N_VALIDATED": sv.get("validated_total", 0),
         "N_VALIDATED_ERRORS": sv.get("validated_with_errors", 0),

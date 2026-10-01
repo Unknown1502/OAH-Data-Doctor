@@ -28,6 +28,9 @@ def test_rendered_numbers_match_a_fresh_audit(fresh):
     assert n["N_OAH_OBS"] == str(s.oah_observations)
     assert n["N_FLAGGED_PASS_SERVER"] == str(s.server_validation["flagged_observations_passing_server_validation"])
     assert n["N_MEDIAN_OUTSIDE"] == str(s.findings_by_rule.get("SEM-STAT-001", 0))
+    # the per-medium split behind "Expected impact on ecosystem and human health" adds up to the headline numbers
+    assert int(n["N_WATER_OBS"]) + int(n["N_AIR_OBS"]) + int(n["N_HEALTH_OBS"]) == s.oah_observations
+    assert int(n["N_WATER_FLAGGED"]) + int(n["N_AIR_FLAGGED"]) + int(n["N_HEALTH_FLAGGED"]) == s.oah_observations_with_blocking
 
 
 def test_documents_have_no_unfilled_placeholders():
