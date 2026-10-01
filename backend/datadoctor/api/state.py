@@ -9,11 +9,14 @@ import logging
 import sqlite3
 from typing import Any
 
+import httpx
+
 from datadoctor.audit.analyses import AnalysesResult, run_catalog
 from datadoctor.audit.service import AuditResult, audit_dataset, complete_live_validation
 from datadoctor.config import Settings
 from datadoctor.domain.enums import SourceKind
 from datadoctor.domain.models import Dataset
+from datadoctor.ingestion.local_copy import capture_snapshot, fetch_ig_files, ig_sample_files
 from datadoctor.ingestion.source import load_data
 from datadoctor.knowledge.loader import Knowledge, load_knowledge
 from datadoctor.normalization.normalizer import build_dataset
@@ -38,6 +41,7 @@ class AppState:
         self.graph: DependencyGraph | None = None
         self.scan: dict[str, Any] = {"running": False, "mode": None, "started_at": None, "error": None}
         self.lock = asyncio.Lock()
+        self._tasks: set[asyncio.Task[Any]] = set()  # background jobs keep a reference until they finish
         settings.data_dir.mkdir(parents=True, exist_ok=True)
         self.db = sqlite3.connect(str(settings.db_path), check_same_thread=False)
         self.db.executescript(_SCHEMA)
@@ -62,39 +66,80 @@ class AppState:
         self.analyses = run_catalog(self.ds, self.kn, self.result.findings, self.user_specs("comparison"), self.user_specs("claim"))
         self.graph = build_graph(self.ds, self.kn, self.analyses.comparisons, self.analyses.claims)
 
+    def _begin(self, mode: str) -> None:
+        self.scan = {"running": True, "mode": mode, "started_at": dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                     "error": None, "stages": []}
+
+    def _failed(self, exc: Exception) -> None:
+        for s in self.scan.get("stages", []):
+            if s["state"] == "running":
+                s["state"] = "failed"
+        self.scan.update(running=False, error=f"{type(exc).__name__}: {exc}")
+
     async def run(self, mode: str | None = None, snapshot_id: str | None = None) -> AuditResult:
         async with self.lock:
-            self.scan = {"running": True, "mode": mode or self.settings.source_mode,
-                         "started_at": dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ"), "error": None, "stages": []}
-            stage = self._stage
+            self._begin(mode or self.settings.source_mode)
+            return await self._audit(mode, snapshot_id)
+
+    def start_local_copy(self, transport: httpx.AsyncBaseTransport | None = None) -> asyncio.Task[AuditResult]:
+        """Download the data to this computer from the source (docs/DECISIONS.md D-032), then audit that copy.
+
+        Starts at once and runs in the background; the UI follows its stages through /api/status."""
+        if self.lock.locked() or self.scan.get("running"):
+            raise RuntimeError("An audit or a download is already running")
+        self._begin("download")
+        task = asyncio.create_task(self._local_copy(transport))
+        self._tasks.add(task)
+        task.add_done_callback(self._finished)
+        return task
+
+    def _finished(self, task: asyncio.Task[Any]) -> None:
+        self._tasks.discard(task)
+        if not task.cancelled():
+            task.exception()  # already recorded in self.scan and the log; retrieving it keeps asyncio from warning
+
+    async def _local_copy(self, transport: httpx.AsyncBaseTransport | None) -> AuditResult:
+        async with self.lock:
             try:
-                raw, source, validation = await load_data(self.settings, mode, snapshot_id, progress=stage)
-                ds = build_dataset(raw, source, self.kn, validation)
-                stage("rules", "Running the rules", "running", None)
-                res = await asyncio.to_thread(audit_dataset, ds, self.kn)
-                stage("rules", "Running the rules", "done",
-                      f"{len(load_rules())} rules, {res.summary.findings_total} findings")
-                if source.kind is SourceKind.LIVE and not validation:
-                    stage("server", "Asking the server's own $validate about flagged records", "running", None)
-                res = await complete_live_validation(self.settings, ds, res, self.kn)
-                if source.kind is SourceKind.LIVE and not validation:
-                    sv = res.summary.server_validation or {}
-                    stage("server", "Asking the server's own $validate about flagged records", "done",
-                          f"{sv.get('validated_total', 0)} records, {sv.get('validated_with_errors', 0)} with errors")
-                self.ds, self.result = ds, res
-                stage("analyses", "Recomputing comparisons, claims and the impact graph", "running", None)
-                await asyncio.to_thread(self.recompute_analyses)
-                assert self.analyses is not None
-                stage("analyses", "Recomputing comparisons, claims and the impact graph", "done",
-                      f"{len(self.analyses.comparisons)} comparisons, {len(self.analyses.claims)} claims")
-                self.db.execute("INSERT OR REPLACE INTO runs VALUES (?, ?, ?, ?)",
-                                (res.run_id, res.created_at, res.source.model_dump_json(), res.summary.model_dump_json()))
-                self.db.commit()
-                self.scan["running"] = False
-                return res
+                await fetch_ig_files(ig_sample_files(self.kn), self.kn.ig_commit, self.kn.upstream_dir,
+                                     progress=self._stage, transport=transport)
+                root = await capture_snapshot(self.settings, self.kn, progress=self._stage, transport=transport)
             except Exception as exc:
-                self.scan.update(running=False, error=f"{type(exc).__name__}: {exc}")
+                self._failed(exc)
+                log.warning("saving the data on this computer failed: %s", exc)
                 raise
+            return await self._audit("snapshot", root.name)
+
+    async def _audit(self, mode: str | None, snapshot_id: str | None) -> AuditResult:
+        stage = self._stage
+        try:
+            raw, source, validation = await load_data(self.settings, mode, snapshot_id, progress=stage)
+            ds = build_dataset(raw, source, self.kn, validation)
+            stage("rules", "Running the rules", "running", None)
+            res = await asyncio.to_thread(audit_dataset, ds, self.kn)
+            stage("rules", "Running the rules", "done",
+                  f"{len(load_rules())} rules, {res.summary.findings_total} findings")
+            if source.kind is SourceKind.LIVE and not validation:
+                stage("server", "Asking the server's own $validate about flagged records", "running", None)
+            res = await complete_live_validation(self.settings, ds, res, self.kn)
+            if source.kind is SourceKind.LIVE and not validation:
+                sv = res.summary.server_validation or {}
+                stage("server", "Asking the server's own $validate about flagged records", "done",
+                      f"{sv.get('validated_total', 0)} records, {sv.get('validated_with_errors', 0)} with errors")
+            self.ds, self.result = ds, res
+            stage("analyses", "Recomputing comparisons, claims and the impact graph", "running", None)
+            await asyncio.to_thread(self.recompute_analyses)
+            assert self.analyses is not None
+            stage("analyses", "Recomputing comparisons, claims and the impact graph", "done",
+                  f"{len(self.analyses.comparisons)} comparisons, {len(self.analyses.claims)} claims")
+            self.db.execute("INSERT OR REPLACE INTO runs VALUES (?, ?, ?, ?)",
+                            (res.run_id, res.created_at, res.source.model_dump_json(), res.summary.model_dump_json()))
+            self.db.commit()
+            self.scan["running"] = False
+            return res
+        except Exception as exc:
+            self._failed(exc)
+            raise
 
     def _stage(self, stage_id: str, label: str, state: str, detail: str | None = None) -> None:
         """Record a real stage of the current scan for the UI (no percentages, no timers: only what happened)."""

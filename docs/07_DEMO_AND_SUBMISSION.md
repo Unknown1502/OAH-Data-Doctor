@@ -71,8 +71,10 @@ git rev-list --objects --all | grep -cE 'data/snapshots/|Almyros_gov_chem_analys
 ```
 
 Measured result: 651 raw-data objects before, 0 after; 48 commits became 47 (one commit only added the snapshot). Without the
-data, 38 backend tests fail and 17 error (they read the snapshot). A user recovers both parts with two commands, which need the
-sandbox and GitHub to be reachable:
+data, 38 backend tests fail and 17 error (they read the snapshot). In the app, a user recovers both parts with one click:
+**Download the data** (shown when nothing is saved, and under *Sources & rules*; D-032; 74 s on 2026-10-01, same 346 findings).
+The live sandbox works without it. From the command line, two commands do the same; both need the sandbox and GitHub to be
+reachable:
 
 ```bash
 python scripts/build_knowledge.py     # re-fetches the IG files at the pinned commit (byte-identical except the spreadsheet)

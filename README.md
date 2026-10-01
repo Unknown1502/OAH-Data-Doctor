@@ -152,9 +152,9 @@ More: [architecture](docs/03_ARCHITECTURE.md), [rules catalog](docs/04_RULES_CAT
 
 ## Test results and evaluation
 
-- **259 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
+- **267 backend tests** (unit tests for every rule with positive, negative and edge cases; Hypothesis property
   tests; contract tests against the published JSON Schemas and the FHIR R4 schema; API and snapshot integration tests) and
-  **35 Playwright tests** (desktop, plus a phone viewport for the home page and a no-sideways-scroll check of every page). The Playwright tests cover the demo path with all external network blocked, plus
+  **38 Playwright tests** (desktop, plus a phone viewport for the home page and a no-sideways-scroll check of every page). The Playwright tests cover the demo path with all external network blocked, plus
   axe-core WCAG 2.1 AA scans of every main page in light and dark mode. CI runs ruff, mypy, pytest and Playwright.
 - **Property tests.** Summaries of randomly generated real samples, rounded at 0–4 decimals, never trigger a statistical-identity
   rule. This is the false-positive guarantee behind the precision tolerance.
@@ -202,9 +202,11 @@ python tasks.py run        # http://127.0.0.1:8321  (live sandbox, falls back to
 ```
 
 - Offline demo: `DD_SOURCE=snapshot python tasks.py run` (PowerShell: `$env:DD_SOURCE="snapshot"; python tasks.py run`).
-- If `data/snapshots/` is empty (a copy published without the sandbox data), capture the data once, while online:
-  `python scripts/build_knowledge.py` (the IG source files at the pinned commit) and `python tasks.py snapshot` (about 2
-  minutes). Tests, the offline demo and the acceptance check then work as described.
+- If `data/snapshots/` is empty (a copy published without the sandbox data), the app still reads the live sandbox and
+  offers **Download the data** (also under *Sources & rules*): it saves a verified snapshot of the sandbox and the IG's source
+  spreadsheet, checked against its recorded sha256, straight from OneAquaHealth's servers (about 1–2 minutes). From the command
+  line, the same: `python scripts/build_knowledge.py` (the IG source files at the pinned commit) and `python tasks.py snapshot`.
+  Tests, the offline demo and the acceptance check then work as described.
 - Windows: clone into a short folder (for example `C:\src\oah-data-doctor`). Some third-party Python packages install
   deeply nested files, and pip stops with a long-path error inside very deep folders unless Windows long paths are enabled.
 - Command line: `python tools/oah_audit.py audit --source live`, plus `snapshot`, `gate0` and `verify-snapshot`.

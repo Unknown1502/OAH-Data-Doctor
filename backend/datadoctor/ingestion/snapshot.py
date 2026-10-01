@@ -21,6 +21,7 @@ import hashlib
 import json
 import shutil
 from collections import defaultdict
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -78,6 +79,10 @@ def write_snapshot(root: Path, header: dict[str, Any], metadata: dict[str, Any],
     return root
 
 
+def _no_progress(stage: str, label: str, state: str, detail: str | None = None) -> None:
+    return None
+
+
 async def create_snapshot(
     client: FhirClient,
     snapshots_dir: Path,
@@ -87,29 +92,41 @@ async def create_snapshot(
     validate: Any = None,  # callable(resource_type, raw) -> bool : which resources to $validate server-side
     ig_commit: str | None = None,
     knowledge_version: str | None = None,
+    progress: Callable[[str, str, str, str | None], None] | None = None,  # (stage_id, label, state, detail), as in source.py
 ) -> Path:
+    report = progress or _no_progress
     fetched_at = utc_now_iso()
     snapshot_id = fetched_at.replace(":", "-")
     root = snapshots_dir / snapshot_id
     if root.exists():
         raise SnapshotError(f"snapshot {snapshot_id} already exists")
+    report("connect", "Connecting to the FHIR server", "running", client.base_url)
     metadata: dict[str, Any] = {"capability_statement": await client.capability_statement()}
+    report("connect", "Connecting to the FHIR server", "done", f"FHIR {metadata['capability_statement'].get('fhirVersion', '?')}")
     with contextlib.suppress(Exception):  # optional operation: some servers do not offer it
         metadata["resource_counts"] = await client.get_json("$get-resource-counts", use_cache=False)
     raw: RawResources = {}
     validation: dict[str, Any] = {}
     for rtype in resource_types:
-        raw[rtype] = {}
-        for res in await client.search_all(rtype, page_size, use_cache=False):
-            raw[rtype][res["id"]] = res
-            if validate is not None and validate(rtype, res):
-                validation[f"{rtype}/{res['id']}"] = await client.validate_instance(rtype, res["id"])
+        report(f"fetch:{rtype}", f"Fetching {rtype}", "running", None)
+        found = await client.search_all(rtype, page_size, use_cache=False)
+        raw[rtype] = {res["id"]: res for res in found}
+        report(f"fetch:{rtype}", f"Fetching {rtype}", "done", f"{len(raw[rtype])} resources")
+        to_validate = [res for res in found if validate is not None and validate(rtype, res)]
+        label = f"Server's $validate on each official {rtype}"
+        for i, res in enumerate(to_validate, start=1):
+            validation[f"{rtype}/{res['id']}"] = await client.validate_instance(rtype, res["id"])
+            if i == 1 or i % 10 == 0 or i == len(to_validate):
+                report(f"validate:{rtype}", label, "running" if i < len(to_validate) else "done", f"{i} of {len(to_validate)}")
     cap = metadata["capability_statement"]
     header = {"snapshot_id": snapshot_id, "source_url": client.base_url, "fetched_at": fetched_at, "completed_at": utc_now_iso(),
               "fhir_version": cap.get("fhirVersion"), "server_software": cap.get("software"),
               "ig_source": {"repo": "https://github.com/hl7-eu/oah", "commit": ig_commit},
               "knowledge_version": knowledge_version, "tool": f"oah-data-doctor {__version__}"}
-    return write_snapshot(root, header, metadata, raw, validation)
+    report("write", "Saving the snapshot with a sha256 for every file", "running", None)
+    out = write_snapshot(root, header, metadata, raw, validation)
+    report("write", "Saving the snapshot with a sha256 for every file", "done", snapshot_id)
+    return out
 
 
 def manifest_digest(manifest: dict[str, Any]) -> str:

@@ -196,6 +196,8 @@ export interface Status {
   llm_user_keys: boolean;
   rule_count: number;
   snapshots: { snapshot_id: string; fetched_at: string; manifest_sha256: string; resource_counts: Record<string, number>; server_validations: number }[];
+  /** IG source files that lineage reads and that are not on this computer (a repository published without the data). */
+  ig_files_missing?: string[];
 }
 
 export interface Cohort {

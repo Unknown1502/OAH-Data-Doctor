@@ -18,6 +18,7 @@ from datadoctor.domain.enums import Scope, Severity
 from datadoctor.domain.models import Dataset, Finding
 from datadoctor.ingestion.cache import HttpCache
 from datadoctor.ingestion.fhir_client import FhirClient, SandboxUnavailable
+from datadoctor.ingestion.local_copy import official_records
 from datadoctor.ingestion.snapshot import SnapshotError, create_snapshot, list_snapshots, verify_snapshot
 from datadoctor.ingestion.source import NoDataAvailable, load_data
 from datadoctor.knowledge.loader import load_knowledge
@@ -172,17 +173,10 @@ async def _cmd_snapshot(args: argparse.Namespace) -> None:
     st = get_settings()
     kn = load_knowledge(st.knowledge_dir)
     cache = HttpCache(st.db_path, st.cache_ttl_s)
-    base = "http://hl7.eu/fhir/ig/oah/StructureDefinition/"
-
-    def validate(rtype: str, res: dict[str, Any]) -> bool:
-        if args.no_validate:
-            return False
-        return rtype == "Observation" and res["id"] in kn.ig_instances and any(
-            p.startswith(base) for p in res.get("meta", {}).get("profile", []))
-
     async with FhirClient(st.fhir_base, cache, delay_s=st.http_delay_s, timeout_s=st.http_timeout_s) as client:
         root = await create_snapshot(client, st.snapshots_dir, st.ingest_types, page_size=st.page_size,
-                                     validate=validate, ig_commit=kn.ig_commit, knowledge_version=kn.version)
+                                     validate=None if args.no_validate else official_records(kn),
+                                     ig_commit=kn.ig_commit, knowledge_version=kn.version)
     cache.close()
     print(f"snapshot written: {root}")
     print(json.dumps(json.loads((root / 'manifest.json').read_text(encoding='utf-8'))["resource_counts"]))

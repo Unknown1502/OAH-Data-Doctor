@@ -14,7 +14,7 @@ const CATEGORY_TEXT: Record<string, string> = {
 
 export default function Sources() {
   useDocumentTitle("Sources & rules");
-  const { status, runId, scan, scanning } = useRun();
+  const { status, runId, scan, saveLocalCopy, scanning } = useRun();
   const llm = useLlm();
   const rules = useApi<RuleSpec[]>("/rules", [runId]);
   const [cleared, setCleared] = useState(false);
@@ -45,9 +45,15 @@ export default function Sources() {
             stores anything. Live results can change because the sandbox is shared and writable. Snapshots are dated copies with a sha256
             for every file, so a result can always be reproduced and is never presented as live.
           </p>
+          <p className="mt-2 max-w-[75ch] text-ink-2">
+            <strong className="font-semibold text-ink">Download the data to this computer</strong> saves a new verified snapshot of the sandbox
+            and the IG's source spreadsheet from the IG repository on GitHub, checked against its recorded sha256. Everything comes from
+            OneAquaHealth's own servers; it takes about two minutes and works offline afterwards.
+          </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Button kind="primary" onClick={() => scan("live")} disabled={scanning}>Scan live sandbox</Button>
-            <Button onClick={() => scan("snapshot")} disabled={scanning}>Use the latest snapshot</Button>
+            <Button onClick={() => scan("snapshot")} disabled={scanning || !status?.snapshots.length}>Use the latest snapshot</Button>
+            <Button onClick={() => void saveLocalCopy()} disabled={scanning}>Download the data to this computer</Button>
             <Button kind="quiet" onClick={async () => { await post("/analyses/reset", {}); setCleared(true); }}>
               {cleared ? "Cleared the comparisons and claims you ran" : "Clear the comparisons and claims I ran"}
             </Button>
@@ -80,7 +86,10 @@ export default function Sources() {
             </table>
           </div>
         ) : (
-          <p className="text-ink-2">No snapshot yet. Run <code className="code">python tasks.py snapshot</code> while online to create one.</p>
+          <p className="text-ink-2">
+            No snapshot on this computer yet. Use <em>Download the data to this computer</em> above, or run{" "}
+            <code className="code">python tasks.py snapshot</code> while online.
+          </p>
         )}
       </section>
 

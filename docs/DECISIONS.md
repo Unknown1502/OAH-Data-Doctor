@@ -199,3 +199,16 @@ source files are git-ignored; CI captures the data only when a repository carrie
 capture commands; and a sanitized copy with no raw data in any commit is prepared next to the repository (docs/07). The
 committed snapshot is unchanged and still drives the offline demo, the tests and CI here.
 
+
+**D-032 Download the data from the app.** A copy of the repository published without the OneAquaHealth data (D-031) now
+offers **Download the data**: a notice shown only when this computer has no snapshot or lacks the IG's source spreadsheet, and
+a permanent button under *Sources & rules*. It runs in the background with real progress stages (`POST /api/local-copy`,
+`backend/datadoctor/ingestion/local_copy.py`): the IG's source files from `github.com/hl7-eu/oah` at the pinned commit, each saved
+only if it matches the sha256 recorded in `knowledge/oah/sources.json`; then a new verified snapshot of the sandbox, exactly as
+`python tasks.py snapshot` (GET and the server's own `$validate` only, the same records validated, shared code); then an audit of
+that snapshot, labelled SNAPSHOT with its capture time. Nothing is redistributed: every byte comes from OneAquaHealth's own
+servers to the user's computer, into git-ignored folders. Only fixed hosts are contacted (the configured FHIR base and
+raw.githubusercontent.com); the request takes no input. Tested without a network (a fake OneAquaHealth serving the committed
+snapshot reproduces its audit finding for finding, with lineage; a corrupted or failed download saves nothing) and for real on
+2026-10-01 from an empty data folder: 74 s, 561 resources, 385 of 385 `$validate` outcomes, spreadsheet sha256 matching, and the
+same 346 findings (125 critical, 212 error, 9 warning) with the anchor's lineage restored.

@@ -202,9 +202,11 @@ python tasks.py run        # http://127.0.0.1:8321  (live sandbox, falls back to
 ```
 
 - Offline demo: `DD_SOURCE=snapshot python tasks.py run` (PowerShell: `$env:DD_SOURCE="snapshot"; python tasks.py run`).
-- If `data/snapshots/` is empty (a copy published without the sandbox data), capture the data once, while online:
-  `python scripts/build_knowledge.py` (the IG source files at the pinned commit) and `python tasks.py snapshot` (about 2
-  minutes). Tests, the offline demo and the acceptance check then work as described.
+- If `data/snapshots/` is empty (a copy published without the sandbox data), the app still reads the live sandbox and
+  offers **Download the data** (also under *Sources & rules*): it saves a verified snapshot of the sandbox and the IG's source
+  spreadsheet, checked against its recorded sha256, straight from OneAquaHealth's servers (about 1–2 minutes). From the command
+  line, the same: `python scripts/build_knowledge.py` (the IG source files at the pinned commit) and `python tasks.py snapshot`.
+  Tests, the offline demo and the acceptance check then work as described.
 - Windows: clone into a short folder (for example `C:\src\oah-data-doctor`). Some third-party Python packages install
   deeply nested files, and pip stops with a long-path error inside very deep folders unless Windows long paths are enabled.
 - Command line: `python tools/oah_audit.py audit --source live`, plus `snapshot`, `gate0` and `verify-snapshot`.

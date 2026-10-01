@@ -59,6 +59,15 @@ snapshot. The live audit agrees too.
 findings, calculations and verdicts are unchanged; explanations fall back to the template with the reason shown, and claims are
 read by the keyword rules.
 
+## Verification log, 2026-10-01 (Download the data, D-032)
+
+| Check | Command | Result |
+|---|---|---|
+| Backend tests | `pytest backend/tests` | 267 passed (new: the IG file is saved only with its recorded sha256; a fake OneAquaHealth serving the committed snapshot gives the same findings, with lineage; a failed download saves nothing; the endpoint refuses to start during another job) |
+| Lint and types | `python tasks.py lint` | ruff clean; mypy clean (50 files); TypeScript strict clean |
+| Browser and accessibility | `python tasks.py e2e` | 37 passed, 1 skipped; new: the notice appears only without saved data, starts the download, shows its stages, can be dismissed; axe clean on the notice |
+| Real download, no data on the computer | app on an empty data folder and no IG spreadsheet, live sandbox, button clicked in Chromium | 74 s; spreadsheet sha256 `4bb59552…` matches; snapshot `2026-10-01T17-01-09Z` with 561 resources and 385 of 385 `$validate` outcomes; audit of it: 346 findings (125 critical, 212 error, 9 warning), lineage on all 4 findings of the anchor; header labelled *Snapshot*, captured 17:01 UTC, sha256 verified |
+
 ## Open items (owner)
 
 1. **Licence of the OneAquaHealth data in the repository: UNVERIFIED** (docs/07_DEMO_AND_SUBMISSION.md, "Open question").
@@ -67,7 +76,7 @@ read by the keyword rules.
 2. Student eligibility: ORGANIZER CONFIRMATION REQUIRED. Individual participation is allowed (official OneAquaHealth page:
    "Form a team or participate individually"); only the Devpost overview lists "Students only" (docs/07).
 3. Human review of the 20 samples in docs/GATE0_REPORT.md (TRUE POSITIVE, FALSE POSITIVE or UNCERTAIN, with a reason).
-4. Time one rehearsal and record the demo video (docs/DEMO_SCRIPT.md, about 4 minutes).
+4. Demo video: built and QA'd with a draft voice (docs/DEMO_FINAL.md); render the final ElevenLabs voice and watch it once.
 5. After the licence answer: push, add the video link to docs/SUBMISSION.md, submit on Devpost (deadline 2026-10-04 21:00 PDT).
 
 ## Risks

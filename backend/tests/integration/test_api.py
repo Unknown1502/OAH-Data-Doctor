@@ -323,3 +323,19 @@ def test_scan_reports_its_real_stages(client):
     assert stages["rules"]["state"] == "done" and f"{total} findings" in stages["rules"]["detail"]
     assert stages["analyses"]["state"] == "done"
     assert "connect" not in stages  # a snapshot run never claims to have contacted the server
+
+
+def test_status_lists_the_ig_source_files_missing_on_this_computer(client):
+    assert client.get("/api/status").json()["ig_files_missing"] == []
+
+
+def test_saving_the_data_never_starts_while_another_job_runs(client):
+    import datadoctor.api.main as api_main
+
+    assert api_main.STATE is not None
+    api_main.STATE.scan["running"] = True
+    try:
+        r = client.post("/api/local-copy")
+        assert r.status_code == 409 and "already running" in r.json()["detail"]
+    finally:
+        api_main.STATE.scan["running"] = False

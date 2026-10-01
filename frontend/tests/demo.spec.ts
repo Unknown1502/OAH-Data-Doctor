@@ -373,3 +373,52 @@ test("every finding proves itself: the calculation on screen is the backend's ow
   // Never a corrected value: the page states no "correct" temperature.
   await expect(page.getByText(/correct(ed)? (value|temperature)|actual temperature/i)).toHaveCount(0);
 });
+
+test("a copy published without the data offers to download it from OneAquaHealth's own servers", async ({ page }) => {
+  // Simulate a repository published without the data: no snapshot and no IG source spreadsheet on this computer.
+  let downloading = false;
+  await page.route("**/api/status", async (route) => {
+    const response = await route.fetch();
+    const body = await response.json();
+    const json = downloading
+      ? { ...body, scan: { running: true, mode: "download", started_at: "2026-10-01T12:00:00Z", error: null,
+          stages: [{ id: "ig:Almyros_gov_chem_analysis.csv", label: "Downloading Almyros_gov_chem_analysis.csv from the IG repository",
+            state: "running", detail: "github.com/hl7-eu/oah at b907cf0", at: "2026-10-01T12:00:00Z" }] } }
+      : { ...body, snapshots: [], ig_files_missing: ["Almyros_gov_chem_analysis.csv"] };
+    await route.fulfill({ response, json });
+  });
+  await page.route("**/api/local-copy", (route) => {
+    downloading = true;
+    return route.fulfill({ status: 202, json: { started: true } });
+  });
+
+  await page.goto("/");
+  const notice = page.getByRole("region", { name: "No copy of the data is saved on this computer" });
+  await expect(notice).toBeVisible();
+  await expect(notice).toContainText("straight from OneAquaHealth's servers");
+  const a11y = await new AxeBuilder({ page }).include("section[aria-labelledby='local-copy-h']").withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
+  expect(a11y.violations.map((v) => v.id)).toEqual([]);
+
+  const request = page.waitForRequest((r) => r.url().endsWith("/api/local-copy") && r.method() === "POST");
+  await notice.getByRole("button", { name: "Download the data" }).click();
+  await request;
+  await expect(page.getByRole("heading", { name: "Downloading the data to this computer" })).toBeVisible();
+  await expect(page.getByText("Downloading Almyros_gov_chem_analysis.csv from the IG repository")).toBeVisible();
+  await expect(notice).toBeHidden();
+});
+
+test("the download notice can be dismissed; Sources & rules keeps the button", async ({ page }) => {
+  await page.route("**/api/status", async (route) => {
+    const response = await route.fetch();
+    await route.fulfill({ response, json: { ...(await response.json()), snapshots: [], ig_files_missing: ["Almyros_gov_chem_analysis.csv"] } });
+  });
+  await page.goto("/sources");
+  const notice = page.getByRole("region", { name: "No copy of the data is saved on this computer" });
+  await notice.getByRole("button", { name: "Not now" }).click();
+  await expect(notice).toBeHidden();
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Sources & rules", level: 1 })).toBeVisible();
+  await expect(notice).toBeHidden(); // remembered in this browser
+  await expect(page.getByRole("button", { name: "Download the data to this computer" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Use the latest snapshot" })).toBeDisabled(); // there is none
+});

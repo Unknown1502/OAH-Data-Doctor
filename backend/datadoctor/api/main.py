@@ -45,6 +45,7 @@ from datadoctor.comparability.engine import ComparisonError, compare
 from datadoctor.config import REPO_ROOT, Settings, get_settings
 from datadoctor.domain.enums import Scope, Severity
 from datadoctor.domain.models import Dataset, Finding, StructuredClaim
+from datadoctor.ingestion.local_copy import missing_ig_files
 from datadoctor.ingestion.snapshot import list_snapshots
 from datadoctor.knowledge.loader import Knowledge
 from datadoctor.reporting.operation_outcome import operation_outcome_bundle
@@ -126,7 +127,8 @@ def status() -> dict[str, Any]:
             "llm_name": (c.name if (c := _llm(s.settings)) else None) if s else None,
             "llm_user_keys": s.settings.llm_allow_user_keys if s else False,
             "rule_count": len(load_rules()),
-            "snapshots": list_snapshots(s.settings.snapshots_dir) if s else []}
+            "snapshots": list_snapshots(s.settings.snapshots_dir) if s else [],
+            "ig_files_missing": missing_ig_files(s.kn) if s else []}
 
 
 class AuditRequest(BaseModel):
@@ -144,6 +146,19 @@ async def run_audit_endpoint(req: AuditRequest) -> dict[str, Any]:
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(502, f"Audit failed: {exc}") from exc
     return {"run_id": res.run_id, "source": res.source.model_dump(), "summary": res.summary.model_dump()}
+
+
+@app.post("/api/local-copy", status_code=202)
+async def save_local_copy() -> dict[str, Any]:
+    """Download the data to this computer, from OneAquaHealth's own servers (a repository may be published without it).
+
+    Runs in the background: the IG's source files (sha256-checked), a new verified snapshot, then an audit of that copy."""
+    assert STATE is not None
+    try:
+        STATE.start_local_copy()
+    except RuntimeError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    return {"started": True}
 
 
 @app.get("/api/overview")

@@ -28,10 +28,19 @@ interface RunCtx {
   status: Status | null;
   runId: string | null;
   scan: (mode: "live" | "snapshot") => Promise<void>;
+  /** Download the data to this computer, from OneAquaHealth's own servers. */
+  saveLocalCopy: () => Promise<void>;
   scanning: boolean;
   scanError: string | null;
 }
-const Ctx = createContext<RunCtx>({ status: null, runId: null, scan: async () => {}, scanning: false, scanError: null });
+const Ctx = createContext<RunCtx>({
+  status: null,
+  runId: null,
+  scan: async () => {},
+  saveLocalCopy: async () => {},
+  scanning: false,
+  scanError: null,
+});
 export const useRun = () => useContext(Ctx);
 
 interface NavItem {
@@ -194,6 +203,7 @@ function ScanProgress({ status, onDismiss }: { status: Status; onDismiss: () => 
   const scan = status.scan;
   if (!scan?.stages?.length) return null;
   const done = !scan.running;
+  const download = scan.mode === "download";
   const list = (
     <ol className="m-0 mt-2 grid list-none gap-x-6 gap-y-1 p-0 text-sm sm:grid-cols-2 xl:grid-cols-3" aria-live="polite">
       {scan.stages.map((s) => (
@@ -211,7 +221,7 @@ function ScanProgress({ status, onDismiss }: { status: Status; onDismiss: () => 
       <div className="no-print border-b border-line px-5 py-1.5 text-sm lg:px-10">
         <p className="m-0 flex flex-wrap items-center gap-x-4 gap-y-1 text-ink-2">
           <span className="inline-flex items-center gap-1.5 text-ink">
-            <span className="text-algae" aria-hidden="true">✓</span> Audit complete
+            <span className="text-algae" aria-hidden="true">✓</span> {download ? "Data saved on this computer" : "Audit complete"}
           </span>
           <span className="hidden text-xs font-semibold uppercase tracking-[0.08em] text-ink-3 sm:inline">
             {status.source?.kind === "live" ? "Live data" : "Snapshot data"}
@@ -232,7 +242,13 @@ function ScanProgress({ status, onDismiss }: { status: Status; onDismiss: () => 
     <section aria-labelledby="scan-h" className="no-print border-b border-line bg-panel px-5 py-3 lg:px-10">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 id="scan-h" className="m-0 text-sm font-semibold">
-          {scan.running ? `Audit running (${scan.mode === "snapshot" ? "verified snapshot" : "live sandbox"})` : "Audit failed"}
+          {download
+            ? scan.running
+              ? "Downloading the data to this computer"
+              : "Download failed"
+            : scan.running
+              ? `Audit running (${scan.mode === "snapshot" ? "verified snapshot" : "live sandbox"})`
+              : "Audit failed"}
         </h2>
         {done && (
           <button type="button" onClick={onDismiss} className="text-sm text-ink-2 underline underline-offset-2">
@@ -242,6 +258,43 @@ function ScanProgress({ status, onDismiss }: { status: Status; onDismiss: () => 
       </div>
       {list}
       {scan.error && <p className="m-0 mt-2 text-sm text-cinnabar">{scan.error}</p>}
+    </section>
+  );
+}
+
+const LOCAL_COPY_DISMISSED = "dd-local-copy-notice-dismissed";
+
+function readDismissed(): boolean {
+  try {
+    return window.localStorage.getItem(LOCAL_COPY_DISMISSED) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** Shown only when this computer holds no copy of the data (a repository published without it): offers to download it. */
+function LocalCopyNotice({ status, busy, onSave, onDismiss }: { status: Status; busy: boolean; onSave: () => void; onDismiss: () => void }) {
+  const noSnapshot = status.snapshots.length === 0;
+  return (
+    <section aria-labelledby="local-copy-h" className="no-print border-b border-line bg-panel px-5 py-3 lg:px-10">
+      <h2 id="local-copy-h" className="m-0 text-sm font-semibold">
+        {noSnapshot ? "No copy of the data is saved on this computer" : "The IG's source spreadsheet is not on this computer"}
+      </h2>
+      <p className="m-0 mt-1 max-w-[90ch] text-sm text-ink-2">
+        {noSnapshot ? "Data Doctor is reading the live OneAquaHealth sandbox. " : ""}
+        Download the data once to keep a verified copy that works offline and to show where each value first appears in the IG's source
+        spreadsheet. It comes straight from OneAquaHealth's servers (the sandbox and the IG repository on GitHub), only reads, and takes
+        about two minutes.
+      </p>
+      <div className="mt-2 flex flex-wrap items-center gap-4 text-sm">
+        <button type="button" onClick={onSave} disabled={busy}
+          className="rounded-md bg-karst px-3 py-1.5 font-semibold text-chalk hover:brightness-110 disabled:opacity-60">
+          Download the data
+        </button>
+        <button type="button" onClick={onDismiss} className="text-ink-2 underline underline-offset-2 hover:text-ink">
+          Not now
+        </button>
+      </div>
     </section>
   );
 }
@@ -375,6 +428,7 @@ function ShellInner({ children }: { children: ReactNode }) {
   const [drawer, setDrawer] = useState(false);
   const [hideProgress, setHideProgress] = useState<string | null>(null);
   const [hideFallback, setHideFallback] = useState(false);
+  const [hideLocalCopy, setHideLocalCopy] = useState(readDismissed);
   const [now, setNow] = useState(() => Date.now());
   const location = useLocation();
   const nav = useNavigate();
@@ -429,10 +483,35 @@ function ShellInner({ children }: { children: ReactNode }) {
     [refresh],
   );
 
+  // Starts a background job; the progress panel follows it through /status (polled every 1.5 s while it runs).
+  const saveLocalCopy = useCallback(async () => {
+    setScanError(null);
+    setRequested(true);
+    setHideProgress(null);
+    try {
+      await post("/local-copy", {});
+    } catch (e) {
+      setScanError((e as Error).message);
+    } finally {
+      setRequested(false);
+      await refresh();
+    }
+  }, [refresh]);
+
+  const dismissLocalCopy = () => {
+    setHideLocalCopy(true);
+    try {
+      window.localStorage.setItem(LOCAL_COPY_DISMISSED, "1");
+    } catch {
+      /* storage unavailable: hidden for this visit only */
+    }
+  };
+
   const commands: Command[] = useMemo(
     () => [
       { label: "Run a live audit", hint: "reads the sandbox now", keywords: "scan refresh", run: () => void scan("live") },
       { label: "Switch to the verified snapshot", hint: "offline, sha256-checked", keywords: "offline", run: () => void scan("snapshot") },
+      { label: "Download the data to this computer", hint: "from OneAquaHealth's servers", keywords: "offline save snapshot copy", run: () => void saveLocalCopy() },
       { label: "View critical findings", hint: "Findings", keywords: "severity", run: () => nav("/findings?severity=CRITICAL") },
       { label: "Compare two indicators", hint: "Compare", keywords: "comparability", run: () => nav("/compare") },
       { label: "Check a research claim", hint: "Claim guardrail", keywords: "claim", run: () => nav("/claims") },
@@ -442,16 +521,17 @@ function ShellInner({ children }: { children: ReactNode }) {
       { label: "Use the dark theme", hint: "appearance", keywords: "theme colour color", run: () => setTheme("dark") },
       { label: "Use the light theme", hint: "appearance", keywords: "theme colour color", run: () => setTheme("light") },
     ],
-    [scan, nav, llm],
+    [scan, saveLocalCopy, nav, llm],
   );
 
   const scanning = requested || !!status?.scan?.running;
   const src = status?.source;
   const progressKey = status?.scan?.started_at ?? null;
   const showProgress = !!status?.scan?.stages?.length && (scanning || !!status.scan?.error || hideProgress !== progressKey);
+  const noLocalCopy = !!status && (status.snapshots.length === 0 || (status.ig_files_missing?.length ?? 0) > 0);
 
   return (
-    <Ctx.Provider value={{ status, runId: status?.run_id ?? null, scan, scanning, scanError }}>
+    <Ctx.Provider value={{ status, runId: status?.run_id ?? null, scan, saveLocalCopy, scanning, scanError }}>
       <a href="#content" className="skip-link">
         Skip to content
       </a>
@@ -487,7 +567,9 @@ function ShellInner({ children }: { children: ReactNode }) {
           <div className="no-print flex items-center justify-between gap-3 border-b border-line bg-chalk px-4 py-2.5 lg:px-10">
             <div className="min-w-0" aria-live="polite">
               <SourceState status={status} now={now} />
-              {scanning && <span className="ml-3 text-sm text-karst">Audit running…</span>}
+              {scanning && (
+                <span className="ml-3 text-sm text-karst">{status?.scan?.mode === "download" ? "Downloading the data…" : "Audit running…"}</span>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <button type="button" onClick={() => setPalette(true)} className="hidden items-center gap-2 rounded-md border border-line px-2.5 py-1.5 text-sm text-ink-2 hover:border-line-strong hover:text-ink lg:inline-flex">
@@ -507,6 +589,9 @@ function ShellInner({ children }: { children: ReactNode }) {
             </div>
           </div>
           {status && showProgress && <ScanProgress status={status} onDismiss={() => setHideProgress(progressKey)} />}
+          {status && noLocalCopy && !scanning && !hideLocalCopy && (
+            <LocalCopyNotice status={status} busy={scanning} onSave={() => void saveLocalCopy()} onDismiss={dismissLocalCopy} />
+          )}
           {src?.fallback_reason && !hideFallback && (
             <div role="status" className="no-print flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-sulfur/40 bg-sulfur-soft px-5 py-2.5 text-sm lg:px-10">
               <span className="font-semibold text-sulfur">Live source unavailable.</span>
