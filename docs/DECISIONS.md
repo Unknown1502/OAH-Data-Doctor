@@ -212,3 +212,11 @@ raw.githubusercontent.com); the request takes no input. Tested without a network
 snapshot reproduces its audit finding for finding, with lineage; a corrupted or failed download saves nothing) and for real on
 2026-10-01 from an empty data folder: 74 s, 561 resources, 385 of 385 `$validate` outcomes, spreadsheet sha256 matching, and the
 same 346 findings (125 critical, 212 error, 9 warning) with the anchor's lineage restored.
+
+**D-033 Publish the repository with its data.** The organisers answered the redistribution question on the Devpost discussion
+board: "Yes you can include sandbox data" (hackathon Manager, 1–2 October 2026; the question named the dated sandbox copy and
+the IG source spreadsheet). The repository is therefore published as it is, with the verified snapshot that drives the offline
+demo, the tests and CI. The permission is recorded verbatim with its link (README, docs/07, docs/DISCOVERY.md D8). The data's
+own licence remains undeclared by the IG, so the data stays credited to the OneAquaHealth Project and HL7 Europe and outside the
+Apache-2.0 licence of the code. The sanitized copy (D-031) and the Download-the-data button (D-032) remain useful: the button
+refreshes the data from the source, and the sanitized procedure stays documented in case the permission is withdrawn.

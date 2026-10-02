@@ -70,20 +70,20 @@ read by the keyword rules.
 
 ## Open items (owner)
 
-1. **Licence of the OneAquaHealth data in the repository: UNVERIFIED** (docs/07_DEMO_AND_SUBMISSION.md, "Open question").
-   Do not push this repository until the organisers answer. If they decline or do not answer in time, push the prepared
-   public copy (`../oah-data-doctor-public`), which has no raw data in any commit.
+1. ~~Licence of the OneAquaHealth data in the repository~~ **Resolved:** the organisers allowed including the sandbox data
+   ("Yes you can include sandbox data", hackathon Manager, Devpost discussion board, 1–2 October 2026; docs/07). Push this
+   repository; the sanitized copy is no longer needed.
 2. Student eligibility: ORGANIZER CONFIRMATION REQUIRED. Individual participation is allowed (official OneAquaHealth page:
    "Form a team or participate individually"); only the Devpost overview lists "Students only" (docs/07).
 3. Human review of the 20 samples in docs/GATE0_REPORT.md (TRUE POSITIVE, FALSE POSITIVE or UNCERTAIN, with a reason).
 4. Demo video: built and QA'd with a draft voice (docs/DEMO_FINAL.md); render the final ElevenLabs voice and watch it once.
-5. After the licence answer: push, add the video link to docs/SUBMISSION.md, submit on Devpost (deadline 2026-10-04 21:00 PDT).
+5. Push, add the video link to docs/SUBMISSION.md, submit on Devpost (deadline 2026-10-04 21:00 PDT).
 
 ## Risks
 
 | Risk | Mitigation |
 |---|---|
-| Data licence not confirmed before the deadline | Ask the organisers now; the alternatives are listed in docs/07 (no snapshot in the repository, or a private repository) |
+| Data licence not confirmed before the deadline | Closed: the organisers allowed including the sandbox data (docs/07); the data's own licence stays undeclared, so it is credited and kept separate from the Apache-2.0 code |
 | Sandbox offline during judging (it was offline for a week in September) | Snapshot-first startup and automatic verified fallback with a banner; demo works offline |
 | Third parties change sandbox data | Live runs are timestamped and hashed; the committed snapshot reproduces every published number |
 | Judges cannot click a hosted demo | Video and repository; no hosted instance (would need the owner's approval) |

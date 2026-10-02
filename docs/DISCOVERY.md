@@ -131,6 +131,11 @@ and 101 have a mean/median ratio ≥ 100 (most exactly 10⁴).
 - The IG source (`sushi-config.yaml`) has its licence line commented out (`# license: CC0-1.0`), and the repository
   has no LICENSE file. **Licence: UNVERIFIED.** We credit the OneAquaHealth Project and HL7 Europe everywhere, and we
   keep IG-derived files separate under `knowledge/oah/` with their commit and sha256.
+- **Permission (2026-10-01/02):** asked on the Devpost discussion board whether a dated copy of the sandbox data (and the IG
+  source spreadsheet) may be included in our public repository, with attribution; the hackathon Manager, Pradyumna Amasebail
+  Kodgi, replied "Yes you can include sandbox data"
+  ([thread](https://oneaquahealth-ieee-hackathon.devpost.com/forum_topics/45406-can-a-public-repo-include-a-copy-of-the-oneaquahealth-fhir-sandbox-data)).
+  The data's licence itself remains undeclared; this is a permission for the hackathon repository (docs/07).
 - Hackathon rules (Devpost, read 2026-09-30): a public repository with code and documentation is required. We found
   no explicit AI-disclosure clause; we disclose anyway (see README).
 - This is an independent project, not endorsed by OneAquaHealth, HL7 Europe or IEEE (see NOTICE).

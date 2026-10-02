@@ -18,7 +18,24 @@ Source: https://oneaquahealth-ieee-hackathon.devpost.com/ (overview, rules and u
 - **Judging:** impact and alignment with the OneAquaHealth mission 30 %, innovation 20 %, technical implementation 20 %,
   usability 15 %, feasibility and scalability 15 % (rules page; 1–10 per criterion, weighted).
 
-## Open question before publishing (human decision)
+## Publishing the data: answered
+
+**The organisers allowed it.** Asked on the Devpost discussion board
+([thread](https://oneaquahealth-ieee-hackathon.devpost.com/forum_topics/45406-can-a-public-repo-include-a-copy-of-the-oneaquahealth-fhir-sandbox-data),
+posted 2026-10-01):
+
+> May we include this copy of the sandbox data (and the IG spreadsheet) in our public GitHub repository, with attribution to
+> OneAquaHealth and HL7 Europe?
+
+Reply from Pradyumna Amasebail Kodgi, hackathon Manager (shown "about 7 hours" after the question, 1–2 October 2026):
+
+> Yes you can include sandbox data
+
+The question named both the sandbox copy and the IG source spreadsheet; the reply names the sandbox data. Recorded in the README
+("Data, attribution and licensing") and docs/DISCOVERY.md D8. **Publish this repository** (with its data). The sanitized copy
+below stays documented as a fallback and is no longer needed.
+
+The background, as it was before the answer:
 
 The repository contains OneAquaHealth data, in its files and in its git history:
 
@@ -31,7 +48,7 @@ The repository contains OneAquaHealth data, in its files and in its git history:
 The licence of that data is **UNVERIFIED** (docs/DISCOVERY.md D8: the IG's `sushi-config.yaml` has its licence line commented
 out, and the IG repository has no LICENSE file). Attribution alone is not assumed to be enough.
 
-- Do **not** push this repository to the public remote until the organisers answer whether sandbox data may be redistributed.
+- (Before the answer) Do not push this repository to the public remote until the organisers answer. Answered above: allowed.
 - Do not commit a new snapshot either (new snapshots and re-fetched IG source files are git-ignored for that reason).
 
 Questions for the organisers (Devpost discussion board or the OneAquaHealth Slack):
@@ -88,7 +105,8 @@ with "capture a snapshot first"; and remove the backup branch from the copy (`--
 
 ## Checklist
 
-- [ ] Organisers' answer on redistributing sandbox data (above). Ask on the Devpost discussion board or the OneAquaHealth Slack.
+- [x] Organisers' answer on redistributing sandbox data: "Yes you can include sandbox data" (Devpost discussion board,
+      1–2 October 2026; above).
 - [ ] Owner confirms eligibility (student status; see above).
 - [ ] Human reviewer marks the 20-finding sample in docs/GATE0_REPORT.md: TRUE POSITIVE, FALSE POSITIVE or UNCERTAIN, with a
       reason, for each.
@@ -99,8 +117,8 @@ with "capture a snapshot first"; and remove the backup branch from the copy (`--
       model: acceptance 90/90.
 - [ ] Demo video: built and QA'd with a draft voice (docs/DEMO_FINAL.md). Still needed: the ElevenLabs render
       (`make-final.ps1` with `ELEVENLABS_API_KEY`), then one human watch-and-listen of the whole video before upload.
-- [ ] After the licence answer: push (or push the sanitized copy), then confirm the repository URL in docs/SUBMISSION.md
-      (already filled in: https://github.com/Unknown1502/OAH-Data-Doctor) and add the video link.
+- [ ] Push this repository (permission obtained), confirm the repository URL in docs/SUBMISSION.md (already filled in:
+      https://github.com/Unknown1502/OAH-Data-Doctor) and add the video link.
 - [ ] Paste docs/SUBMISSION.md into Devpost; add screenshots from docs/img/.
 
 ## Documents
