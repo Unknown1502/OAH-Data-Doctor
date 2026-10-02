@@ -272,7 +272,8 @@ docs/AI_POLICY.md.
 This project was built with substantial help from an AI coding assistant (Claude, by Anthropic), which drafted code, tests and
 documentation under human direction. The product itself uses no AI to detect problems or decide verdicts. An optional,
 switched-off-by-default language model (free local Ollama, any OpenAI-compatible endpoint, or Claude) can only rephrase already
-computed findings or fill gaps in the keyword reading of a typed claim.
+computed findings or fill gaps in the keyword reading of a typed claim. The demo video's narration is synthetic speech
+(ElevenLabs text to speech), reading a script we wrote and checked against the app.
 
 ## Data, attribution and licensing
 
@@ -291,5 +292,6 @@ and HL7 Europe.
 
 ## Demo video
 
-Link: added when the video is published. Script: docs/DEMO_SCRIPT.md (about 4 minutes, recorded on the verified snapshot with
-the language model off).
+Link: added when the video is published. About 4½ minutes, recorded from the real app on the verified snapshot with the
+language model off; script, scene timeline and production record: docs/DEMO_FINAL.md. The narration is synthetic speech
+(ElevenLabs), and the captions follow its timing.

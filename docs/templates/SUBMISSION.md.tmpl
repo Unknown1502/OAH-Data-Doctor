@@ -230,9 +230,10 @@ playwright, axe-core, ollama (optional), claude (optional)
 ## AI disclosure
 
 We used Claude (Anthropic) as an AI coding assistant for code, tests and documentation, under human direction. The product
-uses no AI to detect problems or decide verdicts.
+uses no AI to detect problems or decide verdicts. The demo video's narration is synthetic speech (ElevenLabs); every number
+and verdict it states was checked against the running app before rendering.
 
 ## Links
 
 - Repository: https://github.com/Unknown1502/OAH-Data-Doctor
-- Demo video: (add the link; script in docs/DEMO_SCRIPT.md)
+- Demo video: (add the link; script and production record in docs/DEMO_FINAL.md)

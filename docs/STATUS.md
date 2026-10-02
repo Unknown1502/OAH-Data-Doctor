@@ -76,7 +76,7 @@ read by the keyword rules.
 2. Student eligibility: ORGANIZER CONFIRMATION REQUIRED. Individual participation is allowed (official OneAquaHealth page:
    "Form a team or participate individually"); only the Devpost overview lists "Students only" (docs/07).
 3. Human review of the 20 samples in docs/GATE0_REPORT.md (TRUE POSITIVE, FALSE POSITIVE or UNCERTAIN, with a reason).
-4. Demo video: built and QA'd with a draft voice (docs/DEMO_FINAL.md); render the final ElevenLabs voice and watch it once.
+4. Demo video: final film rendered and QA'd (docs/DEMO_FINAL.md, `artifacts/demo/demo-final.mp4`); watch and listen to it once, then upload.
 5. Push, add the video link to docs/SUBMISSION.md, submit on Devpost (deadline 2026-10-04 21:00 PDT).
 
 ## Risks
