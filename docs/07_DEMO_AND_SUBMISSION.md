@@ -67,8 +67,9 @@ retrieval date of the snapshot (2026-09-30T09:08:55Z). Then push.
 
 ### If permission is denied or stays unclear: publish a sanitized history
 
-A sanitized copy is prepared next to this repository, in `../oah-data-doctor-public` (not pushed): the same commits without the
-sandbox snapshot and the copied spreadsheet in any of them. CI captures the data when a repository carries none, and the README
+A sanitized copy was prepared next to this repository, in `../oah-data-doctor-public` (never pushed; deleted on 2026-10-02 once
+the organisers allowed the data, and regenerable with the commands below): the same commits without the sandbox snapshot and
+the copied spreadsheet in any of them. CI captures the data when a repository carries none, and the README
 explains the two capture commands. To publish it: `cd ../oah-data-doctor-public && git remote add origin
 https://github.com/Unknown1502/OAH-Data-Doctor.git && git push -u origin main`. If this repository gets more commits, regenerate
 the copy with the commands below.
