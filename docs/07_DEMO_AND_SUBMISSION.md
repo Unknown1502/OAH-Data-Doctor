@@ -118,8 +118,9 @@ with "capture a snapshot first"; and remove the backup branch from the copy (`--
 - [x] Demo video: final film rendered and QA'd (2026-10-02): `artifacts/demo/demo-final.mp4`, 4:27, ElevenLabs voice,
       fact-checked against the app (docs/DEMO_FINAL.md).
 - [ ] One human watch-and-listen of the whole film, then upload it (YouTube or Vimeo) and add the link.
-- [ ] Push this repository (permission obtained), confirm the repository URL in docs/SUBMISSION.md (already filled in:
-      https://github.com/Unknown1502/OAH-Data-Doctor) and add the video link.
+- [x] Pushed (2026-10-02): https://github.com/Unknown1502/OAH-Data-Doctor, public, `main` only; the first CI run passed
+      (backend lint, types and tests; UI typecheck, build, offline e2e and accessibility).
+- [ ] Add the video link to docs/SUBMISSION.md once the film is uploaded.
 - [ ] Paste docs/SUBMISSION.md into Devpost; add screenshots from docs/img/.
 
 ## Documents
